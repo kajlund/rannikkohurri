@@ -1,0 +1,29 @@
+{
+  "name": "rannikk",
+  "version": "0.0.0",
+  "description": "lukaz",
+  "main": "web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kajlund/rannikk.git"
+  },
+  "keywords": [
+    "LuKa"
+  ],
+  "author": "Kaj Lund",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kajlund/rannikk/issues"
+  },
+  "homepage": "https://github.com/kajlund/rannikk",
+  "dependencies": {
+    "logfmt": "~0.21.0",
+    "express": "~3.5.0"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}
