@@ -4,14 +4,25 @@
     <link rel="stylesheet" href="css/metro-bootstrap.min.css">
     <link rel="stylesheet" href="css/metro-bootstrap-responsive.min.css">
     <link rel="stylesheet" href="css/iconFont.min.css">
+    <title>Rannikkohurri.net</title>
+</head>
+<body class="metro" data-ng-app="app" data-ng-controller="MainController">
+    <div class="container">
+        <div data-ng-include="'app/header.html'"></div>
 
+        <section id="mainView" class="container" data-ng-view=""></section>
+
+        <div data-ng-include="'app/footer.html'"></div>
+    </div>
+
+    <!-- Vendor Scripts  -->
     <script src="js/vendor/jquery-2.1.0.min.js"></script>
     <script src="js/vendor/jquery.ui.widget.min.js"></script>
     <script src="js/vendor/metro.min.js"></script>
-</head>
-<body class="metro">
-    <div class="container">
-        <h1><i class="icon-rocket on-left"></i>Hello World!</h1>
-    </div>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="vendor/angular-route/angular-route.js"></script>
+    <!-- Application Scripts -->
+    <script src="app/app.js"></script>
+    <script src="app/ctrlMain.js"></script>
 </body>
 </html>
