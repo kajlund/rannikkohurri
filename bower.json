@@ -1,0 +1,25 @@
+{
+  "name": "rannikk",
+  "version": "0.0.0",
+  "homepage": "https://github.com/kajlund/rannikk",
+  "authors": [
+    "kajlund <kaj.lund@gmail.com>"
+  ],
+  "description": "lukaz homepage",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/vendor",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.2.14",
+    "angular-route": "~1.2.14",
+    "angular-cookies": "~1.2.14",
+    "angular-touch": "~1.2.14"
+  }
+}
