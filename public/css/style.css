@@ -1,0 +1,40 @@
+body {
+    padding-top: 60px;
+}
+
+footer {
+    padding-top: 24px;
+    font-size: 75%;
+}
+
+.soc-link {
+    padding: 14px;
+}
+
+.btn-flickr {
+    color: #fff;
+    background-color: #FF0084;
+    border-color: #cc3399;
+}
+.btn-flickr:hover,
+.btn-flickr:focus,
+.btn-flickr:active,
+.btn-flickr.active {
+    color: #fff;
+    background-color: #FF0066;
+    border-color: #cc3366;
+}
+
+.btn-github {
+    color: #fff;
+    background-color: #171515;
+    border-color: #333333;
+}
+.btn-github:hover,
+.btn-github:focus,
+.btn-github:active,
+.btn-btn-github.active {
+    color: #fff;
+    background-color: #191717;
+    border-color: #bababa;
+}
