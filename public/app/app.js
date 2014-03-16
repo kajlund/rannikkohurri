@@ -10,9 +10,15 @@
     app.config(['$routeProvider', function ($routeProvider) {
         $routeProvider
             .when('/', {
+                redirectTo: '/home'
+            }).when('/home', {
                 templateUrl: 'app/home.html',
                 controller: 'MainController'
-            }).otherwise({ redirectTo: '/' });
+            }).when('/about', {
+                templateUrl: 'app/about.html',
+                controller: 'AboutController'
+            })
+            .otherwise({ redirectTo: '/home' });
     }]);
 
     app.run(['$rootScope', '$location',
