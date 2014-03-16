@@ -14,9 +14,21 @@
             }).when('/home', {
                 templateUrl: 'app/home.html',
                 controller: 'MainController'
+            }).when('/posts', {
+                templateUrl: 'app/posts/posts.html',
+                controller: 'PostsController'
+            }).when('/links', {
+                templateUrl: 'app/links/links.html',
+                controller: 'LinksController'
             }).when('/about', {
                 templateUrl: 'app/about.html',
                 controller: 'AboutController'
+            }).when('/books', {
+                templateUrl: 'app/books/books.html',
+                controller: 'BooksController'
+            }).when('/movies', {
+                templateUrl: 'app/movies/movies.html',
+                controller: 'MoviesController'
             })
             .otherwise({ redirectTo: '/home' });
     }]);
