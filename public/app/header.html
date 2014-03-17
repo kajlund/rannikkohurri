@@ -63,8 +63,12 @@
                         <i class="fa fa-gear"></i> <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a ng-click="onSignonClick()">Sign on</a></li>
-                        <li><a ng-click="onSignoffClick()">Sign off</a></li>
+                        <li data-ng-class="{disabled: session.loggedOn()}">
+                            <a ng-click="onSignonClick()" a-disabled="session.loggedOn()">Sign on</a>
+                        </li>
+                        <li data-ng-class="{disabled: !session.loggedOn()}">
+                            <a ng-click="onSignoffClick()" a-disabled="!session.loggedOn()">Sign off</a>
+                        </li>
                     </ul>
                 </li>
             </ul>
