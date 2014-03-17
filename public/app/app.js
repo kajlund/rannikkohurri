@@ -8,7 +8,11 @@
     ]);
 
     // Configure Routes
-    app.config(['$routeProvider', function ($routeProvider) {
+    app.config(['$routeProvider', '$httpProvider',
+        function ($routeProvider, $httpProvider) {
+        $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
+        $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
+
         $routeProvider
             .when('/', {
                 redirectTo: '/home'
