@@ -2,6 +2,8 @@ var gulp = require('gulp'),
     mincss = require('gulp-minify-css'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
+    rename = require('gulp-rename'),
+    size = require('gulp-size'),
     paths = {
         scripts: ['public/app/**/*.js'],
         css: 'public/css/style.css',
@@ -39,18 +41,31 @@ gulp.task('minifycss', function () {
         .pipe(gulp.dest('./public/css'));
 });
 
-gulp.task('concatjs', function () {
+gulp.task('buildjsconcat', function () {
     // Concatenate app scripts to app-all.js
     return gulp.src(paths.scripts)
         .pipe(concat('app-all.js'))
+        .pipe(size())
         .pipe(gulp.dest('./public/'));
 });
 
-gulp.task('minifyjs', function () {
+gulp.task('buildjsmin', function () {
     // Minify and copy all JavaScript (except vendor scripts)
     return gulp.src(paths.scripts)
-        .pipe(uglify())
         .pipe(concat('app-all.min.js'))
+        .pipe(uglify())
+        .pipe(size())
+        .pipe(gulp.dest('./public/'));
+});
+
+gulp.task('buildjs', function () {
+    // concat and minify app scripts
+    return gulp.src(paths.scripts)
+        .pipe(concat('app-all.js'))
+        .pipe(gulp.dest('./public/'))
+        .pipe(rename('app-all.min.js'))
+        .pipe(uglify())
+        .pipe(size())
         .pipe(gulp.dest('./public/'));
 });
 
@@ -59,10 +74,9 @@ gulp.task('watch', function () {
     gulp.watch(paths.vendor, ['copydist']);
     gulp.watch(paths.vendor, ['copyfonts']);
     gulp.watch(paths.css, ['minifycss']);
-    gulp.watch(paths.scripts, ['concatjs']);
-    gulp.watch(paths.scripts, ['minifyjs']);
+    gulp.watch(paths.scripts, ['buildjs']);
 });
 
 // The default task (called when you run `gulp` from cli)
-gulp.task('default', ['copydist', 'copyfonts', 'minifycss', 'concatjs', 'minifyjs']);
+gulp.task('default', ['copydist', 'copyfonts', 'minifycss', 'buildjs']);
 
