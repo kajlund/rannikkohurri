@@ -3,7 +3,6 @@
 
     var app = angular.module('app', [
         // Angular modules
-        'ngRoute'   // routing
         'ngRoute',   // routing
         'ngCookies'  // cookies
     ]);
