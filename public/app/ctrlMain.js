@@ -1,4 +1,4 @@
-(function (angular) {
+(function (angular, toastr) {
     'use strict';
 
     angular.module('app').controller('MainController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
@@ -41,20 +41,19 @@
                 modalInstance.result.then(function () {
                     SessionService.signon(user.name, user.pwd)
                         .then(function (result) {
-                            //$log.info($scope.session);
+                            toastr.info(SessionService.userObj.username + ' signed on');
                         }, function (error) {
-                            //error.code error.error
-                            $log.error(error);
+                            toastr.error(error.error);
                         });
                 }, function () {
-                    $log.info('Cancel');
+                    toastr.info('Signon cancelled');
                 });
             };
 
             $scope.onSignoffClick = function () {
                 $log.info('Signing off');
                 SessionService.signoff();
-                //toastr.warning('User signed off');
+                toastr.warning('User signed off');
             };
         }]);
-}(angular));
+}(angular, toastr));

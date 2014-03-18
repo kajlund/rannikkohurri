@@ -1,5 +1,9 @@
-(function (angular) {
+(function (angular, toastr) {
     'use strict';
+
+    // Configure Toastr
+    toastr.options.timeOut = 2000;
+    toastr.options.positionClass = 'toast-bottom-right';
 
     var app = angular.module('app', [
         // Angular modules
@@ -62,4 +66,4 @@
         };
     });
 
-}(angular));
+}(angular, toastr));
