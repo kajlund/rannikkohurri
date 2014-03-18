@@ -52,6 +52,10 @@
                 return res.userObj !== null;
             };
 
+            res.signoff = function () {
+                clearSession();
+            };
+
             res.signon = function (aUsr, aPwd) {
                 var params = '?username=' + aUsr + '&password=' + aPwd,
                     config = {

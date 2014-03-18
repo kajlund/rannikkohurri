@@ -53,6 +53,8 @@
 
             $scope.onSignoffClick = function () {
                 $log.info('Signing off');
+                SessionService.signoff();
+                //toastr.warning('User signed off');
             };
         }]);
 }(angular));
