@@ -3,8 +3,9 @@
 
     var app = angular.module('app', [
         // Angular modules
-        'ngRoute',   // routing
-        'ngCookies'  // cookies
+        'ngRoute',     // routing
+        'ngCookies',   // cookies
+        'ui.bootstrap' // ui-bootstrap library
     ]);
 
     // Configure Routes
