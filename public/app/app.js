@@ -43,9 +43,9 @@
             .otherwise({ redirectTo: '/home' });
     }]);
 
-    app.run(['$rootScope', '$location',
-        function($rootScope, $location) {
-            console.log('App Loaded');
+    app.run(['$rootScope', '$location', '$log',
+        function($rootScope, $location, $log) {
+            $log.info('App Loaded');
         }]);
 
     app.directive('aDisabled', function ($compile) {
