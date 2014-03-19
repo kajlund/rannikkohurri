@@ -3,4 +3,23 @@
         <h1><i class="fa fa-pencil"></i> Posts</h1>
     </div>
 
+    <div class="row post" data-ng-repeat="p in posts">
+        <div class="col-md-2 bg-primary date">
+            <h3 class="">{{ p.get('publishDate') | date:'MMM' }}</h3>
+            <h1>{{ p.get('publishDate') | date:'d' }}&nbsp;
+                <span>{{ p.get('publishDate') | date:'yyyy' }}</span>
+            </h1>
+        </div>
+        <div class="col-md-10">
+            <h3>
+                {{ p.get('title') }}
+            </h3>
+            <p>{{ p.get('excerpt') }}</p>
+            <a class="btn btn-primary pull-right" href="#/posts/{{ p.id }}"
+               role="button">More...
+            </a>
+        </div>
+
+    </div>
+
 </div>
