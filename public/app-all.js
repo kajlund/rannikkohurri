@@ -255,6 +255,14 @@
 
         }]);
 }(angular));
+(function (angular) {
+    'use strict';
+
+    angular.module('app').controller('MoviesController', ['$scope', '$rootScope', '$location', '$log',
+        function ($scope, $rootScope, $location, $log) {
+
+        }]);
+}(angular));
 (function (angular, marked) {
     'use strict';
 
@@ -263,7 +271,6 @@
             function renderData(aPost) {
                 $http.get('/dropbox/' + aPost.get('slug'))
                     .then(function (data) {
-                        $log.info(data);
                         $scope.markdown = $sce.trustAsHtml(marked(data.data));
                     });
             }
@@ -271,7 +278,7 @@
             if ($routeParams.id) {
                 PostDataService.getPost($routeParams.id)
                     .then(function (data) {
-                        $log.info(data);
+                        $scope.title = data.get('title');
                         renderData(data);
                     });
             }
@@ -318,11 +325,3 @@
             return res;
         }]);
 }(angular, Parse));
-(function (angular) {
-    'use strict';
-
-    angular.module('app').controller('MoviesController', ['$scope', '$rootScope', '$location', '$log',
-        function ($scope, $rootScope, $location, $log) {
-
-        }]);
-}(angular));
