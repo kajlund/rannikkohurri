@@ -6,7 +6,6 @@
             function renderData(aPost) {
                 $http.get('/dropbox/' + aPost.get('slug'))
                     .then(function (data) {
-                        $log.info(data);
                         $scope.markdown = $sce.trustAsHtml(marked(data.data));
                     });
             }
@@ -14,7 +13,7 @@
             if ($routeParams.id) {
                 PostDataService.getPost($routeParams.id)
                     .then(function (data) {
-                        $log.info(data);
+                        $scope.title = data.get('title');
                         renderData(data);
                     });
             }
