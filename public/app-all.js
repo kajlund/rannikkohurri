@@ -7,45 +7,50 @@
 
     var app = angular.module('app', [
         // Angular modules
-        'ngRoute',     // routing
-        'ngCookies',   // cookies
-        'ui.bootstrap' // ui-bootstrap library
+        'ngRoute',      // routing
+        'ngCookies',    // cookies
+        'ui.bootstrap', // ui-bootstrap library
+        'hc.marked'     // markdown directive
     ]);
 
     // Configure Routes
-    app.config(['$routeProvider', '$httpProvider',
-        function ($routeProvider, $httpProvider) {
-        $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
-        $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
+    app.config(['$routeProvider', '$httpProvider', 'marked',
+        function ($routeProvider, $httpProvider, marked) {
+            $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
+            $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
+            marked.setOptions({gfm: true});
 
-        $routeProvider
-            .when('/', {
-                redirectTo: '/home'
-            }).when('/home', {
-                templateUrl: 'app/home.html',
-                controller: 'MainController'
-            }).when('/posts', {
-                templateUrl: 'app/posts/posts.html',
-                controller: 'PostsController'
-            }).when('/links', {
-                templateUrl: 'app/links/links.html',
-                controller: 'LinksController'
-            }).when('/about', {
-                templateUrl: 'app/about.html',
-                controller: 'AboutController'
-            }).when('/books', {
-                templateUrl: 'app/books/books.html',
-                controller: 'BooksController'
-            }).when('/movies', {
-                templateUrl: 'app/movies/movies.html',
-                controller: 'MoviesController'
-            })
-            .otherwise({ redirectTo: '/home' });
-    }]);
+            $routeProvider
+                .when('/', {
+                    redirectTo: '/home'
+                }).when('/home', {
+                    templateUrl: 'app/home.html',
+                    controller: 'MainController'
+                }).when('/posts', {
+                    templateUrl: 'app/posts/posts.html',
+                    controller: 'PostsController'
+                }).when('/posts/:id', {
+                    templateUrl: 'app/posts/post.html',
+                    controller: 'PostController'
+                }).when('/links', {
+                    templateUrl: 'app/links/links.html',
+                    controller: 'LinksController'
+                }).when('/about', {
+                    templateUrl: 'app/about.html',
+                    controller: 'AboutController'
+                }).when('/books', {
+                    templateUrl: 'app/books/books.html',
+                    controller: 'BooksController'
+                }).when('/movies', {
+                    templateUrl: 'app/movies/movies.html',
+                    controller: 'MoviesController'
+                })
+                .otherwise({ redirectTo: '/home' });
+        }]);
 
-    app.run(['$rootScope', '$location',
-        function($rootScope, $location) {
-            console.log('App Loaded');
+    app.run(['$rootScope', '$location', '$log',
+        function ($rootScope, $location, $log) {
+            $log.info('App Loaded');
         }]);
 
     app.directive('aDisabled', function ($compile) {
@@ -250,18 +255,73 @@
 
         }]);
 }(angular));
+(function (angular, marked) {
+    'use strict';
+
+    angular.module('app').controller('PostController', ['$scope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
+        function ($scope, $routeParams, $http, $sce, $log, PostDataService) {
+            function renderData(aPost) {
+                $http.get('/dropbox/' + aPost.get('slug'))
+                    .then(function (data) {
+                        $log.info(data);
+                        $scope.markdown = $sce.trustAsHtml(marked(data.data));
+                    });
+            }
+
+            if ($routeParams.id) {
+                PostDataService.getPost($routeParams.id)
+                    .then(function (data) {
+                        $log.info(data);
+                        renderData(data);
+                    });
+            }
+        }]);
+}(angular, marked));
+(function (angular) {
+    'use strict';
+
+    angular.module('app').controller('PostsController', ['$scope', '$log', 'PostDataService',
+        function ($scope, $log, PostDataService) {
+            PostDataService.getPosts()
+                .then(function (data) {
+                    $log.info(data);
+                    $scope.posts = data;
+                    $scope.$apply();
+                });
+        }]);
+}(angular));
+(function (angular, Parse) {
+    'use strict';
+
+    Parse.initialize("HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1",
+        "BxuS4AKpUCoP6Ea6pOn1O0PXlmPu5wYvvlSxLJVE");
+
+    angular.module('app').factory('PostDataService', ['$log', '$q',
+        function ($log, $q) {
+            var res = {},
+                PostModel = Parse.Object.extend({
+                    className: 'Post'
+                });
+
+            res.getPost = function (aId) {
+                var qry = new Parse.Query(PostModel);
+                return qry.get(aId);
+            };
+
+            res.getPosts = function () {
+                var qry = new Parse.Query(PostModel);
+                qry.equalTo("published", true);
+                qry.descending("publishDate");
+                return qry.find();
+            };
+
+            return res;
+        }]);
+}(angular, Parse));
 (function (angular) {
     'use strict';
 
     angular.module('app').controller('MoviesController', ['$scope', '$rootScope', '$location', '$log',
-        function ($scope, $rootScope, $location, $log) {
-
-        }]);
-}(angular));
-(function (angular) {
-    'use strict';
-
-    angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$location', '$log',
         function ($scope, $rootScope, $location, $log) {
 
         }]);
