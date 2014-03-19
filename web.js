@@ -4,9 +4,17 @@ process.env.PWD = process.cwd();
 var express = require("express");
 var logfmt = require("logfmt");
 var app = express();
+var request = require('request');
 
 app.use(express.static(process.env.PWD + '/public'));
 app.use(logfmt.requestLogger());
+
+app.get('/dropbox/:slug', function(req, res) {
+    var url = 'https://dl.dropboxusercontent.com/u/133963/Blog/' + req.params.slug + '.md';
+    request(url, function (err, resp, body) {
+        res.send(body);
+    });
+});
 
 app.get('/', function(req, res) {
     res.send('Hello World!');
