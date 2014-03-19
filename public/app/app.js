@@ -7,16 +7,18 @@
 
     var app = angular.module('app', [
         // Angular modules
-        'ngRoute',     // routing
-        'ngCookies',   // cookies
-        'ui.bootstrap' // ui-bootstrap library
+        'ngRoute',      // routing
+        'ngCookies',    // cookies
+        'ui.bootstrap', // ui-bootstrap library
+        'hc.marked'     // markdown directive
     ]);
 
     // Configure Routes
-    app.config(['$routeProvider', '$httpProvider',
-        function ($routeProvider, $httpProvider) {
+    app.config(['$routeProvider', '$httpProvider', 'marked',
+        function ($routeProvider, $httpProvider, marked) {
             $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
+            marked.setOptions({gfm: true});
 
             $routeProvider
                 .when('/', {

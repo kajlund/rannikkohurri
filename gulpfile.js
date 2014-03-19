@@ -21,7 +21,10 @@ var gulp = require('gulp'),
         'public/vendor/bootstrap/dist/css/*min**',
         'public/vendor/spinjs/spin**',
         'public/vendor/toastr/*min**',
-        'public/vendor/font-awesome/css/*min**'
+        'public/vendor/font-awesome/css/*min**',
+        'public/vendor/parse-js-sdk/lib/*min**',
+        'public/vendor/marked/lib/*',
+        'public/vendor/angular-marked/angular**'
     ];
 
 gulp.task('copydist', function () {
