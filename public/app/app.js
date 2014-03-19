@@ -29,6 +29,9 @@
                 }).when('/posts', {
                     templateUrl: 'app/posts/posts.html',
                     controller: 'PostsController'
+                }).when('/posts/:id', {
+                    templateUrl: 'app/posts/post.html',
+                    controller: 'PostController'
                 }).when('/links', {
                     templateUrl: 'app/links/links.html',
                     controller: 'LinksController'
@@ -46,7 +49,7 @@
         }]);
 
     app.run(['$rootScope', '$location', '$log',
-        function($rootScope, $location, $log) {
+        function ($rootScope, $location, $log) {
             $log.info('App Loaded');
         }]);
 
