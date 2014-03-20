@@ -14,6 +14,10 @@
 <body data-ng-app="app" data-ng-controller="MainController">
     <div data-ng-include="'app/header.html'"></div>
 
+    <div id="cntSpinner" class="container" data-ng-show="isBusy">
+        <div id="cntSpin" data-spinner="spinnerOptions"></div>
+    </div>
+
     <section id="mainView" class="container" data-ng-view=""></section>
 
     <div data-ng-include="'app/footer.html'"></div>
@@ -29,6 +33,7 @@
     <script src="lib/parse.min.js"></script>
     <script src="lib/marked.js"></script>
     <script src="lib/angular-marked.js"></script>
+    <script src="lib/spin.js"></script>
     <!-- Application Scripts -->
     <script src="app-all.min.js"></script>
 </body>

@@ -13,6 +13,9 @@
 </head>
 <body data-ng-app="app" data-ng-controller="MainController">
     <div data-ng-include="'app/header.html'"></div>
+    <div id="cntSpinner" class="container" data-ng-show="isBusy">
+        <div id="cntSpin" data-spinner="spinnerOptions"></div>
+    </div>
 
     <section id="mainView" class="container" data-ng-view=""></section>
 
@@ -29,6 +32,7 @@
     <script src="vendor/parse-js-sdk/lib/parse.js"></script>
     <script src="vendor/marked/lib/marked.js"></script>
     <script src="vendor/angular-marked/angular-marked.js"></script>
+    <script src="vendor/spinjs/spin.js"></script>
     <!-- Application Scripts -->
     <script src="app/app.js"></script>
     <script src="app/svcSession.js"></script>
@@ -41,5 +45,6 @@
     <script src="app/books/ctrlBooks.js"></script>
     <script src="app/movies/ctrlMovies.js"></script>
     <script src="app/posts/svcPostData.js"></script>
+    <script src="app/directives.js"></script>
 </body>
 </html>

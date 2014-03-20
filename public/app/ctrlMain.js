@@ -4,6 +4,19 @@
     angular.module('app').controller('MainController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
         function ($scope, $rootScope, $location, $log, $modal, SessionService) {
 
+            $rootScope.spinnerOptions = {
+                radius: 40,
+                lines: 7,
+                length: 0,
+                width: 30,
+                speed: 1.7,
+                corners: 1,
+                trail: 100,
+                color: '#000',
+                left: 'auto',
+                top: 'auto'
+            };
+            $rootScope.isBusy = true;
             $scope.session = SessionService;
             $log.info(SessionService);
 
@@ -16,6 +29,7 @@
                         $log.error(err);
                     });
             }
+            $rootScope.isBusy = false;
 
             $scope.getClass = function (path) {
                 var className = "";
