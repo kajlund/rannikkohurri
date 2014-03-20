@@ -86,6 +86,19 @@
     angular.module('app').controller('MainController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
         function ($scope, $rootScope, $location, $log, $modal, SessionService) {
 
+            $rootScope.spinnerOptions = {
+                radius: 40,
+                lines: 7,
+                length: 0,
+                width: 30,
+                speed: 1.7,
+                corners: 1,
+                trail: 100,
+                color: '#000',
+                left: 'auto',
+                top: 'auto'
+            };
+            $rootScope.isBusy = true;
             $scope.session = SessionService;
             $log.info(SessionService);
 
@@ -98,6 +111,7 @@
                         $log.error(err);
                     });
             }
+            $rootScope.isBusy = false;
 
             $scope.getClass = function (path) {
                 var className = "";
@@ -154,6 +168,29 @@
                 $modalInstance.dismiss('Cancel');
             };
         }]);
+}(angular));
+(function (angular) {
+    'use strict';
+
+    angular.module('app').directive('spinner', ['$window', function ($window) {
+        // Description:
+        //  Creates a new Spinner and sets its options
+        // Usage:
+        //  <div data-spinner="scope.spinnerOptions"></div>
+        return {
+            link: function link(scope, element, attrs) {
+                scope.spinner = null;
+                scope.$watch(attrs.spinner, function (options) {
+                    if (scope.spinner) {
+                        scope.spinner.stop();
+                    }
+                    scope.spinner = new $window.Spinner(options);
+                    scope.spinner.spin(element[0]);
+                }, true);
+            },
+            restrict: 'A'
+        };
+    }]);
 }(angular));
 (function (angular) {
     'use strict';
@@ -266,12 +303,15 @@
 (function (angular, marked) {
     'use strict';
 
-    angular.module('app').controller('PostController', ['$scope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
-        function ($scope, $routeParams, $http, $sce, $log, PostDataService) {
+    angular.module('app').controller('PostController', ['$scope', '$rootScope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
+        function ($scope, $rootScope, $routeParams, $http, $sce, $log, PostDataService) {
+            $rootScope.isBusy = true;
+
             function renderData(aPost) {
                 $http.get('/dropbox/' + aPost.get('slug'))
                     .then(function (data) {
                         $scope.markdown = $sce.trustAsHtml(marked(data.data));
+                        $rootScope.isBusy = false;
                     });
             }
 
@@ -287,14 +327,29 @@
 (function (angular) {
     'use strict';
 
-    angular.module('app').controller('PostsController', ['$scope', '$log', 'PostDataService',
-        function ($scope, $log, PostDataService) {
+    angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$log', 'PostDataService',
+        function ($scope, $rootScope, $log, PostDataService) {
+            $rootScope.isBusy = true;
+
             PostDataService.getPosts()
                 .then(function (data) {
                     $log.info(data);
                     $scope.posts = data;
+                    $rootScope.isBusy = false;
                     $scope.$apply();
                 });
+
+            $scope.onAddClick = function () {
+                $log.info('Adding new post');
+            };
+
+            $scope.onEditClick = function (p) {
+                $log.info('Editing post %o', p);
+            };
+
+            $scope.onDeleteClick = function (p) {
+                $log.info('Deleting post %o', p);
+            };
         }]);
 }(angular));
 (function (angular, Parse) {
