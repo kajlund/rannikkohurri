@@ -1,4 +1,4 @@
-(function (angular) {
+(function (angular, toastr) {
     'use strict';
 
     angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'EventDataService',
@@ -15,17 +15,33 @@
                     });
             }
 
+            function parseToObj(aParseObj) {
+                var obj = {
+                        id: aParseObj.id,
+                        startTime: aParseObj.get('startTime'),
+                        eventName: aParseObj.get('eventName'),
+                        placeName: aParseObj.get('placeName'),
+                        organizer: aParseObj.get('organizer'),
+                        organizerUrl: aParseObj.get('organizerUrl'),
+                        smartum: aParseObj.get('smartum')
+                    };
+                return obj;
+            }
+
+            function objToParse(aObj, aParseObj) {
+                aParseObj.set('startTime', aObj.startTime);
+                aParseObj.set('eventName', aObj.eventName);
+                aParseObj.set('placeName', aObj.placeName);
+                aParseObj.set('organizer', aObj.organizer);
+                aParseObj.set('organizerUrl', aObj.organizerUrl);
+                aParseObj.set('smartum', aObj.smartum);
+            }
+
             getEvents();
 
             $scope.onAddClick = function () {
-                var event = {
-                        startTime: undefined,
-                        eventName: "",
-                        placeName: "",
-                        organizer: "",
-                        organizerUrl: "",
-                        smartum: false
-                    },
+                var parseEvent = new EventDataService.EventModel(),
+                    event = parseToObj(parseEvent),
                     modalInstance = $modal.open({
                         templateUrl: 'app/events/edit.html',
                         controller: 'eventEditController',
@@ -33,28 +49,26 @@
                     });
 
                 modalInstance.result.then(function () {
-                    EventDataService.updateEvent(event).then(function () {
-                        $log.info('Added new Event');
-                        getEvents();
-                        //toastr.success('Audiobook added');
-
+                    objToParse(event, parseEvent);
+                    parseEvent.save(null, {
+                        success: function (newPost) {
+                            $log.info('Added new Event');
+                            toastr.success('Event added');
+                            getEvents();
+                        },
+                        error: function (newPost, error) {
+                            $log.error(error.description);
+                            toastr.error(error.description);
+                        }
                     });
                 }, function () {
                     $log.info('Cancelled Edit');
-                    //toastr.warning('Edit cancelled');
+                    toastr.warning('New cancelled');
                 });
             };
 
-            $scope.onEditClick = function (e) {
-                var event = {
-                        id: e.id,
-                        startTime: e.get('startTime'),
-                        eventName: e.get('eventName'),
-                        placeName: e.get('placeName'),
-                        organizer: e.get('organizer'),
-                        organizerUrl: e.get('organizerUrl'),
-                        smartum: e.get('smartum')
-                    },
+            $scope.onEditClick = function (parseEvent) {
+                var event = parseToObj(parseEvent),
                     modalInstance = $modal.open({
                         templateUrl: 'app/events/edit.html',
                         controller: 'eventEditController',
@@ -66,40 +80,47 @@
                     });
 
                 modalInstance.result.then(function () {
-                    EventDataService.updateEvent(event).then(function () {
-                        getEvents();
-                        //toastr.success('Audiobook saved');
+                    objToParse(event, parseEvent);
+                    parseEvent.save({
+                        success: function (newPost) {
+                            $log.info('Updated Event');
+                            toastr.success('Event updated');
+                            getEvents();
+                        },
+                        error: function (newPost, error) {
+                            $log.error(error.description);
+                            toastr.error(error.description);
+                        }
                     });
                 }, function () {
                     $log.info('Cancel');
-                    //toastr.warning('Edit cancelled');
+                    toastr.warning('Edit cancelled');
                 });
-
-                $log.info('Editing Event %o', e);
             };
 
-            $scope.onDeleteClick = function (e) {
-                var event = e,
+            $scope.onDeleteClick = function (parseEvent) {
+                var event = parseToObj(parseEvent),
                     modalInstance = $modal.open({
                         templateUrl: 'app/events/delete.html',
                         controller: 'eventDeleteController',
-                        resolve: {
-                            event: function () {
-                                return event;
-                            }
-                        }
+                        resolve: { event: function () { return event; } }
                     });
 
                 modalInstance.result.then(function () {
-                    $log.info('Deleting Event %o', event);
-                    EventDataService.deleteEvent(event).then(function () {
-                        getEvents();
-                        //toastr.success('Audiobook deleted');
+                    parseEvent.destroy({
+                        success: function (deletedObject) {
+                            toastr.success('Event deleted');
+                            getEvents();
+                        },
+                        error: function (myObject, error) {
+                            $log.error(error.description);
+                            toastr.error(error.description);
+                        }
                     });
                 }, function () {
                     $log.info('Cancel');
-                    //toastr.warning('Delete cancelled');
+                    toastr.warning('Delete cancelled');
                 });
             };
         }]);
-}(angular));
+}(angular, toastr));
