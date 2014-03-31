@@ -10,7 +10,8 @@
         'ngRoute',      // routing
         'ngCookies',    // cookies
         'ui.bootstrap', // ui-bootstrap library
-        'hc.marked'     // markdown directive
+        'hc.marked',    // markdown directive
+        'ui.bootstrap.datetimepicker' //DateTime picker for angular bootstrap
     ]);
 
     // Configure Routes
@@ -44,6 +45,9 @@
                 }).when('/movies', {
                     templateUrl: 'app/movies/movies.html',
                     controller: 'MoviesController'
+                }).when('/events', {
+                    templateUrl: 'app/events/list.html',
+                    controller: 'EventListController'
                 })
                 .otherwise({ redirectTo: '/home' });
         }]);
@@ -286,16 +290,191 @@
 }(angular));
 (function (angular) {
     'use strict';
+    angular.module('app').controller('eventDeleteController', ['$scope', '$modalInstance', 'event',
+        function ($scope, $modalInstance, event) {
+            $scope.event = event;
 
-    angular.module('app').controller('LinksController', ['$scope', '$rootScope', '$location', '$log',
-        function ($scope, $rootScope, $location, $log) {
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
 
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
         }]);
 }(angular));
 (function (angular) {
     'use strict';
+    angular.module('app').controller('eventEditController', ['$scope', '$modalInstance', 'event',
+        function ($scope, $modalInstance, event) {
+            $scope.event = event;
 
-    angular.module('app').controller('MoviesController', ['$scope', '$rootScope', '$location', '$log',
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
+        }]);
+}(angular));
+(function (angular, toastr) {
+    'use strict';
+
+    angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'EventDataService',
+        function ($scope, $rootScope, $log, $modal, EventDataService) {
+            $rootScope.isBusy = true;
+
+            function getEvents() {
+                EventDataService.getEvents()
+                    .then(function (data) {
+                        $log.info(data);
+                        $scope.events = data;
+                        $rootScope.isBusy = false;
+                        $scope.$apply();
+                    });
+            }
+
+            function parseToObj(aParseObj) {
+                var obj = {
+                        id: aParseObj.id,
+                        startTime: aParseObj.get('startTime'),
+                        eventName: aParseObj.get('eventName'),
+                        placeName: aParseObj.get('placeName'),
+                        organizer: aParseObj.get('organizer'),
+                        organizerUrl: aParseObj.get('organizerUrl'),
+                        smartum: aParseObj.get('smartum')
+                    };
+                return obj;
+            }
+
+            function objToParse(aObj, aParseObj) {
+                aParseObj.set('startTime', aObj.startTime);
+                aParseObj.set('eventName', aObj.eventName);
+                aParseObj.set('placeName', aObj.placeName);
+                aParseObj.set('organizer', aObj.organizer);
+                aParseObj.set('organizerUrl', aObj.organizerUrl);
+                aParseObj.set('smartum', aObj.smartum);
+            }
+
+            getEvents();
+
+            $scope.onAddClick = function () {
+                var parseEvent = new EventDataService.EventModel(),
+                    event = parseToObj(parseEvent),
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/events/edit.html',
+                        controller: 'eventEditController',
+                        resolve: { event: function () { return event; } }
+                    });
+
+                modalInstance.result.then(function () {
+                    objToParse(event, parseEvent);
+                    parseEvent.save(null, {
+                        success: function (newPost) {
+                            $log.info('Added new Event');
+                            toastr.success('Event added');
+                            getEvents();
+                        },
+                        error: function (newPost, error) {
+                            $log.error(error.description);
+                            toastr.error(error.description);
+                        }
+                    });
+                }, function () {
+                    $log.info('Cancelled Edit');
+                    toastr.warning('New cancelled');
+                });
+            };
+
+            $scope.onEditClick = function (parseEvent) {
+                var event = parseToObj(parseEvent),
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/events/edit.html',
+                        controller: 'eventEditController',
+                        resolve: {
+                            event: function () {
+                                return event;
+                            }
+                        }
+                    });
+
+                modalInstance.result.then(function () {
+                    objToParse(event, parseEvent);
+                    parseEvent.save({
+                        success: function (newPost) {
+                            $log.info('Updated Event');
+                            toastr.success('Event updated');
+                            getEvents();
+                        },
+                        error: function (newPost, error) {
+                            $log.error(error.description);
+                            toastr.error(error.description);
+                        }
+                    });
+                }, function () {
+                    $log.info('Cancel');
+                    toastr.warning('Edit cancelled');
+                });
+            };
+
+            $scope.onDeleteClick = function (parseEvent) {
+                var event = parseToObj(parseEvent),
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/events/delete.html',
+                        controller: 'eventDeleteController',
+                        resolve: { event: function () { return event; } }
+                    });
+
+                modalInstance.result.then(function () {
+                    parseEvent.destroy({
+                        success: function (deletedObject) {
+                            toastr.success('Event deleted');
+                            getEvents();
+                        },
+                        error: function (myObject, error) {
+                            $log.error(error.description);
+                            toastr.error(error.description);
+                        }
+                    });
+                }, function () {
+                    $log.info('Cancel');
+                    toastr.warning('Delete cancelled');
+                });
+            };
+        }]);
+}(angular, toastr));
+(function (angular, Parse) {
+    'use strict';
+
+    Parse.initialize("HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1",
+        "BxuS4AKpUCoP6Ea6pOn1O0PXlmPu5wYvvlSxLJVE");
+
+    angular.module('app').factory('EventDataService', ['$log', '$q', '$http', 'SessionService',
+        function ($log, $q, $http, SessionService) {
+            var res = {};
+
+            res.EventModel = Parse.Object.extend({className: 'Event'});
+
+            res.getEvent = function (aId) {
+                var qry = new Parse.Query(EventModel);
+                return qry.get(aId);
+            };
+
+            res.getEvents = function () {
+                var qry = new Parse.Query(res.EventModel);
+                //qry.equalTo("published", true);
+                qry.ascending("startTime");
+                return qry.find();
+            };
+
+            return res;
+        }]);
+}(angular, Parse));
+(function (angular) {
+    'use strict';
+
+    angular.module('app').controller('LinksController', ['$scope', '$rootScope', '$location', '$log',
         function ($scope, $rootScope, $location, $log) {
 
         }]);
@@ -326,9 +505,39 @@
 }(angular, marked));
 (function (angular) {
     'use strict';
+    angular.module('app').controller('postDeleteController', ['$scope', '$modalInstance', 'post',
+        function ($scope, $modalInstance, post) {
+            $scope.post = post;
 
-    angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$log', 'PostDataService',
-        function ($scope, $rootScope, $log, PostDataService) {
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
+        }]);
+}(angular));
+(function (angular) {
+    'use strict';
+    angular.module('app').controller('postEditController', ['$scope', '$modalInstance', 'post',
+        function ($scope, $modalInstance, post) {
+            $scope.post = post;
+
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
+        }]);
+}(angular));
+(function (angular, toastr) {
+    'use strict';
+
+    angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
+        function ($scope, $rootScope, $log, $modal, PostDataService) {
             $rootScope.isBusy = true;
 
             PostDataService.getPosts()
@@ -340,18 +549,98 @@
                 });
 
             $scope.onAddClick = function () {
-                $log.info('Adding new post');
+                var post = new PostDataService.PostModel(),
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/posts/edit.html',
+                        controller: 'postEditController',
+                        resolve: {
+                            post: function () {
+                                return post;
+                            }
+                        }
+                    });
+
+                modalInstance.result.then(function () {
+                    post.save(null, {
+                        success: function (newPost) {
+                            //refreshData($scope.currentPage);
+                            toastr.success('Post added');
+                        },
+                        error: function (newPost, error) {
+                            toastr.error(error.description);
+                        }
+                    });
+                }, function () {
+                    $log.info('Cancel');
+                    toastr.warning('Edit cancelled');
+                });
             };
 
             $scope.onEditClick = function (p) {
-                $log.info('Editing post %o', p);
+                var post = {
+                        slug: p.get('slug'),
+                        title: p.get('title'),
+                        excerpt: p.get('excerpt'),
+                        tags: p.get('tags'),
+                        published: p.get('published'),
+                        publishDate: p.get('publishDate')
+                    },
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/posts/edit.html',
+                        controller: 'postEditController',
+                        resolve: {
+                            post: function () {
+                                return post;
+                            }
+                        }
+                    });
+
+                modalInstance.result.then(function () {
+                    post.save({
+                        success: function (newPost) {
+                            //refreshData($scope.currentPage);
+                            toastr.success('Post updated');
+                        },
+                        error: function (newPost, error) {
+                            toastr.error(error.description);
+                        }
+                    });
+                }, function () {
+                    $log.info('Cancel');
+                    toastr.warning('Edit cancelled');
+                });
             };
 
             $scope.onDeleteClick = function (p) {
                 $log.info('Deleting post %o', p);
+                var post = p,
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/posts/delete.html',
+                        controller: 'postDeleteController',
+                        resolve: {
+                            post: function () {
+                                return post;
+                            }
+                        }
+                    });
+
+                modalInstance.result.then(function () {
+                    post.destroy({
+                        success: function (myObject) {
+                            //refreshData($scope.currentPage);
+                            toastr.success('Post deleted');
+                        },
+                        error: function (myObject, error) {
+
+                        }
+                    });
+                }, function () {
+                    $log.info('Cancel');
+                    toastr.warning('Delete cancelled');
+                });
             };
         }]);
-}(angular));
+}(angular, toastr));
 (function (angular, Parse) {
     'use strict';
 
@@ -377,6 +666,18 @@
                 return qry.find();
             };
 
+            res.deletePost = function (post) {
+                return post.destroy();
+            };
+
             return res;
         }]);
 }(angular, Parse));
+(function (angular) {
+    'use strict';
+
+    angular.module('app').controller('MoviesController', ['$scope', '$rootScope', '$location', '$log',
+        function ($scope, $rootScope, $location, $log) {
+
+        }]);
+}(angular));
