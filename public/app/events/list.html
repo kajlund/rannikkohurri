@@ -10,7 +10,7 @@
 
     <table class="table table-striped table-hover">
         <tr>
-            <th>Time</th><th>Place</th><th>Name</th><th>Organizer</th>
+            <th>Time</th><th>Place</th><th>Name</th><th>Organizer</th><th>Smartum</th>
             <th data-ng-class="{hidden: !session.loggedOn()}">
                 Commands
             </th>
@@ -19,7 +19,8 @@
             <td>{{ e.get('startTime') | date:'yyyyMMdd HH:mm' }}</td>
             <td>{{ e.get('placeName') }}</td>
             <td>{{ e.get('eventName') }}</td>
-            <td>{{ e.get('organizer') }}</td>
+            <td><a href="{{ e.get('organizerUrl') }}" target="_blank">{{ e.get('organizer') }}</a></td>
+            <td>{{ e.get('smartum') }}</td>
             <td data-ng-class="{hidden: !session.loggedOn()}">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary"
