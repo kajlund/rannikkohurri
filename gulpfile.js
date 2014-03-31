@@ -24,7 +24,10 @@ var gulp = require('gulp'),
         'public/vendor/font-awesome/css/*min**',
         'public/vendor/parse-js-sdk/lib/*min**',
         'public/vendor/marked/lib/*',
-        'public/vendor/angular-marked/angular**'
+        'public/vendor/angular-marked/angular**',
+        'public/vendor/moment/min/moment.min.js',
+        'public/vendor/angular-bootstrap-datetimepicker/src/css/datetimepicker.css',
+        'public/vendor/angular-bootstrap-datetimepicker/src/js/datetimepicker.js'
     ];
 
 gulp.task('copydist', function () {
