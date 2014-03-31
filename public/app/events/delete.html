@@ -2,8 +2,8 @@
     <h3>Delete Event?</h3>
 </div>
 <div class="modal-body">
-    <p>Deleting event <strong>{{ e.get('startTime') | date:'yyyyMMdd HH:mm' }}</strong></p>
-    <p>{{event.get('placeName')/event.get('eventName')}}</p>
+    <p>Deleting event <strong>{{ e.startTime | date:'yyyyMMdd HH:mm' }}</strong></p>
+    <p>{{event.placeName}}/{{event.eventName}}</p>
     <p><strong>Are you sure?</strong></p>
 </div>
 <div class="modal-footer">
