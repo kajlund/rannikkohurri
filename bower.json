@@ -28,6 +28,7 @@
     "font-awesome": "~4.0.3",
     "angular-bootstrap": "~0.10.0",
     "parse-js-sdk": "~1.2.16",
-    "angular-marked": "Hypercubed/angular-marked#~0.0.5"
+    "angular-marked": "Hypercubed/angular-marked#~0.0.5",
+    "angular-bootstrap-datetimepicker": "latest"
   }
 }

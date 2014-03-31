@@ -10,7 +10,8 @@
         'ngRoute',      // routing
         'ngCookies',    // cookies
         'ui.bootstrap', // ui-bootstrap library
-        'hc.marked'     // markdown directive
+        'hc.marked',    // markdown directive
+        'ui.bootstrap.datetimepicker' //DateTime picker for angular bootstrap
     ]);
 
     // Configure Routes

@@ -1,0 +1,45 @@
+<div class="modal-header">
+    <h3>Edit Post<small> {{post.get('title')}}</small></h3>
+</div>
+
+<div class="modal-body">
+    <form name="frm" role="form">
+        <div class="form-group">
+            <label>Slug</label>
+            <input type="text" class="form-control" ng-model="post.slug">
+        </div>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" class="form-control" ng-model="post.title">
+        </div>
+        <div class="form-group">
+            <label>Excerpt</label>
+            <textarea class="form-control" rows="3" ng-model="post.excerpt"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Tags</label>
+            <input type="text" class="form-control" ng-model="post.tags">
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="post.published"> Published
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Date Published</label>
+            <div class="dropdown">
+                <a class="dropdown-toggle my-toggle-select" id="dLabel" role="button" data-toggle="dropdown" data-target="#" href="">
+                    <div class="input-append"><input type="text" class="input-large" data-ng-model="post.publishDate"><span class="add-on"> <i class="fa fa-calendar"></i></span></div>
+                </a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <datetimepicker data-ng-model="post.publishDate"
+                                    data-datetimepicker-config="{ dropdownSelector: '.my-toggle-select' }"></datetimepicker>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" ng-click="ok()">OK</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+</div>

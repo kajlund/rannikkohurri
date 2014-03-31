@@ -23,6 +23,10 @@
                 return qry.find();
             };
 
+            res.deletePost = function (post) {
+                return post.destroy();
+            };
+
             return res;
         }]);
 }(angular, Parse));
