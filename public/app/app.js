@@ -44,6 +44,9 @@
                 }).when('/movies', {
                     templateUrl: 'app/movies/movies.html',
                     controller: 'MoviesController'
+                }).when('/events', {
+                    templateUrl: 'app/events/list.html',
+                    controller: 'EventListController'
                 })
                 .otherwise({ redirectTo: '/home' });
         }]);
