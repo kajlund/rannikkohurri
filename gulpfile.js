@@ -38,6 +38,7 @@ gulp.task('copydist', function () {
 gulp.task('copyfonts', function () {
     // Copy fonts from vendor to fonts folder
     gulp.src('public/vendor/font-awesome/fonts/*').pipe(gulp.dest('./public/fonts'));
+    gulp.src('public/vendor/bootstrap/dist/fonts/*').pipe(gulp.dest('./public/fonts'));
 });
 
 gulp.task('minifycss', function () {
