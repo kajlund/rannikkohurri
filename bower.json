@@ -17,6 +17,8 @@
     "tests"
   ],
   "dependencies": {
+    "modernizr": "~2.7.2",
+    "respond": "~1.4.2",
     "angular": "~1.2.14",
     "angular-route": "~1.2.14",
     "angular-cookies": "~1.2.14",
