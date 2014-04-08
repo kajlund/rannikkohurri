@@ -1,9 +1,28 @@
-(function (angular, toastr) {
+var window = window || null,
+    angular = angular || null,
+    toastr = toastr || null,
+    Spinner = Spinner || null;
+
+(function (window, angular, toastr, Spinner) {
     'use strict';
+
+    var opts = {
+        radius: 40,
+        lines: 7,
+        length: 0,
+        width: 30,
+        speed: 1.7,
+        corners: 1,
+        trail: 100
+    };
+
+    moment.lang('sv');
 
     // Configure Toastr
     toastr.options.timeOut = 2000;
     toastr.options.positionClass = 'toast-bottom-right';
+    // Configure Spinner
+    window.spinner = new Spinner(opts).spin(window.document.documentElement);
 
     var app = angular.module('app', [
         // Angular modules
@@ -53,6 +72,7 @@
 
     app.run(['$rootScope', '$location', '$log',
         function ($rootScope, $location, $log) {
+            $rootScope.spinner = window.spinner;
             $log.info('App Loaded');
         }]);
 
@@ -74,4 +94,4 @@
         };
     });
 
-}(angular, toastr));
+}(window, angular, toastr, Spinner));

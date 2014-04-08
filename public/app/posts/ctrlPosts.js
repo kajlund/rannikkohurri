@@ -3,7 +3,7 @@
 
     angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
         function ($scope, $rootScope, $log, $modal, PostDataService) {
-            $rootScope.isBusy = true;
+            $rootScope.spinner.spin();
 
             PostDataService.getPosts()
                 .then(function (data) {
@@ -11,6 +11,7 @@
                     $scope.posts = data;
                     $rootScope.isBusy = false;
                     $scope.$apply();
+                    $rootScope.spinner.stop();
                 });
 
             $scope.onAddClick = function () {

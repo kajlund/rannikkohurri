@@ -16,7 +16,6 @@
                 left: 'auto',
                 top: 'auto'
             };
-            $rootScope.isBusy = true;
             $scope.session = SessionService;
             $log.info(SessionService);
 
@@ -29,7 +28,7 @@
                         $log.error(err);
                     });
             }
-            $rootScope.isBusy = false;
+            $rootScope.spinner.stop();
 
             $scope.getClass = function (path) {
                 var className = "";

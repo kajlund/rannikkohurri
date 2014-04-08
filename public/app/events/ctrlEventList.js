@@ -1,17 +1,19 @@
+var angular = angular || null,
+    toastr = toastr || null;
+
 (function (angular, toastr) {
     'use strict';
 
     angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'EventDataService',
         function ($scope, $rootScope, $log, $modal, EventDataService) {
-            $rootScope.isBusy = true;
+            $rootScope.spinner.spin();
 
             function getEvents() {
                 EventDataService.getEvents()
                     .then(function (data) {
                         $log.info(data);
-                        $scope.events = data;
-                        $rootScope.isBusy = false;
-                        $scope.$apply();
+                        $scope.events = data.data.results;
+                        $rootScope.spinner.stop();
                     });
             }
 

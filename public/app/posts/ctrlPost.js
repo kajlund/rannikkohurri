@@ -3,13 +3,13 @@
 
     angular.module('app').controller('PostController', ['$scope', '$rootScope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
         function ($scope, $rootScope, $routeParams, $http, $sce, $log, PostDataService) {
-            $rootScope.isBusy = true;
+            $rootScope.spinner.spin();
 
             function renderData(aPost) {
                 $http.get('/dropbox/' + aPost.get('slug'))
                     .then(function (data) {
                         $scope.markdown = $sce.trustAsHtml(marked(data.data));
-                        $rootScope.isBusy = false;
+                        $rootScope.spinner.stop();
                     });
             }
 
