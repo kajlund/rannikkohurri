@@ -16,11 +16,11 @@
             </th>
         </tr>
         <tr data-ng-repeat="e in events">
-            <td>{{ e.get('startTime') | date:'yyyyMMdd HH:mm' }}</td>
-            <td>{{ e.get('placeName') }}</td>
-            <td>{{ e.get('eventName') }}</td>
-            <td><a href="{{ e.get('organizerUrl') }}" target="_blank">{{ e.get('organizer') }}</a></td>
-            <td>{{ e.get('smartum') }}</td>
+            <td>{{ e.starts }}</td>
+            <td>{{ e.placeName }}</td>
+            <td>{{ e.eventName }}</td>
+            <td><a href="{{ e.organizerUrl }}" target="_blank">{{ e.organizer }}</a></td>
+            <td>{{ e.smartum }}</td>
             <td data-ng-class="{hidden: !session.loggedOn()}">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary"
