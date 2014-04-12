@@ -7,7 +7,7 @@ var angular = angular || null,
     'use strict';
 
     // Spinner Configuration
-    var opts = {
+    var spinnerOpts = {
         radius: 40,
         lines: 7,
         length: 0,
@@ -15,7 +15,10 @@ var angular = angular || null,
         speed: 1.7,
         corners: 1,
         trail: 100,
-        top: 250
+        color: '#D00062',
+        zIndex: 2e9,
+        left: 'auto',
+        top: '200px'
     };
 
     moment.lang('sv');
@@ -73,7 +76,8 @@ var angular = angular || null,
 
     app.run(['$rootScope', '$location', '$log',
         function ($rootScope, $location, $log) {
-            $rootScope.spinner = new Spinner(opts).spin(window.document.documentElement);;
+            $rootScope.spinner = new Spinner(spinnerOpts).spin(window.document.documentElement);
+            $rootScope.spinner.spin();
             $log.info('App Loaded');
         }]);
 
