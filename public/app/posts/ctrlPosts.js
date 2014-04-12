@@ -9,7 +9,6 @@
                 .then(function (data) {
                     $log.info(data);
                     $scope.posts = data;
-                    $rootScope.isBusy = false;
                     $scope.$apply();
                     $rootScope.spinner.stop();
                 });
