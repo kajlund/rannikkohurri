@@ -1,17 +1,39 @@
-(function (angular, toastr) {
+var angular = angular || null,
+    toastr = toastr || null,
+    Spinner = Spinner || null,
+    moment = moment || null;
+
+(function (angular, toastr, Spinner, moment) {
     'use strict';
+
+    // Spinner Configuration
+    var spinnerOpts = {
+        radius: 40,
+        lines: 7,
+        length: 0,
+        width: 30,
+        speed: 1.7,
+        corners: 1,
+        trail: 100,
+        color: '#D00062',
+        zIndex: 2e9,
+        left: 'auto',
+        top: '200px'
+    };
+
+    moment.lang('sv');
 
     // Configure Toastr
     toastr.options.timeOut = 2000;
     toastr.options.positionClass = 'toast-bottom-right';
+
 
     var app = angular.module('app', [
         // Angular modules
         'ngRoute',      // routing
         'ngCookies',    // cookies
         'ui.bootstrap', // ui-bootstrap library
-        'hc.marked',    // markdown directive
-        'ui.bootstrap.datetimepicker' //DateTime picker for angular bootstrap
+        'hc.marked'     // markdown directive
     ]);
 
     // Configure Routes
@@ -54,6 +76,8 @@
 
     app.run(['$rootScope', '$location', '$log',
         function ($rootScope, $location, $log) {
+            $rootScope.spinner = new Spinner(spinnerOpts).spin(window.document.documentElement);
+            $rootScope.spinner.spin();
             $log.info('App Loaded');
         }]);
 
@@ -75,7 +99,7 @@
         };
     });
 
-}(angular, toastr));
+}(angular, toastr, Spinner, moment));
 (function (angular) {
     'use strict';
 
@@ -102,7 +126,6 @@
                 left: 'auto',
                 top: 'auto'
             };
-            $rootScope.isBusy = true;
             $scope.session = SessionService;
             $log.info(SessionService);
 
@@ -115,7 +138,7 @@
                         $log.error(err);
                     });
             }
-            $rootScope.isBusy = false;
+            $rootScope.spinner.stop();
 
             $scope.getClass = function (path) {
                 var className = "";
@@ -172,29 +195,6 @@
                 $modalInstance.dismiss('Cancel');
             };
         }]);
-}(angular));
-(function (angular) {
-    'use strict';
-
-    angular.module('app').directive('spinner', ['$window', function ($window) {
-        // Description:
-        //  Creates a new Spinner and sets its options
-        // Usage:
-        //  <div data-spinner="scope.spinnerOptions"></div>
-        return {
-            link: function link(scope, element, attrs) {
-                scope.spinner = null;
-                scope.$watch(attrs.spinner, function (options) {
-                    if (scope.spinner) {
-                        scope.spinner.stop();
-                    }
-                    scope.spinner = new $window.Spinner(options);
-                    scope.spinner.spin(element[0]);
-                }, true);
-            },
-            restrict: 'A'
-        };
-    }]);
 }(angular));
 (function (angular) {
     'use strict';
@@ -306,7 +306,7 @@
 (function (angular) {
     'use strict';
     angular.module('app').controller('eventEditController', ['$scope', '$modalInstance', 'event',
-        function ($scope, $modalInstance, event) {
+        function ($scope, $modalInstance, event, eventDate) {
             $scope.event = event;
 
             $scope.ok = function () {
@@ -318,77 +318,40 @@
             };
         }]);
 }(angular));
+var angular = angular || null,
+    toastr = toastr || null;
+
 (function (angular, toastr) {
     'use strict';
 
     angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'EventDataService',
         function ($scope, $rootScope, $log, $modal, EventDataService) {
-            $rootScope.isBusy = true;
 
             function getEvents() {
+                $rootScope.spinner.spin();
                 EventDataService.getEvents()
                     .then(function (data) {
                         $log.info(data);
-                        $scope.events = data;
-                        $rootScope.isBusy = false;
-                        $scope.$apply();
+                        $scope.events = data.data.results;
+                        $rootScope.spinner.stop();
+                    }, function (data) {
+                        $rootScope.spinner.stop();
+                        $log.error(data);
+                        toastr.error(data.error.code + ' ' + data.error.error);
                     });
-            }
-
-            function parseToObj(aParseObj) {
-                var obj = {
-                        id: aParseObj.id,
-                        startTime: aParseObj.get('startTime'),
-                        eventName: aParseObj.get('eventName'),
-                        placeName: aParseObj.get('placeName'),
-                        organizer: aParseObj.get('organizer'),
-                        organizerUrl: aParseObj.get('organizerUrl'),
-                        smartum: aParseObj.get('smartum')
-                    };
-                return obj;
-            }
-
-            function objToParse(aObj, aParseObj) {
-                aParseObj.set('startTime', aObj.startTime);
-                aParseObj.set('eventName', aObj.eventName);
-                aParseObj.set('placeName', aObj.placeName);
-                aParseObj.set('organizer', aObj.organizer);
-                aParseObj.set('organizerUrl', aObj.organizerUrl);
-                aParseObj.set('smartum', aObj.smartum);
             }
 
             getEvents();
 
             $scope.onAddClick = function () {
-                var parseEvent = new EventDataService.EventModel(),
-                    event = parseToObj(parseEvent),
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/events/edit.html',
-                        controller: 'eventEditController',
-                        resolve: { event: function () { return event; } }
-                    });
-
-                modalInstance.result.then(function () {
-                    objToParse(event, parseEvent);
-                    parseEvent.save(null, {
-                        success: function (newPost) {
-                            $log.info('Added new Event');
-                            toastr.success('Event added');
-                            getEvents();
-                        },
-                        error: function (newPost, error) {
-                            $log.error(error.description);
-                            toastr.error(error.description);
-                        }
-                    });
-                }, function () {
-                    $log.info('Cancelled Edit');
-                    toastr.warning('New cancelled');
-                });
-            };
-
-            $scope.onEditClick = function (parseEvent) {
-                var event = parseToObj(parseEvent),
+                var event = {
+                        starts: '',
+                        eventName: '',
+                        placeName: '',
+                        organizer: '',
+                        organizerUrl: '',
+                        smartum: false
+                    },
                     modalInstance = $modal.open({
                         templateUrl: 'app/events/edit.html',
                         controller: 'eventEditController',
@@ -400,43 +363,67 @@
                     });
 
                 modalInstance.result.then(function () {
-                    objToParse(event, parseEvent);
-                    parseEvent.save({
-                        success: function (newPost) {
-                            $log.info('Updated Event');
-                            toastr.success('Event updated');
+                    EventDataService.updateItem(event)
+                        .then(function (data) {
+                            // data.createdAt data.objectId
+                            $log.info('Added Event %o', data);
+                            toastr.success('Event added');
                             getEvents();
-                        },
-                        error: function (newPost, error) {
-                            $log.error(error.description);
-                            toastr.error(error.description);
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
+                }, function () {
+                    $log.info('Cancelled New');
+                    toastr.warning('New cancelled');
+                });
+            };
+
+            $scope.onEditClick = function (event) {
+                var modalInstance = $modal.open({
+                        templateUrl: 'app/events/edit.html',
+                        controller: 'eventEditController',
+                        resolve: {
+                            event: function () {
+                                return event;
+                            }
                         }
                     });
+
+                modalInstance.result.then(function () {
+                    EventDataService.updateItem(event)
+                        .then(function (data) {
+                            // data.updatedAt
+                            $log.info('Updated Event %o', data);
+                            toastr.success('Event updated');
+                            getEvents();
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
                 }, function () {
-                    $log.info('Cancel');
+                    $log.info('Cancelled Edit');
                     toastr.warning('Edit cancelled');
                 });
             };
 
-            $scope.onDeleteClick = function (parseEvent) {
-                var event = parseToObj(parseEvent),
-                    modalInstance = $modal.open({
+            $scope.onDeleteClick = function (event) {
+                var modalInstance = $modal.open({
                         templateUrl: 'app/events/delete.html',
                         controller: 'eventDeleteController',
                         resolve: { event: function () { return event; } }
                     });
 
                 modalInstance.result.then(function () {
-                    parseEvent.destroy({
-                        success: function (deletedObject) {
+                    EventDataService.deleteItem(event)
+                        .then(function (data) {
+                            $log.info('Deleted Event');
                             toastr.success('Event deleted');
                             getEvents();
-                        },
-                        error: function (myObject, error) {
-                            $log.error(error.description);
-                            toastr.error(error.description);
-                        }
-                    });
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
                 }, function () {
                     $log.info('Cancel');
                     toastr.warning('Delete cancelled');
@@ -444,37 +431,77 @@
             };
         }]);
 }(angular, toastr));
-(function (angular, Parse) {
-    'use strict';
+var angular = angular || null;
 
-    Parse.initialize("HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1",
-        "BxuS4AKpUCoP6Ea6pOn1O0PXlmPu5wYvvlSxLJVE");
+(function (angular) {
+    'use strict';
 
     angular.module('app').factory('EventDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
-            var res = {};
-
-            res.EventModel = Parse.Object.extend({className: 'Event'});
+            var baseUrl = 'https://api.parse.com/1/classes/Event',
+                res = {};
 
             res.getEvent = function (aId) {
-                var qry = new Parse.Query(EventModel);
-                return qry.get(aId);
+                var config = {
+                        isArray: false,
+                        method: 'GET',
+                        url: baseUrl + '/' + aId
+                    };
+                return $http(config);
             };
 
             res.getEvents = function () {
-                var qry = new Parse.Query(res.EventModel);
-                //qry.equalTo("published", true);
-                qry.ascending("startTime");
-                return qry.find();
+                var config = {
+                    isArray: false,
+                    method: 'GET',
+                    url: baseUrl + '?count=1&limit=1000&order=starts'
+                };
+                return $http(config);
+            };
+
+            res.updateItem = function (obj) {
+                var isNew = obj.objectId === undefined,
+                    url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
+                    config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
+                        method: isNew ? 'POST' : 'PUT',
+                        url: url,
+                        data: obj
+                    };
+
+                return $http(config);
+            };
+
+            res.deleteItem = function (obj) {
+                var url = baseUrl + '/' + obj.objectId,
+                    config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
+                        method: 'DELETE',
+                        url: url
+                    };
+
+                return $http(config);
             };
 
             return res;
         }]);
-}(angular, Parse));
+}(angular));
 (function (angular) {
     'use strict';
 
     angular.module('app').controller('LinksController', ['$scope', '$rootScope', '$location', '$log',
+        function ($scope, $rootScope, $location, $log) {
+
+        }]);
+}(angular));
+(function (angular) {
+    'use strict';
+
+    angular.module('app').controller('MoviesController', ['$scope', '$rootScope', '$location', '$log',
         function ($scope, $rootScope, $location, $log) {
 
         }]);
@@ -484,13 +511,13 @@
 
     angular.module('app').controller('PostController', ['$scope', '$rootScope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
         function ($scope, $rootScope, $routeParams, $http, $sce, $log, PostDataService) {
-            $rootScope.isBusy = true;
+            $rootScope.spinner.spin();
 
             function renderData(aPost) {
                 $http.get('/dropbox/' + aPost.get('slug'))
                     .then(function (data) {
                         $scope.markdown = $sce.trustAsHtml(marked(data.data));
-                        $rootScope.isBusy = false;
+                        $rootScope.spinner.stop();
                     });
             }
 
@@ -538,14 +565,14 @@
 
     angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
         function ($scope, $rootScope, $log, $modal, PostDataService) {
-            $rootScope.isBusy = true;
+            $rootScope.spinner.spin();
 
             PostDataService.getPosts()
                 .then(function (data) {
                     $log.info(data);
                     $scope.posts = data;
-                    $rootScope.isBusy = false;
                     $scope.$apply();
+                    $rootScope.spinner.stop();
                 });
 
             $scope.onAddClick = function () {
@@ -673,11 +700,3 @@
             return res;
         }]);
 }(angular, Parse));
-(function (angular) {
-    'use strict';
-
-    angular.module('app').controller('MoviesController', ['$scope', '$rootScope', '$location', '$log',
-        function ($scope, $rootScope, $location, $log) {
-
-        }]);
-}(angular));
