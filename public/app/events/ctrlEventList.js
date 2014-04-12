@@ -6,14 +6,18 @@ var angular = angular || null,
 
     angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'EventDataService',
         function ($scope, $rootScope, $log, $modal, EventDataService) {
-            $rootScope.spinner.spin();
 
             function getEvents() {
+                $rootScope.spinner.spin();
                 EventDataService.getEvents()
                     .then(function (data) {
                         $log.info(data);
                         $scope.events = data.data.results;
                         $rootScope.spinner.stop();
+                    }, function (data) {
+                        $rootScope.spinner.stop();
+                        $log.error(data);
+                        toastr.error(data.error.code + ' ' + data.error.error);
                     });
             }
 
