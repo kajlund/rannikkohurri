@@ -1,11 +1,12 @@
-var window = window || null,
-    angular = angular || null,
+var angular = angular || null,
     toastr = toastr || null,
-    Spinner = Spinner || null;
+    Spinner = Spinner || null,
+    moment = moment || null;
 
-(function (window, angular, toastr, Spinner) {
+(function (angular, toastr, Spinner, moment) {
     'use strict';
 
+    // Spinner Configuration
     var opts = {
         radius: 40,
         lines: 7,
@@ -13,7 +14,8 @@ var window = window || null,
         width: 30,
         speed: 1.7,
         corners: 1,
-        trail: 100
+        trail: 100,
+        top: 250
     };
 
     moment.lang('sv');
@@ -21,8 +23,7 @@ var window = window || null,
     // Configure Toastr
     toastr.options.timeOut = 2000;
     toastr.options.positionClass = 'toast-bottom-right';
-    // Configure Spinner
-    window.spinner = new Spinner(opts).spin(window.document.documentElement);
+
 
     var app = angular.module('app', [
         // Angular modules
@@ -72,7 +73,7 @@ var window = window || null,
 
     app.run(['$rootScope', '$location', '$log',
         function ($rootScope, $location, $log) {
-            $rootScope.spinner = window.spinner;
+            $rootScope.spinner = new Spinner(opts).spin(window.document.documentElement);;
             $log.info('App Loaded');
         }]);
 
@@ -94,4 +95,4 @@ var window = window || null,
         };
     });
 
-}(window, angular, toastr, Spinner));
+}(angular, toastr, Spinner, moment));
