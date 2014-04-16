@@ -1,0 +1,44 @@
+<div class="modal-header">
+    <h3>Edit Cache<small> {{ cache.cacheId }}</small></h3>
+</div>
+
+<div class="modal-body">
+    <form name="frm" role="form">
+        <div class="form-group">
+            <label class="control-label">Id</label>
+            <input type="text" class="form-control" ng-model="cache.cacheId">
+        </div>
+        <div class="form-group">
+            <label class="control-label">Type</label>
+            <select class="form-control"
+                    data-ng-model="cache.cacheType"
+                    data-ng-options="t for t in cacheTypes">
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control" ng-model="cache.name">
+        </div>
+        <div class="form-group">
+            <label>Url</label>
+            <input type="text" class="form-control" ng-model="cache.url">
+        </div>
+        <div class="form-group">
+            <label>Coords</label>
+            <input type="text" class="form-control" ng-model="cache.coords">
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="cache.logged"> Logged
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-control" rows="3" ng-model="cache.notes"></textarea>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" ng-click="ok()">OK</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+</div>

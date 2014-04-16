@@ -70,6 +70,9 @@ var angular = angular || null,
                 }).when('/events', {
                     templateUrl: 'app/events/list.html',
                     controller: 'EventListController'
+                }).when('/cheats', {
+                    templateUrl: 'app/cheats/list.html',
+                    controller: 'CheatsListController'
                 })
                 .otherwise({ redirectTo: '/home' });
         }]);
