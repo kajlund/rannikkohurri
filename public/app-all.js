@@ -70,6 +70,9 @@ var angular = angular || null,
                 }).when('/events', {
                     templateUrl: 'app/events/list.html',
                     controller: 'EventListController'
+                }).when('/cheats', {
+                    templateUrl: 'app/cheats/list.html',
+                    controller: 'CheatsListController'
                 })
                 .otherwise({ redirectTo: '/home' });
         }]);
@@ -290,6 +293,220 @@ var angular = angular || null,
 }(angular));
 (function (angular) {
     'use strict';
+    angular.module('app').controller('cheatsDeleteController', ['$scope', '$modalInstance', 'cache',
+        function ($scope, $modalInstance, cache) {
+            $scope.cache = cache;
+
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
+        }]);
+}(angular));
+(function (angular) {
+    'use strict';
+    angular.module('app').controller('cheatsEditController', ['$scope', '$modalInstance', 'cache',
+        function ($scope, $modalInstance, cache) {
+            $scope.cache = cache;
+            $scope.cacheTypes = [
+                'Tradi',
+                'Mystery',
+                'Multi',
+                'Earth',
+                'Letterbox',
+                'Event',
+                'Lab',
+                'Virtual'
+            ];
+
+            $scope.currentType = cache.cacheType;
+
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
+        }]);
+}(angular));
+var angular = angular || null,
+    toastr = toastr || null;
+
+(function (angular, toastr) {
+    'use strict';
+
+    angular.module('app').controller('CheatsListController', ['$scope', '$rootScope', '$log', '$modal', 'CheatsDataService',
+        function ($scope, $rootScope, $log, $modal, CheatsDataService) {
+
+            function getItems() {
+                $rootScope.spinner.spin();
+                CheatsDataService.getItems()
+                    .then(function (data) {
+                        $log.info(data);
+                        $scope.items = data.data.results;
+                        $rootScope.spinner.stop();
+                    }, function (data) {
+                        $rootScope.spinner.stop();
+                        $log.error(data);
+                        toastr.error(data.error.code + ' ' + data.error.error);
+                    });
+            }
+
+            getItems();
+
+            $scope.onAddClick = function () {
+                var cache = {
+                        cacheId: '',
+                        cacheType: '',
+                        name: '',
+                        coords: '',
+                        url: '',
+                        logged: false
+                    },
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/cheats/edit.html',
+                        controller: 'cheatsEditController',
+                        resolve: {
+                            cache: function () {
+                                return cache;
+                            }
+                        }
+                    });
+
+                modalInstance.result.then(function () {
+                    CheatsDataService.updateItem(cache)
+                        .then(function (data) {
+                            // data.createdAt data.objectId
+                            $log.info('Added Cache %o', data);
+                            toastr.success('Cache added');
+                            getItems();
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
+                }, function () {
+                    $log.info('Cancelled New');
+                    toastr.warning('New cancelled');
+                });
+            };
+
+            $scope.onEditClick = function (cache) {
+                var modalInstance = $modal.open({
+                        templateUrl: 'app/cheats/edit.html',
+                        controller: 'cheatsEditController',
+                        resolve: {
+                            cache: function () {
+                                return cache;
+                            }
+                        }
+                    });
+
+                modalInstance.result.then(function () {
+                    CheatsDataService.updateItem(cache)
+                        .then(function (data) {
+                            // data.updatedAt
+                            $log.info('Updated Cache %o', data);
+                            toastr.success('Cache updated');
+                            getItems();
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
+                }, function () {
+                    $log.info('Cancelled Edit');
+                    toastr.warning('Edit cancelled');
+                });
+            };
+
+            $scope.onDeleteClick = function (event) {
+                var modalInstance = $modal.open({
+                        templateUrl: 'app/cheats/delete.html',
+                        controller: 'cheatsDeleteController',
+                        resolve: { cache: function () { return cache; } }
+                    });
+
+                modalInstance.result.then(function () {
+                    EventDataService.deleteItem(cache)
+                        .then(function (data) {
+                            $log.info('Deleted Cache');
+                            toastr.success('Cache deleted');
+                            getItems();
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
+                }, function () {
+                    $log.info('Cancel');
+                    toastr.warning('Delete cancelled');
+                });
+            };
+        }]);
+}(angular, toastr));
+var angular = angular || null;
+
+(function (angular) {
+    'use strict';
+
+    angular.module('app').factory('CheatsDataService', ['$log', '$q', '$http', 'SessionService',
+        function ($log, $q, $http, SessionService) {
+            var baseUrl = 'https://api.parse.com/1/classes/Cheat',
+                res = {};
+
+            res.getItem = function (aId) {
+                var config = {
+                        isArray: false,
+                        method: 'GET',
+                        url: baseUrl + '/' + aId
+                    };
+                return $http(config);
+            };
+
+            res.getItems = function () {
+                var config = {
+                    isArray: false,
+                    method: 'GET',
+                    url: baseUrl + '?count=1&limit=1000&order=name'
+                };
+                return $http(config);
+            };
+
+            res.updateItem = function (obj) {
+                var isNew = obj.objectId === undefined,
+                    url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
+                    config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
+                        method: isNew ? 'POST' : 'PUT',
+                        url: url,
+                        data: obj
+                    };
+
+                return $http(config);
+            };
+
+            res.deleteItem = function (obj) {
+                var url = baseUrl + '/' + obj.objectId,
+                    config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
+                        method: 'DELETE',
+                        url: url
+                    };
+
+                return $http(config);
+            };
+
+            return res;
+        }]);
+}(angular));
+(function (angular) {
+    'use strict';
     angular.module('app').controller('eventDeleteController', ['$scope', '$modalInstance', 'event',
         function ($scope, $modalInstance, event) {
             $scope.event = event;
@@ -306,7 +523,7 @@ var angular = angular || null,
 (function (angular) {
     'use strict';
     angular.module('app').controller('eventEditController', ['$scope', '$modalInstance', 'event',
-        function ($scope, $modalInstance, event, eventDate) {
+        function ($scope, $modalInstance, event) {
             $scope.event = event;
 
             $scope.ok = function () {
