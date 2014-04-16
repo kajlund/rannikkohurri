@@ -1,7 +1,7 @@
 (function (angular) {
     'use strict';
     angular.module('app').controller('eventEditController', ['$scope', '$modalInstance', 'event',
-        function ($scope, $modalInstance, event, eventDate) {
+        function ($scope, $modalInstance, event) {
             $scope.event = event;
 
             $scope.ok = function () {
