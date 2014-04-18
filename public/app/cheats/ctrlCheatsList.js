@@ -4,8 +4,8 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('CheatsListController', ['$scope', '$rootScope', '$log', '$modal', 'CheatsDataService',
-        function ($scope, $rootScope, $log, $modal, CheatsDataService) {
+    angular.module('app').controller('CheatsListController', ['$scope', '$rootScope', '$log', '$modal', 'CheatsDataService', 'SessionService',
+        function ($scope, $rootScope, $log, $modal, CheatsDataService, SessionService) {
 
             function getItems() {
                 $rootScope.spinner.spin();
@@ -20,7 +20,7 @@ var angular = angular || null,
                         toastr.error(data.error.code + ' ' + data.error.error);
                     });
             }
-
+            $scope.session = SessionService;
             getItems();
 
             $scope.onAddClick = function () {

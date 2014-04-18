@@ -10,6 +10,9 @@ var angular = angular || null;
 
             res.getItem = function (aId) {
                 var config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
                         isArray: false,
                         method: 'GET',
                         url: baseUrl + '/' + aId
@@ -19,6 +22,9 @@ var angular = angular || null;
 
             res.getItems = function () {
                 var config = {
+                    headers: {
+                        'X-Parse-Session-Token': SessionService.sessionToken
+                    },
                     isArray: false,
                     method: 'GET',
                     url: baseUrl + '?count=1&limit=1000&order=name'
