@@ -63,7 +63,7 @@ var angular = angular || null,
                     controller: 'AboutController'
                 }).when('/books', {
                     templateUrl: 'app/books/books.html',
-                    controller: 'BooksController'
+                    controller: 'BookListController'
                 }).when('/movies', {
                     templateUrl: 'app/movies/movies.html',
                     controller: 'MoviesController'
@@ -285,10 +285,114 @@ var angular = angular || null,
 }(angular));
 (function (angular) {
     'use strict';
+    angular.module('app').controller('cheatsDeleteController', ['$scope', '$modalInstance', 'cache',
+        function ($scope, $modalInstance, cache) {
+            $scope.cache = cache;
 
-    angular.module('app').controller('BooksController', ['$scope', '$rootScope', '$location', '$log',
-        function ($scope, $rootScope, $location, $log) {
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
 
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
+        }]);
+}(angular));
+(function (angular) {
+    'use strict';
+    angular.module('app').controller('cheatsEditController', ['$scope', '$modalInstance', 'cache',
+        function ($scope, $modalInstance, cache) {
+            $scope.cache = cache;
+            $scope.cacheTypes = [
+                'Tradi',
+                'Mystery',
+                'Multi',
+                'Earth',
+                'Letterbox',
+                'Event',
+                'Lab',
+                'Virtual'
+            ];
+
+            $scope.currentType = cache.cacheType;
+
+            $scope.ok = function () {
+                $modalInstance.close('OK');
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('Cancel');
+            };
+        }]);
+}(angular));
+var angular = angular || null,
+    toastr = toastr || null;
+
+(function (angular, toastr) {
+    'use strict';
+
+    angular.module('app').controller('BookListController', ['$scope', '$rootScope', '$location', '$log',
+        function ($scope, $rootScope, $location, $log, $modal, BookDataService) {
+
+        }]);
+}(angular, toastr));
+var angular = angular || null;
+
+(function (angular) {
+    'use strict';
+
+    angular.module('app').factory('BookDataService', ['$log', '$q', '$http', 'SessionService',
+        function ($log, $q, $http, SessionService) {
+            var baseUrl = 'https://api.parse.com/1/classes/AudioBook',
+                res = {};
+
+            res.getItem = function (aId) {
+                var config = {
+                        isArray: false,
+                        method: 'GET',
+                        url: baseUrl + '/' + aId
+                    };
+                return $http(config);
+            };
+
+            res.getItems = function () {
+                var config = {
+                    isArray: false,
+                    method: 'GET',
+                    url: baseUrl + '?count=1&limit=1000&order=title'
+                };
+                return $http(config);
+            };
+
+            res.updateItem = function (obj) {
+                var isNew = obj.objectId === undefined,
+                    url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
+                    config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
+                        method: isNew ? 'POST' : 'PUT',
+                        url: url,
+                        data: obj
+                    };
+
+                return $http(config);
+            };
+
+            res.deleteItem = function (obj) {
+                var url = baseUrl + '/' + obj.objectId,
+                    config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
+                        method: 'DELETE',
+                        url: url
+                    };
+
+                return $http(config);
+            };
+
+            return res;
         }]);
 }(angular));
 (function (angular) {
@@ -339,8 +443,8 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('CheatsListController', ['$scope', '$rootScope', '$log', '$modal', 'CheatsDataService',
-        function ($scope, $rootScope, $log, $modal, CheatsDataService) {
+    angular.module('app').controller('CheatsListController', ['$scope', '$rootScope', '$log', '$modal', 'CheatsDataService', 'SessionService',
+        function ($scope, $rootScope, $log, $modal, CheatsDataService, SessionService) {
 
             function getItems() {
                 $rootScope.spinner.spin();
@@ -355,7 +459,7 @@ var angular = angular || null,
                         toastr.error(data.error.code + ' ' + data.error.error);
                     });
             }
-
+            $scope.session = SessionService;
             getItems();
 
             $scope.onAddClick = function () {
@@ -458,6 +562,9 @@ var angular = angular || null;
 
             res.getItem = function (aId) {
                 var config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
                         isArray: false,
                         method: 'GET',
                         url: baseUrl + '/' + aId
@@ -467,6 +574,9 @@ var angular = angular || null;
 
             res.getItems = function () {
                 var config = {
+                    headers: {
+                        'X-Parse-Session-Token': SessionService.sessionToken
+                    },
                     isArray: false,
                     method: 'GET',
                     url: baseUrl + '?count=1&limit=1000&order=name'
