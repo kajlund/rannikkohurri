@@ -62,7 +62,7 @@ var angular = angular || null,
                     templateUrl: 'app/about.html',
                     controller: 'AboutController'
                 }).when('/books', {
-                    templateUrl: 'app/books/books.html',
+                    templateUrl: 'app/books/list.html',
                     controller: 'BookListController'
                 }).when('/movies', {
                     templateUrl: 'app/movies/movies.html',
@@ -285,9 +285,9 @@ var angular = angular || null,
 }(angular));
 (function (angular) {
     'use strict';
-    angular.module('app').controller('cheatsDeleteController', ['$scope', '$modalInstance', 'cache',
-        function ($scope, $modalInstance, cache) {
-            $scope.cache = cache;
+    angular.module('app').controller('bookDeleteController', ['$scope', '$modalInstance', 'book',
+        function ($scope, $modalInstance, book) {
+            $scope.book = book;
 
             $scope.ok = function () {
                 $modalInstance.close('OK');
@@ -300,21 +300,23 @@ var angular = angular || null,
 }(angular));
 (function (angular) {
     'use strict';
-    angular.module('app').controller('cheatsEditController', ['$scope', '$modalInstance', 'cache',
-        function ($scope, $modalInstance, cache) {
-            $scope.cache = cache;
-            $scope.cacheTypes = [
-                'Tradi',
-                'Mystery',
-                'Multi',
-                'Earth',
-                'Letterbox',
-                'Event',
-                'Lab',
-                'Virtual'
+    angular.module('app').controller('bookEditController', ['$scope', '$modalInstance', 'book',
+        function ($scope, $modalInstance, book) {
+            $scope.book = book;
+            $scope.languages = [
+                'swe',
+                'eng',
+                'fin'
             ];
-
-            $scope.currentType = cache.cacheType;
+            $scope.genres = [
+                'Biography',
+                'History',
+                'Kids',
+                'Misc',
+                'Novel',
+                'Science',
+                'Technology'
+            ];
 
             $scope.ok = function () {
                 $modalInstance.close('OK');
@@ -331,9 +333,121 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('BookListController', ['$scope', '$rootScope', '$location', '$log',
-        function ($scope, $rootScope, $location, $log, $modal, BookDataService) {
+    angular.module('app').controller('BookListController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService', 'BookDataService',
+        function ($scope, $rootScope, $location, $log, $modal, SessionService, BookDataService) {
 
+            function getItems() {
+                $rootScope.spinner.spin();
+                BookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
+                    .then(function (res) {
+                        $scope.items = res.data.results;
+                        $scope.totalItems = res.data.count;
+                    }, function (err) {
+                        $rootScope.spinner.stop();
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+                    });
+            }
+
+            $scope.session = SessionService;
+            $scope.filter = '';
+            $scope.currentPage = 1;
+            $scope.maxSize = 10;
+            $scope.order = 'title';
+            $scope.totalItems = 0;
+            getItems();
+
+            $scope.onAddClick = function () {
+                var book = {
+                        authors: "",
+                        genre: "",
+                        image: "",
+                        lang: "",
+                        subtitle: "",
+                        title: ""
+                    },
+                    modalInstance = $modal.open({
+                        templateUrl: 'app/books/edit.html',
+                        controller: 'bookEditController',
+                        resolve: {
+                            book: function () {
+                                return book;
+                            }
+                        }
+                    });
+
+                modalInstance.result.then(function () {
+                    BookDataService.updateItem(book)
+                        .then(function (data) {
+                            // data.createdAt data.objectId
+                            $log.info('Added Audiobook %o', data);
+                            toastr.success('Audiobook added');
+                            getItems();
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
+                }, function () {
+                    $log.info('Cancelled New');
+                    toastr.warning('New cancelled');
+                });
+            };
+
+            $scope.onEditClick = function (book) {
+                var modalInstance = $modal.open({
+                    templateUrl: 'app/books/edit.html',
+                    controller: 'bookEditController',
+                    resolve: {
+                        book: function () {
+                            return book;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    BookDataService.updateItem(book)
+                        .then(function (data) {
+                            // data.updatedAt
+                            $log.info('Updated Audiobook %o', data);
+                            toastr.success('Audiobook updated');
+                            getItems();
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
+                }, function () {
+                    $log.info('Cancelled Edit');
+                    toastr.warning('Edit cancelled');
+                });
+            };
+
+            $scope.onDeleteClick = function (book) {
+                var modalInstance = $modal.open({
+                    templateUrl: 'app/books/delete.html',
+                    controller: 'bookDeleteController',
+                    resolve: { book: function () { return book; } }
+                });
+
+                modalInstance.result.then(function () {
+                    BookDataService.deleteItem(book)
+                        .then(function (data) {
+                            $log.info('Deleted Audiobook');
+                            toastr.success('Audiobook deleted');
+                            getItems();
+                        }, function (data) {
+                            $log.error(data);
+                            toastr.error(data.error.code + ' ' + data.error.error);
+                        });
+                }, function () {
+                    $log.info('Cancel');
+                    toastr.warning('Delete cancelled');
+                });
+            };
+
+            $scope.onPageChanged = function (page) {
+                $scope.currentPage = page;
+                getItems();
+            };
         }]);
 }(angular, toastr));
 var angular = angular || null;
@@ -346,8 +460,12 @@ var angular = angular || null;
             var baseUrl = 'https://api.parse.com/1/classes/AudioBook',
                 res = {};
 
+            res.pageSize = 10;
             res.getItem = function (aId) {
                 var config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
                         isArray: false,
                         method: 'GET',
                         url: baseUrl + '/' + aId
@@ -357,10 +475,29 @@ var angular = angular || null;
 
             res.getItems = function () {
                 var config = {
+                    headers: {
+                        'X-Parse-Session-Token': SessionService.sessionToken
+                    },
                     isArray: false,
                     method: 'GET',
                     url: baseUrl + '?count=1&limit=1000&order=title'
                 };
+                return $http(config);
+            };
+
+            res.getPage = function (aOrder, aFilter, aPageNum) {
+                var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
+                    skip = (aPageNum - 1) * res.pageSize,
+                    params = '?count=1&limit=' + res.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
+                    config = {
+                        headers: {
+                            'X-Parse-Session-Token': SessionService.sessionToken
+                        },
+                        isArray: false,
+                        method: 'GET',
+                        url: baseUrl + params
+                    };
+
                 return $http(config);
             };
 
@@ -375,7 +512,6 @@ var angular = angular || null;
                         url: url,
                         data: obj
                     };
-
                 return $http(config);
             };
 
@@ -388,7 +524,6 @@ var angular = angular || null;
                         method: 'DELETE',
                         url: url
                     };
-
                 return $http(config);
             };
 
@@ -526,7 +661,7 @@ var angular = angular || null,
                 });
             };
 
-            $scope.onDeleteClick = function (event) {
+            $scope.onDeleteClick = function (cache) {
                 var modalInstance = $modal.open({
                         templateUrl: 'app/cheats/delete.html',
                         controller: 'cheatsDeleteController',
