@@ -4,6 +4,10 @@ body {
     padding-top: 60px;
 }
 
+.navbar {
+    background: url('../img/linen.png') repeat-x;
+}
+
 footer {
     padding-top: 24px;
     font-size: 75%;
