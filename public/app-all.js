@@ -588,10 +588,10 @@ var angular = angular || null,
                         $log.info(data);
                         $scope.items = data.data.results;
                         $rootScope.spinner.stop();
-                    }, function (data) {
+                    }, function (err) {
                         $rootScope.spinner.stop();
-                        $log.error(data);
-                        toastr.error(data.error.code + ' ' + data.error.error);
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
                     });
             }
             $scope.session = SessionService;
@@ -603,8 +603,7 @@ var angular = angular || null,
                         cacheType: '',
                         name: '',
                         coords: '',
-                        url: '',
-                        logged: false
+                        verifiedCoords: false
                     },
                     modalInstance = $modal.open({
                         templateUrl: 'app/cheats/edit.html',
@@ -623,9 +622,9 @@ var angular = angular || null,
                             $log.info('Added Cache %o', data);
                             toastr.success('Cache added');
                             getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
+                        }, function (err) {
+                            $log.error(err);
+                            toastr.error(err.error.code + ' ' + err.error.error);
                         });
                 }, function () {
                     $log.info('Cancelled New');
@@ -651,9 +650,9 @@ var angular = angular || null,
                             $log.info('Updated Cache %o', data);
                             toastr.success('Cache updated');
                             getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
+                        }, function (err) {
+                            $log.error(err);
+                            toastr.error(err.error.code + ' ' + err.error.error);
                         });
                 }, function () {
                     $log.info('Cancelled Edit');
@@ -674,9 +673,9 @@ var angular = angular || null,
                             $log.info('Deleted Cache');
                             toastr.success('Cache deleted');
                             getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
+                        }, function (err) {
+                            $log.error(err);
+                            toastr.error(err.error.code + ' ' + err.error.error);
                         });
                 }, function () {
                     $log.info('Cancel');
