@@ -62,8 +62,8 @@ var angular = angular || null,
                     templateUrl: 'app/about.html',
                     controller: 'AboutController'
                 }).when('/books', {
-                    templateUrl: 'app/books/books.html',
-                    controller: 'BooksController'
+                    templateUrl: 'app/books/list.html',
+                    controller: 'BookListController'
                 }).when('/movies', {
                     templateUrl: 'app/movies/movies.html',
                     controller: 'MoviesController'
