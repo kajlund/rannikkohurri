@@ -13,7 +13,7 @@
     <script src="vendor/respond/src/respond.js"></script>
     <title>Rannikkohurri.net</title>
 </head>
-<body data-ng-app="app" data-ng-controller="MainController">
+<body data-ng-app="app">
     <div data-ng-include="'app/header.html'"></div>
 
     <section id="mainView" class="container" data-ng-view=""></section>
@@ -37,11 +37,12 @@
     <!-- Application Scripts -->
     <script src="app/app.js"></script>
     <script src="app/svcSession.js"></script>
-    <script src="app/ctrlMain.js"></script>
+    <script src="app/ctrlHeader.js"></script>
+    <script src="app/ctrlHome.js"></script>
     <script src="app/ctrlSignon.js"></script>
     <script src="app/ctrlAbout.js"></script>
-    <script src="app/posts/ctrlPosts.js"></script>
-    <script src="app/posts/ctrlPost.js"></script>
+    <script src="app/posts/ctrlPostList.js"></script>
+    <script src="app/posts/ctrlPostDetail.js"></script>
     <script src="app/links/ctrlLinks.js"></script>
     <script src="app/books/ctrlBookList.js"></script>
     <script src="app/books/ctrlBookEdit.js"></script>
