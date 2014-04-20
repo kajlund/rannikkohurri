@@ -1,7 +1,7 @@
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
+    angular.module('app').controller('PostListController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
         function ($scope, $rootScope, $log, $modal, PostDataService) {
             $rootScope.spinner.spin();
 
