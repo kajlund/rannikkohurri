@@ -1,7 +1,7 @@
 (function (angular, marked) {
     'use strict';
 
-    angular.module('app').controller('PostController', ['$scope', '$rootScope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
+    angular.module('app').controller('PostDetailController', ['$scope', '$rootScope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
         function ($scope, $rootScope, $routeParams, $http, $sce, $log, PostDataService) {
             $rootScope.spinner.spin();
 
