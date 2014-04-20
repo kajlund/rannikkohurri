@@ -48,13 +48,13 @@ var angular = angular || null,
                     redirectTo: '/home'
                 }).when('/home', {
                     templateUrl: 'app/home.html',
-                    controller: 'MainController'
+                    controller: 'HomeController'
                 }).when('/posts', {
                     templateUrl: 'app/posts/posts.html',
-                    controller: 'PostsController'
+                    controller: 'PostListController'
                 }).when('/posts/:id', {
                     templateUrl: 'app/posts/post.html',
-                    controller: 'PostController'
+                    controller: 'PostDetailController'
                 }).when('/links', {
                     templateUrl: 'app/links/links.html',
                     controller: 'LinksController'
