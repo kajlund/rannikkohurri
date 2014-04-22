@@ -30,51 +30,64 @@ var angular = angular || null,
 
     var app = angular.module('app', [
         // Angular modules
-        'ngRoute',      // routing
+        'ui.router',    // state-based UI routing
         'ngCookies',    // cookies
         'ui.bootstrap', // ui-bootstrap library
         'hc.marked'     // markdown directive
     ]);
 
     // Configure Routes
-    app.config(['$routeProvider', '$httpProvider', 'marked',
-        function ($routeProvider, $httpProvider, marked) {
+    app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'marked',
+        function ($stateProvider, $urlRouterProvider, $httpProvider, marked) {
             $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
             marked.setOptions({gfm: true});
 
-            $routeProvider
-                .when('/', {
-                    redirectTo: '/home'
-                }).when('/home', {
+            $urlRouterProvider.when("/posts", "/posts/list");
+            $urlRouterProvider.otherwise('home');
+
+            $stateProvider
+                .state('home', {
+                    url: '/home',
                     templateUrl: 'app/home.html',
                     controller: 'HomeController'
-                }).when('/posts', {
-                    templateUrl: 'app/posts/posts.html',
-                    controller: 'PostListController'
-                }).when('/posts/:id', {
-                    templateUrl: 'app/posts/post.html',
+                }).state('posts', {
+                    abstract: true,
+                    url: '/posts',
+                    templateUrl: 'app/posts/posts.html'
+                }).state('posts.list', {
+                    url: '/list',
+                    templateUrl: 'app/posts/list.html',
+                    controller: 'postListController'
+                }).state('posts.detail', {
+                    url: '/:id',
+                    templateUrl: 'app/posts/detail.html',
                     controller: 'PostDetailController'
-                }).when('/links', {
+                }).state('links', {
+                    url: '/links',
                     templateUrl: 'app/links/links.html',
                     controller: 'LinksController'
-                }).when('/about', {
+                }).state('about', {
+                    url: '/about',
                     templateUrl: 'app/about.html',
                     controller: 'AboutController'
-                }).when('/books', {
+                }).state('books', {
+                    url: '/books',
                     templateUrl: 'app/books/list.html',
                     controller: 'BookListController'
-                }).when('/movies', {
+                }).state('movies', {
+                    url: '/movies',
                     templateUrl: 'app/movies/movies.html',
                     controller: 'MoviesController'
-                }).when('/events', {
+                }).state('events', {
+                    url: '/events',
                     templateUrl: 'app/events/list.html',
                     controller: 'EventListController'
-                }).when('/cheats', {
+                }).state('cheats', {
+                    url: '/cheats',
                     templateUrl: 'app/cheats/list.html',
                     controller: 'CheatsListController'
-                })
-                .otherwise({ redirectTo: '/home' });
+                });
         }]);
 
     app.run(['$rootScope', '$location', '$log',

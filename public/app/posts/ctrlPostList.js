@@ -1,7 +1,10 @@
+var angular = angular || null,
+    toastr = toastr || null;
+
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('PostListController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
+    angular.module('app').controller('postListController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
         function ($scope, $rootScope, $log, $modal, PostDataService) {
             $rootScope.spinner.spin();
 
@@ -11,6 +14,10 @@
                     $scope.posts = data;
                     $scope.$apply();
                     $rootScope.spinner.stop();
+                }, function (err) {
+                    $rootScope.spinner.stop();
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
                 });
 
             $scope.onAddClick = function () {

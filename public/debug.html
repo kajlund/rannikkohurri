@@ -16,7 +16,9 @@
 <body data-ng-app="app">
     <div data-ng-include="'app/header.html'"></div>
 
-    <section id="mainView" class="container" data-ng-view=""></section>
+    <div class="container">
+        <div ui-view></div>
+    </div>
 
     <div data-ng-include="'app/footer.html'"></div>
 
@@ -24,9 +26,9 @@
     <script src="vendor/jquery/jquery.js"></script>
     <script src="vendor/moment/moment.js"></script>
     <script src="vendor/angular/angular.js"></script>
-    <script src="vendor/angular-route/angular-route.js"></script>
     <script src="vendor/angular-cookies/angular-cookies.js"></script>
     <script src="vendor/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="vendor/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="vendor/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="vendor/toastr/toastr.js"></script>
     <script src="vendor/parse-js-sdk/lib/parse.js"></script>

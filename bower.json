@@ -20,7 +20,6 @@
     "modernizr": "~2.7.2",
     "respond": "~1.4.2",
     "angular": "~1.2.15",
-    "angular-route": "~1.2.15",
     "angular-cookies": "~1.2.15",
     "angular-touch": "~1.2.15",
     "jquery": "~1.10.2",
@@ -30,6 +29,7 @@
     "font-awesome": "~4.0.3",
     "angular-bootstrap": "~0.10.0",
     "parse-js-sdk": "~1.2.16",
-    "angular-marked": "Hypercubed/angular-marked#~0.0.5"
+    "angular-marked": "Hypercubed/angular-marked#~0.0.5",
+    "angular-ui-router": "~0.2.10"
   }
 }
