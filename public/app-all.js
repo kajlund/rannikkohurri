@@ -30,51 +30,64 @@ var angular = angular || null,
 
     var app = angular.module('app', [
         // Angular modules
-        'ngRoute',      // routing
+        'ui.router',    // state-based UI routing
         'ngCookies',    // cookies
         'ui.bootstrap', // ui-bootstrap library
         'hc.marked'     // markdown directive
     ]);
 
     // Configure Routes
-    app.config(['$routeProvider', '$httpProvider', 'marked',
-        function ($routeProvider, $httpProvider, marked) {
+    app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'marked',
+        function ($stateProvider, $urlRouterProvider, $httpProvider, marked) {
             $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
             marked.setOptions({gfm: true});
 
-            $routeProvider
-                .when('/', {
-                    redirectTo: '/home'
-                }).when('/home', {
+            $urlRouterProvider.when("/posts", "/posts/list");
+            $urlRouterProvider.otherwise('home');
+
+            $stateProvider
+                .state('home', {
+                    url: '/home',
                     templateUrl: 'app/home.html',
-                    controller: 'MainController'
-                }).when('/posts', {
-                    templateUrl: 'app/posts/posts.html',
-                    controller: 'PostsController'
-                }).when('/posts/:id', {
-                    templateUrl: 'app/posts/post.html',
-                    controller: 'PostController'
-                }).when('/links', {
+                    controller: 'HomeController'
+                }).state('posts', {
+                    abstract: true,
+                    url: '/posts',
+                    templateUrl: 'app/posts/posts.html'
+                }).state('posts.list', {
+                    url: '/list',
+                    templateUrl: 'app/posts/list.html',
+                    controller: 'postListController'
+                }).state('posts.detail', {
+                    url: '/:id',
+                    templateUrl: 'app/posts/detail.html',
+                    controller: 'PostDetailController'
+                }).state('links', {
+                    url: '/links',
                     templateUrl: 'app/links/links.html',
                     controller: 'LinksController'
-                }).when('/about', {
+                }).state('about', {
+                    url: '/about',
                     templateUrl: 'app/about.html',
                     controller: 'AboutController'
-                }).when('/books', {
+                }).state('books', {
+                    url: '/books',
                     templateUrl: 'app/books/list.html',
                     controller: 'BookListController'
-                }).when('/movies', {
+                }).state('movies', {
+                    url: '/movies',
                     templateUrl: 'app/movies/movies.html',
                     controller: 'MoviesController'
-                }).when('/events', {
+                }).state('events', {
+                    url: '/events',
                     templateUrl: 'app/events/list.html',
                     controller: 'EventListController'
-                }).when('/cheats', {
+                }).state('cheats', {
+                    url: '/cheats',
                     templateUrl: 'app/cheats/list.html',
                     controller: 'CheatsListController'
-                })
-                .otherwise({ redirectTo: '/home' });
+                });
         }]);
 
     app.run(['$rootScope', '$location', '$log',
@@ -111,37 +124,15 @@ var angular = angular || null,
 
         }]);
 }(angular));
+var angular = angular || null,
+    toastr = toastr || null;
+
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('MainController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
+    angular.module('app').controller('HeaderController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
         function ($scope, $rootScope, $location, $log, $modal, SessionService) {
-
-            $rootScope.spinnerOptions = {
-                radius: 40,
-                lines: 7,
-                length: 0,
-                width: 30,
-                speed: 1.7,
-                corners: 1,
-                trail: 100,
-                color: '#000',
-                left: 'auto',
-                top: 'auto'
-            };
             $scope.session = SessionService;
-            $log.info(SessionService);
-
-            if (!SessionService.loggedOn()) {
-                $log.info('not logged on');
-                SessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info($scope.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
-            }
-            $rootScope.spinner.stop();
 
             $scope.getClass = function (path) {
                 var className = "";
@@ -183,6 +174,26 @@ var angular = angular || null,
             };
         }]);
 }(angular, toastr));
+var angular = angular || null;
+
+(function (angular) {
+    'use strict';
+
+    angular.module('app').controller('HomeController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
+        function ($scope, $rootScope, $location, $log, $modal, SessionService) {
+            $scope.session = SessionService;
+
+            if (!SessionService.loggedOn()) {
+                $log.info('not logged on');
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+        }]);
+}(angular));
 (function (angular) {
     'use strict';
 
@@ -785,8 +796,8 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'EventDataService',
-        function ($scope, $rootScope, $log, $modal, EventDataService) {
+    angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'SessionService', 'EventDataService',
+        function ($scope, $rootScope, $log, $modal, SessionService, EventDataService) {
 
             function getEvents() {
                 $rootScope.spinner.spin();
@@ -802,6 +813,7 @@ var angular = angular || null,
                     });
             }
 
+            $scope.session = SessionService;
             getEvents();
 
             $scope.onAddClick = function () {
@@ -967,30 +979,6 @@ var angular = angular || null;
 
         }]);
 }(angular));
-(function (angular, marked) {
-    'use strict';
-
-    angular.module('app').controller('PostController', ['$scope', '$rootScope', '$routeParams', '$http', '$sce', '$log', 'PostDataService',
-        function ($scope, $rootScope, $routeParams, $http, $sce, $log, PostDataService) {
-            $rootScope.spinner.spin();
-
-            function renderData(aPost) {
-                $http.get('/dropbox/' + aPost.get('slug'))
-                    .then(function (data) {
-                        $scope.markdown = $sce.trustAsHtml(marked(data.data));
-                        $rootScope.spinner.stop();
-                    });
-            }
-
-            if ($routeParams.id) {
-                PostDataService.getPost($routeParams.id)
-                    .then(function (data) {
-                        $scope.title = data.get('title');
-                        renderData(data);
-                    });
-            }
-        }]);
-}(angular, marked));
 (function (angular) {
     'use strict';
     angular.module('app').controller('postDeleteController', ['$scope', '$modalInstance', 'post',
@@ -1006,6 +994,41 @@ var angular = angular || null;
             };
         }]);
 }(angular));
+var angular = angular || null,
+    marked = marked || null,
+    toastr = toastr || null;
+
+(function (angular, marked, toastr) {
+    'use strict';
+
+    angular.module('app').controller('PostDetailController', ['$scope', '$rootScope', '$stateParams', '$http', '$sce', '$log', 'PostDataService',
+        function ($scope, $rootScope, $stateParams, $http, $sce, $log, PostDataService) {
+            $rootScope.spinner.spin();
+
+            function renderData(aPost) {
+                $http.get('/dropbox/' + aPost.get('slug'))
+                    .then(function (data) {
+                        $scope.markdown = $sce.trustAsHtml(marked(data.data));
+                    }, function (err) {
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+                    });
+            }
+
+            if ($stateParams.id) {
+                PostDataService.getPost($stateParams.id)
+                    .then(function (data) {
+                        $scope.title = data.get('title');
+                        renderData(data);
+                        $rootScope.spinner.stop();
+                    },  function (err) {
+                        $rootScope.spinner.stop();
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+                    });
+            }
+        }]);
+}(angular, marked, toastr));
 (function (angular) {
     'use strict';
     angular.module('app').controller('postEditController', ['$scope', '$modalInstance', 'post',
@@ -1021,10 +1044,13 @@ var angular = angular || null;
             };
         }]);
 }(angular));
+var angular = angular || null,
+    toastr = toastr || null;
+
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('PostsController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
+    angular.module('app').controller('postListController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
         function ($scope, $rootScope, $log, $modal, PostDataService) {
             $rootScope.spinner.spin();
 
@@ -1034,6 +1060,10 @@ var angular = angular || null;
                     $scope.posts = data;
                     $scope.$apply();
                     $rootScope.spinner.stop();
+                }, function (err) {
+                    $rootScope.spinner.stop();
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
                 });
 
             $scope.onAddClick = function () {
