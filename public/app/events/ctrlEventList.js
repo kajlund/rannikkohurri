@@ -4,8 +4,8 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'EventDataService',
-        function ($scope, $rootScope, $log, $modal, EventDataService) {
+    angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'SessionService', 'EventDataService',
+        function ($scope, $rootScope, $log, $modal, SessionService, EventDataService) {
 
             function getEvents() {
                 $rootScope.spinner.spin();
@@ -21,6 +21,7 @@ var angular = angular || null,
                     });
             }
 
+            $scope.session = SessionService;
             getEvents();
 
             $scope.onAddClick = function () {
