@@ -695,7 +695,7 @@ var angular = angular || null,
                     });
 
                 modalInstance.result.then(function () {
-                    EventDataService.deleteItem(cache)
+                    CheatsDataService.deleteItem(cache)
                         .then(function (data) {
                             $log.info('Deleted Cache');
                             toastr.success('Cache deleted');
