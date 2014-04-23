@@ -8,13 +8,14 @@ var angular = angular || null,
         function ($scope, $rootScope, $location, $log, $modal, SessionService, BookDataService) {
 
             function getItems() {
-                $rootScope.spinner.spin();
+                $rootScope.busy(true);
                 BookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
+                        $rootScope.busy(false);
                         $scope.items = res.data.results;
                         $scope.totalItems = res.data.count;
                     }, function (err) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });

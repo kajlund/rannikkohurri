@@ -6,16 +6,16 @@ var angular = angular || null,
 
     angular.module('app').controller('postListController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
         function ($scope, $rootScope, $log, $modal, PostDataService) {
-            $rootScope.spinner.spin();
+            $rootScope.busy(true);
 
             PostDataService.getPosts()
                 .then(function (data) {
                     $log.info(data);
                     $scope.posts = data;
                     $scope.$apply();
-                    $rootScope.spinner.stop();
+                    $rootScope.busy(false);
                 }, function (err) {
-                    $rootScope.spinner.stop();
+                    $rootScope.busy(false);
                     $log.error(err);
                     toastr.error(err.error.code + ' ' + err.error.error);
                 });

@@ -8,14 +8,14 @@ var angular = angular || null,
         function ($scope, $rootScope, $log, $modal, CheatsDataService, SessionService) {
 
             function getItems() {
-                $rootScope.spinner.spin();
+                $rootScope.busy(true);
                 CheatsDataService.getItems()
                     .then(function (data) {
                         $log.info(data);
                         $scope.items = data.data.results;
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });

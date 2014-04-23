@@ -8,14 +8,14 @@ var angular = angular || null,
         function ($scope, $rootScope, $log, $modal, SessionService, EventDataService) {
 
             function getEvents() {
-                $rootScope.spinner.spin();
+                $rootScope.busy(true);
                 EventDataService.getEvents()
                     .then(function (data) {
                         $log.info(data);
                         $scope.events = data.data.results;
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                     }, function (data) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(data);
                         toastr.error(data.error.code + ' ' + data.error.error);
                     });

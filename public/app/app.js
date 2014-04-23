@@ -15,7 +15,7 @@ var angular = angular || null,
         speed: 1.7,
         corners: 1,
         trail: 100,
-        color: '#D00062',
+        color: '#333',
         zIndex: 2e9,
         left: 'auto',
         top: '200px'
@@ -90,10 +90,22 @@ var angular = angular || null,
                 });
         }]);
 
-    app.run(['$rootScope', '$location', '$log',
-        function ($rootScope, $location, $log) {
-            $rootScope.spinner = new Spinner(spinnerOpts).spin(window.document.documentElement);
-            $rootScope.spinner.spin();
+    app.run(['$rootScope', '$location', '$log', '$modal', '$window',
+        function ($rootScope, $location, $log, $modal, $window) {
+
+            $rootScope.busy = function (isBusy) {
+                if (isBusy) {
+                    if (!$rootScope.spinner) {
+                        $rootScope.spinner = new $window.Spinner(spinnerOpts);
+                    }
+                    $rootScope.spinner.spin($window.document.documentElement);
+                } else {
+                    if ($rootScope.spinner) {
+                        $rootScope.spinner.stop();
+                    }
+                }
+            };
+
             $log.info('App Loaded');
         }]);
 

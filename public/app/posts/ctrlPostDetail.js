@@ -7,7 +7,7 @@ var angular = angular || null,
 
     angular.module('app').controller('PostDetailController', ['$scope', '$rootScope', '$stateParams', '$http', '$sce', '$log', 'PostDataService',
         function ($scope, $rootScope, $stateParams, $http, $sce, $log, PostDataService) {
-            $rootScope.spinner.spin();
+            $rootScope.busy(true);
 
             function renderData(aPost) {
                 $http.get('/dropbox/' + aPost.get('slug'))
@@ -24,9 +24,9 @@ var angular = angular || null,
                     .then(function (data) {
                         $scope.title = data.get('title');
                         renderData(data);
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                     },  function (err) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
