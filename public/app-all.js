@@ -15,7 +15,7 @@ var angular = angular || null,
         speed: 1.7,
         corners: 1,
         trail: 100,
-        color: '#D00062',
+        color: '#333',
         zIndex: 2e9,
         left: 'auto',
         top: '200px'
@@ -90,10 +90,22 @@ var angular = angular || null,
                 });
         }]);
 
-    app.run(['$rootScope', '$location', '$log',
-        function ($rootScope, $location, $log) {
-            $rootScope.spinner = new Spinner(spinnerOpts).spin(window.document.documentElement);
-            $rootScope.spinner.spin();
+    app.run(['$rootScope', '$location', '$log', '$modal', '$window',
+        function ($rootScope, $location, $log, $modal, $window) {
+
+            $rootScope.busy = function (isBusy) {
+                if (isBusy) {
+                    if (!$rootScope.spinner) {
+                        $rootScope.spinner = new $window.Spinner(spinnerOpts);
+                    }
+                    $rootScope.spinner.spin($window.document.documentElement);
+                } else {
+                    if ($rootScope.spinner) {
+                        $rootScope.spinner.stop();
+                    }
+                }
+            };
+
             $log.info('App Loaded');
         }]);
 
@@ -184,12 +196,15 @@ var angular = angular || null;
             $scope.session = SessionService;
 
             if (!SessionService.loggedOn()) {
+                $rootScope.busy(true);
                 $log.info('not logged on');
                 SessionService.autoSignon()
                     .then(function (data) {
                         $log.info($scope.session);
+                        $rootScope.busy(false);
                     }, function (err) {
                         $log.error(err);
+                        $rootScope.busy(false);
                     });
             }
         }]);
@@ -348,13 +363,14 @@ var angular = angular || null,
         function ($scope, $rootScope, $location, $log, $modal, SessionService, BookDataService) {
 
             function getItems() {
-                $rootScope.spinner.spin();
+                $rootScope.busy(true);
                 BookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
+                        $rootScope.busy(false);
                         $scope.items = res.data.results;
                         $scope.totalItems = res.data.count;
                     }, function (err) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
@@ -593,14 +609,14 @@ var angular = angular || null,
         function ($scope, $rootScope, $log, $modal, CheatsDataService, SessionService) {
 
             function getItems() {
-                $rootScope.spinner.spin();
+                $rootScope.busy(true);
                 CheatsDataService.getItems()
                     .then(function (data) {
                         $log.info(data);
                         $scope.items = data.data.results;
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
@@ -800,14 +816,14 @@ var angular = angular || null,
         function ($scope, $rootScope, $log, $modal, SessionService, EventDataService) {
 
             function getEvents() {
-                $rootScope.spinner.spin();
+                $rootScope.busy(true);
                 EventDataService.getEvents()
                     .then(function (data) {
                         $log.info(data);
                         $scope.events = data.data.results;
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                     }, function (data) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(data);
                         toastr.error(data.error.code + ' ' + data.error.error);
                     });
@@ -1003,7 +1019,7 @@ var angular = angular || null,
 
     angular.module('app').controller('PostDetailController', ['$scope', '$rootScope', '$stateParams', '$http', '$sce', '$log', 'PostDataService',
         function ($scope, $rootScope, $stateParams, $http, $sce, $log, PostDataService) {
-            $rootScope.spinner.spin();
+            $rootScope.busy(true);
 
             function renderData(aPost) {
                 $http.get('/dropbox/' + aPost.get('slug'))
@@ -1020,9 +1036,9 @@ var angular = angular || null,
                     .then(function (data) {
                         $scope.title = data.get('title');
                         renderData(data);
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                     },  function (err) {
-                        $rootScope.spinner.stop();
+                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
@@ -1052,16 +1068,16 @@ var angular = angular || null,
 
     angular.module('app').controller('postListController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
         function ($scope, $rootScope, $log, $modal, PostDataService) {
-            $rootScope.spinner.spin();
+            $rootScope.busy(true);
 
             PostDataService.getPosts()
                 .then(function (data) {
                     $log.info(data);
                     $scope.posts = data;
                     $scope.$apply();
-                    $rootScope.spinner.stop();
+                    $rootScope.busy(false);
                 }, function (err) {
-                    $rootScope.spinner.stop();
+                    $rootScope.busy(false);
                     $log.error(err);
                     toastr.error(err.error.code + ' ' + err.error.error);
                 });
