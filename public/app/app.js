@@ -78,7 +78,7 @@ var angular = angular || null,
                 }).state('movies', {
                     url: '/movies',
                     templateUrl: 'app/movies/movies.html',
-                    controller: 'MoviesController'
+                    controller: 'MovieListController'
                 }).state('events', {
                     url: '/events',
                     templateUrl: 'app/events/list.html',
