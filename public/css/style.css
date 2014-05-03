@@ -62,11 +62,11 @@ footer {
 
 .date h1 span {
     font-size: 16px;
-     vertical-align: super;
+    vertical-align: super;
 }
 
-.spinner {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 200px;
+
+.custom-search-form{
+    margin-top:5px;
+    margin-bottom: 22px;
 }
