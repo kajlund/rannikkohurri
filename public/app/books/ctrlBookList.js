@@ -120,5 +120,11 @@ var angular = angular || null,
                 $scope.currentPage = page;
                 getItems();
             };
+
+            $scope.search = function (frm) {
+                $scope.filter = frm.filter;
+                $scope.currentPage = 1;
+                getItems();
+            };
         }]);
 }(angular, toastr));
