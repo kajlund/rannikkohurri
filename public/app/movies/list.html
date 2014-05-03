@@ -1,0 +1,56 @@
+<div class="container">
+    <div class="page-header">
+        <button type="button" class="btn btn-primary pull-right"
+                data-ng-click="onAddClick()"
+                data-ng-class="{hidden: !session.loggedOn()}">
+            New Movie
+        </button>
+        <h1><i class="fa fa-film"></i> Movies</h1>
+    </div>
+
+    <div data-ng-if="!session.loggedOn()">
+        <div class="jumbotron">
+            <h1>Sorry!<small>:-(</small></h1>
+            <p>You need to be logged on to use this section of the site.</p>
+        </div>
+    </div>
+
+    <div data-ng-if="session.loggedOn()">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-hover">
+                    <tr>
+                        <th>Seen</th><th>Title</th><th>Rating</th>
+                        <th data-ng-class="{hidden: !session.loggedOn()}">
+                            Commands
+                        </th>
+                    </tr>
+                    <tr data-ng-repeat="i in items">
+                        <td>{{ i.seenAt.iso | date: 'yyyy-MM-dd'}}</td>
+                        <td><a href="{{ i.url }}" target="_blank">{{ i.etitle }}</a></td>
+                        <td>{{ i.rating }}</td>
+                        <td data-ng-class="{hidden: !session.loggedOn()}">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary"
+                                        data-ng-click="onEditClick(i)">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger"
+                                        data-ng-click="onDeleteClick(i)">
+                                    <i class="fa fa-trash-o"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <pagination total-items="totalItems" page="currentPage"
+                    max-size="maxSize" class="pagination-sm"
+                    boundary-links="true" rotate="false"
+                    num-pages="numPages" on-select-page="onPageChanged(page)">
+        </pagination>
+        <pre>Page: {{currentPage}} / {{numPages}}</pre>
+    </div>
+</div>

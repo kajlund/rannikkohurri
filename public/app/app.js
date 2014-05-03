@@ -77,7 +77,7 @@ var angular = angular || null,
                     controller: 'BookListController'
                 }).state('movies', {
                     url: '/movies',
-                    templateUrl: 'app/movies/movies.html',
+                    templateUrl: 'app/movies/list.html',
                     controller: 'MovieListController'
                 }).state('events', {
                     url: '/events',
@@ -90,8 +90,8 @@ var angular = angular || null,
                 });
         }]);
 
-    app.run(['$rootScope', '$location', '$log', '$modal', '$window',
-        function ($rootScope, $location, $log, $modal, $window) {
+    app.run(['$rootScope', '$location', '$log', '$window',
+        function ($rootScope, $location, $log, $window) {
 
             $rootScope.busy = function (isBusy) {
                 if (isBusy) {
