@@ -90,8 +90,8 @@ var angular = angular || null,
                 });
         }]);
 
-    app.run(['$rootScope', '$location', '$log', '$window',
-        function ($rootScope, $location, $log, $window) {
+    app.run(['$rootScope', '$state', '$stateParams', '$log', '$window',
+        function ($rootScope, $state, $stateParams, $log, $window) {
 
             $rootScope.busy = function (isBusy) {
                 if (isBusy) {
