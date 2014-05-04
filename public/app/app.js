@@ -105,7 +105,8 @@ var angular = angular || null,
                     }
                 }
             };
-
+            $rootScope.$state = $state;
+            $rootScope.$stateParams = $stateParams;
             $log.info('App Loaded');
         }]);
 
