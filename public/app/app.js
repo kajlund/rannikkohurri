@@ -28,17 +28,21 @@ var angular = angular || null,
 
     var app = angular.module('app', [
         // Angular modules
-        'ui.router',    // state-based UI routing
-        'ngCookies',    // cookies
-        'ui.bootstrap', // ui-bootstrap library
-        'hc.marked'     // markdown directive
+        'ui.router',     // state-based UI routing
+        'ngAnimate',     // animate (for angular-strap)
+        'ngCookies',     // cookies
+        'mgcrea.ngStrap' // angular-strap library
     ]);
 
     // Configure Routes
-    app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'marked',
-        function ($stateProvider, $urlRouterProvider, $httpProvider, marked) {
+    app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider',
+        function ($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider) {
             $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
+            angular.extend($modalProvider.defaults, {
+                animation: 'am-fade-and-scale',
+                placement: 'center'
+            });
             marked.setOptions({gfm: true});
 
             $urlRouterProvider.when("/posts", "/posts/list");
