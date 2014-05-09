@@ -4,9 +4,16 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('HeaderController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
+    angular.module('app').controller('headerController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
         function ($scope, $rootScope, $location, $log, $modal, SessionService) {
+            var modalInstance = $modal({
+                scope: $scope,
+                template: 'app/signon.html',
+                show: false
+            });
+
             $scope.session = SessionService;
+            $scope.user = { name: '', pwd: '' };
 
             $scope.getClass = function (path) {
                 var className = "";
@@ -17,28 +24,17 @@ var angular = angular || null,
                 return className;
             };
 
-            $scope.onSignonClick = function () {
-                var user = { name: '', pwd: '' },
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/signon.html',
-                        controller: 'SignonController',
-                        resolve: {
-                            user: function () {
-                                return user;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    SessionService.signon(user.name, user.pwd)
-                        .then(function (result) {
-                            toastr.info(SessionService.userObj.username + ' signed on');
-                        }, function (error) {
-                            toastr.error(error.error);
-                        });
-                }, function () {
-                    toastr.info('Signon cancelled');
+            $scope.login = function () {
+                modalInstance.hide();
+                SessionService.signon($scope.user.name, $scope.user.pwd).then(function () {
+                    toastr.info(SessionService.userObj.username + ' signed on');
+                }, function (error) {
+                    toastr.error(error.error);
                 });
+            };
+
+            $scope.onSignonClick = function () {
+                modalInstance.$promise.then(modalInstance.show);
             };
 
             $scope.onSignoffClick = function () {
