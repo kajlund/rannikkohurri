@@ -19,7 +19,7 @@ var angular = angular || null,
         top: '200px'
     };
 
-    moment.lang('sv');
+    //moment.lang('sv');
 
     // Configure Toastr
     toastr.options.timeOut = 2000;
