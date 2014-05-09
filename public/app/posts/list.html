@@ -10,16 +10,16 @@
 
     <div class="row post" data-ng-repeat="p in posts">
         <div class="col-md-2 bg-primary date">
-            <h3>{{ p.get('publishDate') | date:'MMM' }}</h3>
-            <h1>{{ p.get('publishDate') | date:'d' }}&nbsp;
-                <span>{{ p.get('publishDate') | date:'yyyy' }}</span>
+            <h3>{{ p.publishDate.iso | date:'MMM' }}</h3>
+            <h1>{{ p.publishDate.iso | date:'d' }}&nbsp;
+                <span>{{ p.publishDate.iso | date:'yyyy' }}</span>
             </h1>
         </div>
         <div class="col-md-10">
             <h3>
-                <a ui-sref="posts.detail({'id': p.id})">{{ p.get('title') }}</a>
+                <a ui-sref="posts.detail({'id': p.id})">{{ p.title }}</a>
             </h3>
-            <p>{{ p.get('excerpt') }}</p>
+            <p>{{ p.excerpt }}</p>
 
             <div class="btn-toolbar pull-right">
                 <div class="btn-group">
@@ -38,7 +38,7 @@
                 </div>
                 <div class="btn-group">
                     <a class="btn btn-primary" href="#/posts/{{ p.id }}"
-                       role="button">More...
+                       role="button">Read more...
                     </a>
                 </div>
             </div>

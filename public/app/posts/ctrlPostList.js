@@ -9,10 +9,9 @@ var angular = angular || null,
             $rootScope.busy(true);
 
             PostDataService.getPosts()
-                .then(function (data) {
-                    $log.info(data);
-                    $scope.posts = data;
-                    $scope.$apply();
+                .then(function (res) {
+                    $log.info(res);
+                    $scope.posts = res.data.results;
                     $rootScope.busy(false);
                 }, function (err) {
                     $rootScope.busy(false);
