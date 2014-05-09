@@ -1,9 +1,7 @@
 var angular = angular || null,
-    toastr = toastr || null,
-    Spinner = Spinner || null,
-    moment = moment || null;
+    toastr = toastr || null;
 
-(function (angular, toastr, Spinner, moment) {
+(function (angular, toastr) {
     'use strict';
 
     // Spinner Configuration
@@ -128,4 +126,4 @@ var angular = angular || null,
         };
     });
 
-}(angular, toastr, Spinner, moment));
+}(angular, toastr));
