@@ -1,38 +1,29 @@
-var angular = angular || null,
-    toastr = toastr || null;
+var angular = angular || null;
 
-(function (angular, toastr) {
+(function (angular) {
     'use strict';
 
     // Spinner Configuration
     var spinnerOpts = {
-        radius: 40,
-        lines: 7,
-        length: 0,
-        width: 30,
-        speed: 1.7,
-        corners: 1,
-        trail: 100,
-        color: '#333',
-        zIndex: 2e9,
-        left: 'auto',
-        top: '200px'
-    };
-
-    //moment.lang('sv');
-
-    // Configure Toastr
-    toastr.options.timeOut = 2000;
-    toastr.options.positionClass = 'toast-bottom-right';
-
-
-    var app = angular.module('app', [
-        // Angular modules
-        'ui.router',     // state-based UI routing
-        'ngAnimate',     // animate (for angular-strap)
-        'ngCookies',     // cookies
-        'mgcrea.ngStrap' // angular-strap library
-    ]);
+            radius: 40,
+            lines: 7,
+            length: 0,
+            width: 30,
+            speed: 1.7,
+            corners: 1,
+            trail: 100,
+            color: '#333',
+            zIndex: 2e9,
+            left: 'auto',
+            top: '200px'
+        },
+        app = angular.module('app', [
+            // Angular modules
+            'ui.router',     // state-based UI routing
+            'ngAnimate',     // animate (for angular-strap)
+            'ngCookies',     // cookies
+            'mgcrea.ngStrap' // angular-strap library
+        ]);
 
     // Configure Routes
     app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider',
@@ -43,7 +34,6 @@ var angular = angular || null,
                 animation: 'am-fade-and-scale',
                 placement: 'center'
             });
-            marked.setOptions({gfm: true});
 
             $urlRouterProvider.when("/posts", "/posts/list");
             $urlRouterProvider.otherwise('home');
@@ -81,6 +71,10 @@ var angular = angular || null,
                     url: '/movies',
                     templateUrl: 'app/movies/list.html',
                     controller: 'MovieListController'
+                }).state('movieedit', {
+                    url: '/movies:movieId',
+                    templateUrl: 'app/movies/edit.html',
+                    controller: 'movieEditController'
                 }).state('events', {
                     url: '/events',
                     templateUrl: 'app/events/list.html',
@@ -107,6 +101,14 @@ var angular = angular || null,
                     }
                 }
             };
+            $log.info($window);
+            // Configure Toastr library
+            $window.toastr.options.timeOut = 2000;
+            $window.toastr.options.positionClass = 'toast-bottom-right';
+            // Configure marked library
+            $window.marked.setOptions({gfm: true});
+            // Configure moment library
+            //$window.moment.lang('sv');
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
             $log.info('App Loaded');
@@ -130,4 +132,4 @@ var angular = angular || null,
         };
     });
 
-}(angular, toastr));
+}(angular));
