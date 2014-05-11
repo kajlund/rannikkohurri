@@ -1,7 +1,7 @@
 var angular = angular || null,
     toastr = toastr || null;
 
-(function (app, toastr) {
+(function (app) {
     'use strict';
 
     app.controller('bookEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'bookDataService',
@@ -63,4 +63,4 @@ var angular = angular || null,
                 $state.go('books');
             };
         }]);
-}(angular.module('app'), toastr));
+}(angular.module('app')));
