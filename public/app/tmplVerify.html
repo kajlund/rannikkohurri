@@ -1,0 +1,19 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+                <div class="modal-header" ng-show="title">
+                    <button type="button" class="close" ng-click="dlgVerifyCancel()">&times;</button>
+                    <h4 class="modal-title" ng-bind-html="title"></h4>
+                </div>
+                <div class="modal-body">
+                    <p ng-bind-html="content"></p>
+                    <p><strong>Are You Sure?</strong></p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-click="dlgVerifyCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="dlgVerifyOK()">OK</button>
+                </div>
+        </div>
+    </div>
+</div>
