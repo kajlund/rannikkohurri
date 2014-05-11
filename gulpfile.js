@@ -12,6 +12,7 @@ var gulp = require('gulp'),
     filesToDist = [
         'public/vendor/modernizr/modernizr.js',
         'public/vendor/respond/dest/respond.min.js',
+        'public/vendor/underscore/underscore.js',
         'public/vendor/angular/angular.min.js',
         'public/vendor/angular-animate/angular-animate.min.js',
         'public/vendor/angular-cookies/angular-cookies.min.js',
