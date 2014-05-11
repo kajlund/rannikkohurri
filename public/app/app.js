@@ -72,7 +72,7 @@ var angular = angular || null;
                 }).state('movies', {
                     url: '/movies',
                     templateUrl: 'app/movies/list.html',
-                    controller: 'MovieListController'
+                    controller: 'movieListController'
                 }).state('movieedit', {
                     url: '/movies:movieId',
                     templateUrl: 'app/movies/edit.html',

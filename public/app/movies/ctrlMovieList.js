@@ -1,22 +1,23 @@
 var angular = angular || null,
     toastr = toastr || null;
 
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').controller('MovieListController', ['$scope', '$rootScope', '$modal', '$log', '$state', 'SessionService', 'movieDataService',
+    app.controller('movieListController', ['$scope', '$rootScope', '$modal', '$log', '$state', 'SessionService', 'movieDataService',
         function ($scope, $rootScope, $modal, $log, $state, SessionService, movieDataService) {
             var modalInstance = null;
 
             function getItems() {
-                if ($scope.fetching)
+                if ($scope.fetching) {
                     return;
+                }
                 $scope.fetching = true;
                 $rootScope.busy(true);
                 movieDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
                         $scope.items = $scope.items.concat(res.data.results);
-                        $scope.totalItems = $scope.items.length;
+                        $scope.totalItems = res.data.count;
                         $rootScope.busy(false);
                         $scope.fetching = false;
                     }, function (err) {
@@ -58,11 +59,6 @@ var angular = angular || null,
                 });
             };
 
-            $scope.onPageChanged = function (page) {
-                $scope.currentPage = page;
-                getItems();
-            };
-
             $scope.dlgVerifyCancel = function () {
                 modalInstance.hide();
                 toastr.warning('Delete cancelled');
@@ -70,21 +66,25 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
+                $rootScope.busy(true);
                 movieDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Movie');
                         toastr.success('Movie deleted');
-                        getItems();
+                        $scope.items = _.filter($scope.items, function (movie) {
+                            return movie.objectId !== $scope.currentItem.objectId;
+                        });
+                        $rootScope.busy(false);
                     }, function (err) {
+                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
             };
 
             $scope.scroll = function () {
-                $log.info('Scrolling');
                 $scope.currentPage += 1;
                 getItems();
             };
         }]);
-}(angular));
+}(angular.module('app')));
