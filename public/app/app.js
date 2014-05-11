@@ -68,7 +68,11 @@ var angular = angular || null;
                 }).state('books', {
                     url: '/books',
                     templateUrl: 'app/books/list.html',
-                    controller: 'BookListController'
+                    controller: 'bookListController'
+                }).state('bookedit', {
+                    url: '/books:bookId',
+                    templateUrl: 'app/books/edit.html',
+                    controller: 'bookEditController'
                 }).state('movies', {
                     url: '/movies',
                     templateUrl: 'app/movies/list.html',

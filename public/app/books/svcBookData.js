@@ -3,12 +3,12 @@ var angular = angular || null;
 (function (angular) {
     'use strict';
 
-    angular.module('app').factory('BookDataService', ['$log', '$q', '$http', 'SessionService',
+    angular.module('app').factory('bookDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/AudioBook',
                 res = {};
 
-            res.pageSize = 10;
+            res.pageSize = 100;
             res.getItem = function (aId) {
                 var config = {
                         headers: {

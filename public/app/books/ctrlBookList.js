@@ -1,23 +1,30 @@
 var angular = angular || null,
     toastr = toastr || null;
 
-(function (angular, toastr) {
+(function (app) {
     'use strict';
 
-    angular.module('app').controller('BookListController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService', 'BookDataService',
-        function ($scope, $rootScope, $location, $log, $modal, SessionService, BookDataService) {
+    app.controller('bookListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'bookDataService',
+        function ($scope, $rootScope, $state, $log, $modal, SessionService, bookDataService) {
+            var modalInstance = null;
 
             function getItems() {
+                if ($scope.fetching) {
+                    return;
+                }
+                $scope.fetching = true;
                 $rootScope.busy(true);
-                BookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
+                bookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
-                        $rootScope.busy(false);
-                        $scope.items = res.data.results;
+                        $scope.items = $scope.items.concat(res.data.results);
                         $scope.totalItems = res.data.count;
+                        $rootScope.busy(false);
+                        $scope.fetching = false;
                     }, function (err) {
                         $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
+                        $scope.fetching = false;
                     });
             }
 
@@ -27,104 +34,58 @@ var angular = angular || null,
             $scope.maxSize = 10;
             $scope.order = 'title';
             $scope.totalItems = 0;
+            $scope.currentItem = null;
+            $scope.items = [];
+            $scope.fetching = false;
+
             getItems();
 
             $scope.onAddClick = function () {
-                var book = {
-                        authors: "",
-                        genre: "",
-                        image: "",
-                        lang: "",
-                        subtitle: "",
-                        title: ""
-                    },
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/books/edit.html',
-                        controller: 'bookEditController',
-                        resolve: {
-                            book: function () {
-                                return book;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    BookDataService.updateItem(book)
-                        .then(function (data) {
-                            // data.createdAt data.objectId
-                            $log.info('Added Audiobook %o', data);
-                            toastr.success('Audiobook added');
-                            getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled New');
-                    toastr.warning('New cancelled');
-                });
+                $state.go('bookedit', {'bookId': '_new'});
             };
 
             $scope.onEditClick = function (book) {
-                var modalInstance = $modal.open({
-                    templateUrl: 'app/books/edit.html',
-                    controller: 'bookEditController',
-                    resolve: {
-                        book: function () {
-                            return book;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function () {
-                    BookDataService.updateItem(book)
-                        .then(function (data) {
-                            // data.updatedAt
-                            $log.info('Updated Audiobook %o', data);
-                            toastr.success('Audiobook updated');
-                            getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled Edit');
-                    toastr.warning('Edit cancelled');
-                });
+                $state.go('bookedit', {'bookId': book.objectId});
             };
 
             $scope.onDeleteClick = function (book) {
-                var modalInstance = $modal.open({
-                    templateUrl: 'app/books/delete.html',
-                    controller: 'bookDeleteController',
-                    resolve: { book: function () { return book; } }
+                $scope.currentItem = book;
+                modalInstance = $modal({
+                    scope: $scope,
+                    template: 'app/tmplVerify.html',
+                    show: true,
+                    title: 'Delete Book?',
+                    content: 'You are about to delete book <em>' + book.title + '</em>'
                 });
+            };
 
-                modalInstance.result.then(function () {
-                    BookDataService.deleteItem(book)
-                        .then(function (data) {
-                            $log.info('Deleted Audiobook');
-                            toastr.success('Audiobook deleted');
-                            getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
+            $scope.dlgVerifyCancel = function () {
+                modalInstance.hide();
+                toastr.warning('Delete cancelled');
+            };
+
+            $scope.dlgVerifyOK = function () {
+                modalInstance.hide();
+                $rootScope.busy(true);
+                bookDataService.deleteItem($scope.currentItem)
+                    .then(function (data) {
+                        $log.info('Deleted Book');
+                        toastr.success('Book deleted');
+                        $scope.items = _.filter($scope.items, function (book) {
+                            return book.objectId !== $scope.currentItem.objectId;
                         });
-                }, function () {
-                    $log.info('Cancel');
-                    toastr.warning('Delete cancelled');
-                });
+                        $rootScope.busy(false);
+                    }, function (err) {
+                        $rootScope.busy(false);
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+
+                    });
             };
 
-            $scope.onPageChanged = function (page) {
-                $scope.currentPage = page;
-                getItems();
-            };
-
-            $scope.search = function (frm) {
-                $scope.filter = frm.filter;
-                $scope.currentPage = 1;
+            $scope.scroll = function () {
+                $scope.currentPage += 1;
                 getItems();
             };
         }]);
-}(angular, toastr));
+}(angular.module('app')));
