@@ -8,7 +8,7 @@ var angular = angular || null;
             var baseUrl = 'https://api.parse.com/1/classes/Movie',
                 res = {};
 
-            res.pageSize = 10;
+            res.pageSize = 100;
             res.getItem = function (aId) {
                 var config = {
                     headers: {

@@ -9,16 +9,21 @@ var angular = angular || null,
             var modalInstance = null;
 
             function getItems() {
+                if ($scope.fetching)
+                    return;
+                $scope.fetching = true;
                 $rootScope.busy(true);
                 movieDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
+                        $scope.items = $scope.items.concat(res.data.results);
+                        $scope.totalItems = $scope.items.length;
                         $rootScope.busy(false);
-                        $scope.items = res.data.results;
-                        $scope.totalItems = res.data.count;
+                        $scope.fetching = false;
                     }, function (err) {
                         $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
+                        $scope.fetching = false;
                     });
             }
 
@@ -29,6 +34,8 @@ var angular = angular || null,
             $scope.order = '-seenAt';
             $scope.totalItems = 0;
             $scope.currentItem = null;
+            $scope.items = [];
+            $scope.fetching = false;
 
             getItems();
 
@@ -72,6 +79,12 @@ var angular = angular || null,
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
+            };
+
+            $scope.scroll = function () {
+                $log.info('Scrolling');
+                $scope.currentPage += 1;
+                getItems();
             };
         }]);
 }(angular));

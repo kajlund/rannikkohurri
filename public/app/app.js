@@ -22,6 +22,7 @@ var angular = angular || null;
             'ui.router',     // state-based UI routing
             'ngAnimate',     // animate (for angular-strap)
             'ngCookies',     // cookies
+            'infinite-scroll',
             'mgcrea.ngStrap' // angular-strap library
         ]);
 

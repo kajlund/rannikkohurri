@@ -17,28 +17,6 @@
 
     <div data-ng-if="session.loggedOn()">
         <div class="row">
-            <div class="col-md-4">
-                <form name="searchForm" ng-submit="search(this)">
-                    <div class="input-group custom-search-form">
-                        <input type="text" class="form-control" ng-model="filter" required ng-minlength="3" placeholder="Search">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="submit" ng-disabled="searchForm.$invalid">
-                                <span class="glyphicon glyphicon-search"></span>
-                            </button>
-                        </span>
-                    </div><!-- /input-group -->
-                </form>
-            </div>
-            <div class="col-md-4">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default" ng-model="order" btn-radio="'title'">Title</button>
-                    <button type="button" class="btn btn-default" ng-model="order" btn-radio="'author'">Author</button>
-                    <button type="button" class="btn btn-default" ng-model="order" btn-radio="'genre'">Genre</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
             <div class="col-md-12">
                 <ul class="media-list">
             <li class="media" data-ng-repeat="i in items">
@@ -61,12 +39,5 @@
         </ul>
             </div>
         </div>
-
-        <pagination total-items="totalItems" page="currentPage"
-                    max-size="maxSize" class="pagination-sm"
-                    boundary-links="true" rotate="false"
-                    num-pages="numPages" on-select-page="onPageChanged(page)">
-        </pagination>
-        <pre>Page: {{currentPage}} / {{numPages}}</pre>
     </div>
 </div>

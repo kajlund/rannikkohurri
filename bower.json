@@ -33,6 +33,7 @@
     "angular-animate": "~1.2.16",
     "moment": "~2.5.1",
     "angular-strap": "~2.0.0",
-    "angular-motion": "~0.3.2"
+    "angular-motion": "~0.3.2",
+    "ngInfiniteScroll": "~1.1.0"
   }
 }
