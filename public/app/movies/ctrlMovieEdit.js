@@ -1,33 +1,54 @@
-var angular = angular || null;
+var angular = angular || null,
+    toastr = toastr || null;
 
-(function (angular) {
+(function (app, toastr) {
     'use strict';
 
-    angular.module('app').controller('movieEditController', ['$scope', '$modalInstance', 'movie',
-        function ($scope, $modalInstance, movie) {
-            $scope.movie = movie;
-            //$scope.dateStr = movie.seenAt.iso.substr(0, 10);
-            $scope.dt = new Date();
-            $scope.dateOptions = {
-                formatYear: 'yy',
-                startingDay: 1
-            };
+    app.controller('movieEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'movieDataService',
+        function ($scope, $rootScope, $state, $log, SessionService, movieDataService) {
+            $scope.session = SessionService;
+            $scope.movieId = $rootScope.$stateParams.movieId;
 
-            $scope.open = function ($event) {
-                $event.preventDefault();
-                $event.stopPropagation();
+            if ($scope.movieId === '_new') {
+                $scope.movie = {
+                    seenAt: {"__type": "Date", "iso": new Date().toISOString()},
+                    etitle: "",
+                    otitle: "",
+                    pic: "",
+                    rating: 0,
+                    url: "",
+                    synopsis: "",
+                    comment: ""
+                };
+            } else {
+                movieDataService.getItem($scope.movieId)
+                    .then(function (res) {
+                        $scope.movie = res.data;
+                    }, function (err) {
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+                        $state.go('movies');
+                    });
+            }
 
-                $scope.opened = true;
-            };
-
-            $scope.ok = function () {
-                //var tmpDate = new Date($scope.dateStr);
-                //$scope.movie.seenAt.iso = tmpDate.toISOString();
-                $modalInstance.close('OK');
+            $scope.save = function () {
+                movieDataService.updateItem($scope.movie)
+                    .then(function (res) {
+                        // data.createdAt data.objectId
+                        $log.info('Saved Movie %o', res);
+                        toastr.success('Movie saved');
+                        $state.go('movies');
+                    }, function (err) {
+                        $log.error('Error saving Movie %o', err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+                        $state.go('movies');
+                    });
             };
 
             $scope.cancel = function () {
-                $modalInstance.dismiss('Cancel');
+                $log.info('Cancelled Edit');
+                toastr.warning('Edit cancelled');
+                $state.go('movies');
             };
         }]);
-}(angular));
+}(angular.module('app'), toastr));

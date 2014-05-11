@@ -4,11 +4,13 @@ var angular = angular || null,
 (function (angular) {
     'use strict';
 
-    angular.module('app').controller('MovieListController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService', 'MovieDataService',
-        function ($scope, $rootScope, $location, $log, $modal, SessionService, MovieDataService) {
+    angular.module('app').controller('MovieListController', ['$scope', '$rootScope', '$modal', '$log', '$state', 'SessionService', 'movieDataService',
+        function ($scope, $rootScope, $modal, $log, $state, SessionService, movieDataService) {
+            var modalInstance = null;
+
             function getItems() {
                 $rootScope.busy(true);
-                MovieDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
+                movieDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
                         $rootScope.busy(false);
                         $scope.items = res.data.results;
@@ -26,95 +28,26 @@ var angular = angular || null,
             $scope.maxSize = 10;
             $scope.order = '-seenAt';
             $scope.totalItems = 0;
+            $scope.currentItem = null;
+
             getItems();
 
             $scope.onAddClick = function () {
-                var movie = {
-                        seenAt: {"__type": "Date", "iso": new Date().toISOString()},
-                        etitle: "",
-                        otitle: "",
-                        pic: "",
-                        rating: 0,
-                        url: "",
-                        synopsis: "",
-                        comment: ""
-                    },
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/movies/edit.html',
-                        controller: 'movieEditController',
-                        resolve: {
-                            movie: function () {
-                                return movie;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    MovieDataService.updateItem(movie)
-                        .then(function (data) {
-                            // data.createdAt data.objectId
-                            $log.info('Added Movie %o', data);
-                            toastr.success('Movie added');
-                            getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled New');
-                    toastr.warning('New cancelled');
-                });
+                $state.go('movieedit', {'movieId': '_new'});
             };
 
             $scope.onEditClick = function (movie) {
-                //2013-11-09T
-                var modalInstance = $modal.open({
-                        templateUrl: 'app/movies/edit.html',
-                        controller: 'movieEditController',
-                        resolve: {
-                            movie: function () {
-                                return movie;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    MovieDataService.updateItem(movie)
-                        .then(function (data) {
-                            // data.updatedAt
-                            $log.info('Updated Movie %o', data);
-                            toastr.success('Movie updated');
-                            getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled Edit');
-                    toastr.warning('Edit cancelled');
-                });
+                $state.go('movieedit', {'movieId': movie.objectId});
             };
 
             $scope.onDeleteClick = function (movie) {
-                var modalInstance = $modal.open({
-                    templateUrl: 'app/movies/delete.html',
-                    controller: 'movieDeleteController',
-                    resolve: { movie: function () { return movie; } }
-                });
-
-                modalInstance.result.then(function () {
-                    MovieDataService.deleteItem(movie)
-                        .then(function (data) {
-                            $log.info('Deleted Movie');
-                            toastr.success('Movie deleted');
-                            getItems();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancel');
-                    toastr.warning('Delete cancelled');
+                $scope.currentItem = movie;
+                modalInstance = $modal({
+                    scope: $scope,
+                    template: 'app/tmplVerify.html',
+                    show: true,
+                    title: 'Delete Movie?',
+                    content: 'You are about to delete movie <em>' + movie.etitle + '</em>'
                 });
             };
 
@@ -123,5 +56,22 @@ var angular = angular || null,
                 getItems();
             };
 
+            $scope.dlgVerifyCancel = function () {
+                modalInstance.hide();
+                toastr.warning('Delete cancelled');
+            };
+
+            $scope.dlgVerifyOK = function () {
+                modalInstance.hide();
+                movieDataService.deleteItem($scope.currentItem)
+                    .then(function (data) {
+                        $log.info('Deleted Movie');
+                        toastr.success('Movie deleted');
+                        getItems();
+                    }, function (err) {
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+                    });
+            };
         }]);
 }(angular));

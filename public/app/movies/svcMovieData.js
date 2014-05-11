@@ -1,9 +1,9 @@
 var angular = angular || null;
 
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').factory('MovieDataService', ['$log', '$q', '$http', 'SessionService',
+    app.factory('movieDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/Movie',
                 res = {};
@@ -77,4 +77,4 @@ var angular = angular || null;
 
             return res;
         }]);
-}(angular));
+}(angular.module('app')));
