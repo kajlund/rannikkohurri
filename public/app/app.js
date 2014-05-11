@@ -32,7 +32,8 @@ var angular = angular || null;
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
             angular.extend($modalProvider.defaults, {
                 animation: 'am-fade-and-scale',
-                placement: 'center'
+                placement: 'center',
+                html: true
             });
 
             $urlRouterProvider.when("/posts", "/posts/list");
@@ -101,7 +102,6 @@ var angular = angular || null;
                     }
                 }
             };
-            $log.info($window);
             // Configure Toastr library
             $window.toastr.options.timeOut = 2000;
             $window.toastr.options.positionClass = 'toast-bottom-right';
