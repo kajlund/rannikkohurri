@@ -3,7 +3,7 @@ var angular = angular || null;
 (function (angular) {
     'use strict';
 
-    angular.module('app').factory('EventDataService', ['$log', '$q', '$http', 'SessionService',
+    angular.module('app').factory('eventDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/Event',
                 res = {};

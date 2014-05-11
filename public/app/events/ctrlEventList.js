@@ -1,114 +1,73 @@
 var angular = angular || null,
     toastr = toastr || null;
 
-(function (angular, toastr) {
+(function (app) {
     'use strict';
 
-    angular.module('app').controller('EventListController', ['$scope', '$rootScope', '$log', '$modal', 'SessionService', 'EventDataService',
-        function ($scope, $rootScope, $log, $modal, SessionService, EventDataService) {
+    app.controller('EventListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'eventDataService',
+        function ($scope, $rootScope, $state, $log, $modal, SessionService, eventDataService) {
+            var modalInstance = null;
 
             function getEvents() {
                 $rootScope.busy(true);
-                EventDataService.getEvents()
-                    .then(function (data) {
-                        $log.info(data);
-                        $scope.events = data.data.results;
+                eventDataService.getEvents()
+                    .then(function (res) {
+                        $scope.events = res.data.results;
                         $rootScope.busy(false);
-                    }, function (data) {
+                    }, function (err) {
                         $rootScope.busy(false);
-                        $log.error(data);
-                        toastr.error(data.error.code + ' ' + data.error.error);
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
                     });
             }
 
             $scope.session = SessionService;
+            $scope.totalItems = 0;
+            $scope.currentItem = null;
+
             getEvents();
 
             $scope.onAddClick = function () {
-                var event = {
-                        starts: '',
-                        eventName: '',
-                        placeName: '',
-                        organizer: '',
-                        organizerUrl: '',
-                        smartum: false
-                    },
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/events/edit.html',
-                        controller: 'eventEditController',
-                        resolve: {
-                            event: function () {
-                                return event;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    EventDataService.updateItem(event)
-                        .then(function (data) {
-                            // data.createdAt data.objectId
-                            $log.info('Added Event %o', data);
-                            toastr.success('Event added');
-                            getEvents();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled New');
-                    toastr.warning('New cancelled');
-                });
+                $state.go('eventedit', {'eventId': '_new'});
             };
 
             $scope.onEditClick = function (event) {
-                var modalInstance = $modal.open({
-                        templateUrl: 'app/events/edit.html',
-                        controller: 'eventEditController',
-                        resolve: {
-                            event: function () {
-                                return event;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    EventDataService.updateItem(event)
-                        .then(function (data) {
-                            // data.updatedAt
-                            $log.info('Updated Event %o', data);
-                            toastr.success('Event updated');
-                            getEvents();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled Edit');
-                    toastr.warning('Edit cancelled');
-                });
+                $state.go('eventedit', {'eventId': event.objectId});
             };
 
             $scope.onDeleteClick = function (event) {
-                var modalInstance = $modal.open({
-                        templateUrl: 'app/events/delete.html',
-                        controller: 'eventDeleteController',
-                        resolve: { event: function () { return event; } }
-                    });
-
-                modalInstance.result.then(function () {
-                    EventDataService.deleteItem(event)
-                        .then(function (data) {
-                            $log.info('Deleted Event');
-                            toastr.success('Event deleted');
-                            getEvents();
-                        }, function (data) {
-                            $log.error(data);
-                            toastr.error(data.error.code + ' ' + data.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancel');
-                    toastr.warning('Delete cancelled');
+                $scope.currentItem = event;
+                modalInstance = $modal({
+                    scope: $scope,
+                    template: 'app/tmplVerify.html',
+                    show: true,
+                    title: 'Delete Event?',
+                    content: 'You are about to delete event <em>' + event.eventname + '/' + event.placeName + '</em>'
                 });
             };
+
+            $scope.dlgVerifyCancel = function () {
+                modalInstance.hide();
+                toastr.warning('Delete cancelled');
+            };
+
+            $scope.dlgVerifyOK = function () {
+                modalInstance.hide();
+                $rootScope.busy(true);
+                eventDataService.deleteItem($scope.currentItem)
+                    .then(function (data) {
+                        $log.info('Deleted Event');
+                        toastr.success('Event deleted');
+                        $scope.items = _.filter($scope.items, function (event) {
+                            return event.objectId !== $scope.currentItem.objectId;
+                        });
+                        $rootScope.busy(false);
+                    }, function (err) {
+                        $rootScope.busy(false);
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+
+                    });
+            };
         }]);
-}(angular, toastr));
+}(angular.module('app')));

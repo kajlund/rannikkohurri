@@ -85,6 +85,10 @@ var angular = angular || null;
                     url: '/events',
                     templateUrl: 'app/events/list.html',
                     controller: 'EventListController'
+                }).state('eventedit', {
+                    url: '/events:eventId',
+                    templateUrl: 'app/events/edit.html',
+                    controller: 'eventEditController'
                 }).state('cheats', {
                     url: '/cheats',
                     templateUrl: 'app/cheats/list.html',

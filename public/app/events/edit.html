@@ -1,39 +1,40 @@
-<div class="modal-header">
-    <h3>Edit Event<small> {{ eventDate | date:'yyyy-MM-dd HH:mm' }}</small></h3>
-</div>
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fa fa-flag"></i> Edit Event <small>{{ event.starts }}</small></h1>
+    </div>
 
-<div class="modal-body">
-    <form name="frm" role="form">
-        <div class="form-group">
-            <label class="control-label">When</label>
-            <input type="text" class="form-control" ng-model="event.starts">
-        </div>
+    <div>
+        <form name="frm" role="form">
+            <div class="form-group">
+                <label class="control-label">When</label>
+                <input type="text" class="form-control" ng-model="event.starts">
+            </div>
 
-        <div class="form-group">
-            <label>Place</label>
-            <input type="text" class="form-control" ng-model="event.placeName">
-        </div>
-        <div class="form-group">
-            <label>Name</label>
-            <input type="text" class="form-control" rows="3" ng-model="event.eventName"></textarea>
-        </div>
-        <div class="form-group">
-            <label>Organizer</label>
-            <input type="text" class="form-control" ng-model="event.organizer">
-        </div>
-        <div class="form-group">
-            <label>Url</label>
-            <input type="text" class="form-control" ng-model="event.organizerUrl">
-        </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" ng-model="event.smartum"> Smartum
-            </label>
-        </div>
-
-    </form>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-success" ng-click="ok()">OK</button>
-    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <div class="form-group">
+                <label>Place</label>
+                <input type="text" class="form-control" ng-model="event.placeName">
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" class="form-control" rows="3" ng-model="event.eventName"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Organizer</label>
+                <input type="text" class="form-control" ng-model="event.organizer">
+            </div>
+            <div class="form-group">
+                <label>Url</label>
+                <input type="text" class="form-control" ng-model="event.organizerUrl">
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="event.smartum"> Smartum
+                </label>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-success" ng-click="save()">Save</button>
+                <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            </div>
+        </form>
+    </div>
 </div>
