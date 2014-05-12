@@ -42,7 +42,7 @@ var angular = angular || null,
                     template: 'app/tmplVerify.html',
                     show: true,
                     title: 'Delete Event?',
-                    content: 'You are about to delete event <em>' + event.eventname + '/' + event.placeName + '</em>'
+                    content: 'You are about to delete event <em>' + event.eventName + '/' + event.placeName + '</em>'
                 });
             };
 
@@ -58,7 +58,7 @@ var angular = angular || null,
                     .then(function (data) {
                         $log.info('Deleted Event');
                         toastr.success('Event deleted');
-                        $scope.items = _.filter($scope.items, function (event) {
+                        $scope.events = _.filter($scope.events, function (event) {
                             return event.objectId !== $scope.currentItem.objectId;
                         });
                         $rootScope.busy(false);
