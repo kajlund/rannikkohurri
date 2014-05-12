@@ -11,10 +11,10 @@
     </div>
 
     <div data-ng-if="session.loggedOn()">
-        <form name="frm" role="form">
+        <form name="frm" role="form" ng-submit="save()">
             <div class="form-group">
                 <label class="control-label">Title</label>
-                <input type="text" class="form-control" ng-model="book.title">
+                <input type="text" class="form-control" ng-model="book.title" required autofocus>
             </div>
             <div class="form-group">
                 <label class="control-label">Subtitle</label>
@@ -42,9 +42,9 @@
                 <label class="control-label">Image</label>
                 <input type="text" class="form-control" ng-model="book.image" >
             </div>
-            <div class="form-actions">
-                <button class="btn btn-success" ng-click="save()">Save</button>
-                <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <div class="form-actions pull-right">
+                <button class="btn btn-lg btn-default" ng-click="cancel()">Cancel</button>
+                <input class="btn btn-lg btn-success" type="submit" ng-disabled="frm.$invalid" value="Save">
             </div>
         </form>
     </div>

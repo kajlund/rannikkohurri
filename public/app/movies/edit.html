@@ -10,26 +10,16 @@
         </div>
     </div>
 
-
     <div data-ng-if="session.loggedOn()">
-        <form name="frm" role="form">
+        <form name="frm" role="form" ng-submit="save()">
             <div class="form-group">
                 <label class="control-label">Seen</label>
                 <input type="text" class="form-control" ng-model="movie.seenAt.iso"
                        name="date"
                        data-date-type="iso"
                        data-date-format="yyyy-MM-dd"
-                       bs-datepicker>
-                <!--div class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="dd.MM.yyyy" ng-model="dt"
-                           min-date="'1970-01-01'" max-date="'2100-01-01'"
-                           is-open="opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-                    </span>
-                </div-->
+                       bs-datepicker autofocus>
             </div>
-
             <div class="form-group">
                 <label class="control-label">Eng. title</label>
                 <input type="text" class="form-control" ng-model="movie.etitle">
@@ -59,8 +49,10 @@
                 <label>Comment</label>
                 <textarea class="form-control" rows="2" ng-model="movie.comment"></textarea>
             </div>
-            <button class="btn btn-success" ng-click="save()">Save</button>
-            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <div class="form-actions pull-right">
+                <button class="btn btn-lg btn-default" ng-click="cancel()">Cancel</button>
+                <input class="btn btn-lg btn-success" type="submit" ng-disabled="frm.$invalid" value="Save">
+            </div>
         </form>
     </div>
 </div>
