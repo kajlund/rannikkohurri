@@ -1,18 +1,19 @@
 var angular = angular || null,
     toastr = toastr || null;
 
-(function (angular, toastr) {
+(function (app) {
     'use strict';
 
-    angular.module('app').controller('CheatsListController', ['$scope', '$rootScope', '$log', '$modal', 'CheatsDataService', 'SessionService',
-        function ($scope, $rootScope, $log, $modal, CheatsDataService, SessionService) {
+    app.controller('cheatsListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'cheatsDataService',
+        function ($scope, $rootScope, $state, $log, $modal, SessionService, cheatsDataService) {
+            var modalInstance = null;
 
             function getItems() {
                 $rootScope.busy(true);
-                CheatsDataService.getItems()
-                    .then(function (data) {
-                        $log.info(data);
-                        $scope.items = data.data.results;
+                cheatsDataService.getItems()
+                    .then(function (res) {
+                        $log.info(res);
+                        $scope.items = res.data.results;
                         $rootScope.busy(false);
                     }, function (err) {
                         $rootScope.busy(false);
@@ -20,93 +21,54 @@ var angular = angular || null,
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
             }
+
             $scope.session = SessionService;
+            $scope.totalItems = 0;
+            $scope.currentItem = null;
+
             getItems();
 
             $scope.onAddClick = function () {
-                var cache = {
-                        cacheId: '',
-                        cacheType: '',
-                        name: '',
-                        coords: '',
-                        verifiedCoords: false
-                    },
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/cheats/edit.html',
-                        controller: 'cheatsEditController',
-                        resolve: {
-                            cache: function () {
-                                return cache;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    CheatsDataService.updateItem(cache)
-                        .then(function (data) {
-                            // data.createdAt data.objectId
-                            $log.info('Added Cache %o', data);
-                            toastr.success('Cache added');
-                            getItems();
-                        }, function (err) {
-                            $log.error(err);
-                            toastr.error(err.error.code + ' ' + err.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled New');
-                    toastr.warning('New cancelled');
-                });
+                $state.go('cheatsedit', {'eventId': '_new'});
             };
 
             $scope.onEditClick = function (cache) {
-                var modalInstance = $modal.open({
-                        templateUrl: 'app/cheats/edit.html',
-                        controller: 'cheatsEditController',
-                        resolve: {
-                            cache: function () {
-                                return cache;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    CheatsDataService.updateItem(cache)
-                        .then(function (data) {
-                            // data.updatedAt
-                            $log.info('Updated Cache %o', data);
-                            toastr.success('Cache updated');
-                            getItems();
-                        }, function (err) {
-                            $log.error(err);
-                            toastr.error(err.error.code + ' ' + err.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancelled Edit');
-                    toastr.warning('Edit cancelled');
-                });
+                $state.go('cheatsedit', {'cacheId': cache.objectId});
             };
 
             $scope.onDeleteClick = function (cache) {
-                var modalInstance = $modal.open({
-                        templateUrl: 'app/cheats/delete.html',
-                        controller: 'cheatsDeleteController',
-                        resolve: { cache: function () { return cache; } }
-                    });
-
-                modalInstance.result.then(function () {
-                    CheatsDataService.deleteItem(cache)
-                        .then(function (data) {
-                            $log.info('Deleted Cache');
-                            toastr.success('Cache deleted');
-                            getItems();
-                        }, function (err) {
-                            $log.error(err);
-                            toastr.error(err.error.code + ' ' + err.error.error);
-                        });
-                }, function () {
-                    $log.info('Cancel');
-                    toastr.warning('Delete cancelled');
+                $scope.currentItem = cache;
+                modalInstance = $modal({
+                    scope: $scope,
+                    template: 'app/tmplVerify.html',
+                    show: true,
+                    title: 'Delete Cache?',
+                    content: 'You are about to delete cache <strong>' + cache.name + '</strong>'
                 });
             };
+
+            $scope.dlgVerifyCancel = function () {
+                modalInstance.hide();
+                toastr.warning('Delete cancelled');
+            };
+
+            $scope.dlgVerifyOK = function () {
+                modalInstance.hide();
+                $rootScope.busy(true);
+                cheatsDataService.deleteItem($scope.currentItem)
+                    .then(function (data) {
+                        $log.info('Deleted Cache');
+                        toastr.success('Cache deleted');
+                        $scope.items = _.filter($scope.items, function (cache) {
+                            return cache.objectId !== $scope.currentItem.objectId;
+                        });
+                        $rootScope.busy(false);
+                    }, function (err) {
+                        $rootScope.busy(false);
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+
+                    });
+            };
         }]);
-}(angular, toastr));
+}(angular.module('app')));

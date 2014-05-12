@@ -92,7 +92,11 @@ var angular = angular || null;
                 }).state('cheats', {
                     url: '/cheats',
                     templateUrl: 'app/cheats/list.html',
-                    controller: 'CheatsListController'
+                    controller: 'cheatsListController'
+                }).state('cheatsedit', {
+                    url: '/cheats/:cacheId',
+                    templateUrl: 'app/cheats/edit.html',
+                    controller: 'cheatsEditController'
                 });
         }]);
 
