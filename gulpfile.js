@@ -4,6 +4,7 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
     size = require('gulp-size'),
+    nodemon = require('gulp-nodemon'),
     paths = {
         scripts: ['public/app/**/*.js'],
         css: 'public/css/style.css',
@@ -80,6 +81,18 @@ gulp.task('buildjs', function () {
         .pipe(uglify())
         .pipe(size())
         .pipe(gulp.dest('./public/'));
+});
+
+gulp.task('lint', function () {
+    gulp.src(scripts).pipe(jshint());
+});
+
+gulp.task('develop', function () {
+    nodemon({ script: 'web.js', ext: 'html js', ignore: []})
+    .on('change', ['lint'])
+    .on('restart', function () {
+        console.log('*** Server restarted!');
+    });
 });
 
 // Watch to rerun tasks when a file changes
