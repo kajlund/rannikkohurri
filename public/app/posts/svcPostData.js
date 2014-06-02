@@ -8,14 +8,14 @@ var angular = angular || null;
             var baseUrl = 'https://api.parse.com/1/classes/Post',
                 res = {};
 
-            res.getPost = function (aId) {
+            res.getPost = function (aSlug) {
                 var config = {
                     headers: {
                         'X-Parse-Session-Token': SessionService.sessionToken
                     },
                     isArray: false,
                     method: 'GET',
-                    url: baseUrl + '/' + aId
+                    url: baseUrl + '?where={"slug":"' + aSlug + '"}'
                 };
                 return $http(config);
             };

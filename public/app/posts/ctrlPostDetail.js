@@ -7,26 +7,32 @@ var angular = angular || null,
 
     angular.module('app').controller('PostDetailController', ['$scope', '$rootScope', '$stateParams', '$http', '$sce', '$log', 'PostDataService',
         function ($scope, $rootScope, $stateParams, $http, $sce, $log, PostDataService) {
+            $scope.currentPost = null;
             $rootScope.busy(true);
 
             function renderData(aPost) {
-                $http.get('/dropbox/' + aPost.get('slug'))
-                    .then(function (data) {
-                        $scope.markdown = $sce.trustAsHtml(marked(data.data));
+                $log.info('slug = ' + aPost.slug);
+                $http.get('/dropbox/' + aPost.slug)
+                    .then(function (res) {
+                        $scope.markdown = $sce.trustAsHtml(marked(res.data));
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
             }
 
-            if ($stateParams.id) {
-                PostDataService.getPost($stateParams.id)
-                    .then(function (data) {
-                        $scope.title = data.get('title');
-                        renderData(data);
+            if ($stateParams.slug) {
+                $log.info('post = ' + $stateParams.slug);
+                PostDataService.getPost($stateParams.slug)
+                    .then(function (res) {
+                        $log.info('res = %o', res);
+                        $scope.currentPost = res.data.results[0];
+                        $scope.title = $scope.currentPost.title;
+                        renderData($scope.currentPost);
                         $rootScope.busy(false);
                     },  function (err) {
                         $rootScope.busy(false);
+                        $scope.currentPost = null;
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });

@@ -54,7 +54,7 @@ var angular = angular || null;
                     templateUrl: 'app/posts/list.html',
                     controller: 'postListController'
                 }).state('posts.detail', {
-                    url: '/:id',
+                    url: '/:slug',
                     templateUrl: 'app/posts/detail.html',
                     controller: 'PostDetailController'
                 }).state('links', {
