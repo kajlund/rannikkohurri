@@ -18,7 +18,7 @@
     <div data-ng-if="session.loggedOn()">
         <table class="table table-striped table-hover">
         <tr>
-            <th>Id</th><th>Updated</th><th>Type</th><th>Name</th><th>Coords</th><th>Verified</th>
+            <th>Id</th><th>Updated</th><th>Type</th><th>Name</th><th>Municipality</th><th>Coords</th><th>Verified</th>
             <th data-ng-class="{hidden: !session.loggedOn()}">
                 Commands
             </th>
@@ -28,6 +28,7 @@
             <td>{{i.updatedAt|date:'yyyy.MM.dd'}}</td>
             <td>{{ i.cacheType }}</td>
             <td>{{ i.name }}</td>
+            <td>{{ i.municipality }}</td>
             <td>{{ i.coords }}</td>
             <td>{{ i.verifiedCoords }}</td>
             <td data-ng-class="{hidden: !session.loggedOn()}">

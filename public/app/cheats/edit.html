@@ -24,6 +24,13 @@
                 <label>Coords</label>
                 <input type="text" class="form-control" ng-model="cache.coords">
             </div>
+            <div class="form-group">
+                <label class="control-label">Municipality</label>
+                <select class="form-control"
+                        data-ng-model="cache.municipality"
+                        data-ng-options="m for m in municipalities">
+                </select>
+            </div>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="cache.verifiedCoords"> Verified Coords
