@@ -18,13 +18,14 @@
     <div data-ng-if="session.loggedOn()">
         <table class="table table-striped table-hover">
         <tr>
-            <th>Id</th><th>Type</th><th>Name</th><th>Coords</th><th>Verified</th>
+            <th>Id</th><th>Updated</th><th>Type</th><th>Name</th><th>Coords</th><th>Verified</th>
             <th data-ng-class="{hidden: !session.loggedOn()}">
                 Commands
             </th>
         </tr>
         <tr data-ng-repeat="i in items">
             <td><a href="http://coord.info/{{ i.cacheId }}" target="_blank">{{ i.cacheId }}</a></td>
+            <td>{{i.updatedAt|date:'yyyy.MM.dd'}}</td>
             <td>{{ i.cacheType }}</td>
             <td>{{ i.name }}</td>
             <td>{{ i.coords }}</td>
