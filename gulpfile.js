@@ -33,7 +33,9 @@ var gulp = require('gulp'),
         'public/vendor/angular-strap/dist/angular-strap.min.js',
         'public/vendor/angular-strap/dist/angular-strap.tpl.min.js',
         'public/vendor/angular-motion/dist/angular-motion.min.css',
-        'public/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js'
+        'public/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js',
+        'public/vendor/ng-grid/build/ng-grid.min.js',
+        'public/vendor/ng-grid/ng-grid.min.css'
     ];
 
 gulp.task('copydist', function () {

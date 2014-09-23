@@ -23,7 +23,8 @@ var angular = angular || null;
             'ngAnimate',     // animate (for angular-strap)
             'ngCookies',     // cookies
             'infinite-scroll',
-            'mgcrea.ngStrap' // angular-strap library
+            'mgcrea.ngStrap', // angular-strap library
+            'ngGrid'
         ]);
 
     // Configure Routes
