@@ -12,11 +12,13 @@ var angular = angular || null,
                 'Tradi',
                 'Mystery',
                 'Multi',
+                'Chirp',
                 'Earth',
                 'Letterbox',
                 'Event',
                 'Lab',
-                'Virtual'
+                'Virtual',
+                'Wherigo'
             ];
 
             if ($scope.cacheId === '_new') {

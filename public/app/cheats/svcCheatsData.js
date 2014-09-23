@@ -8,6 +8,10 @@ var angular = angular || null;
             var baseUrl = 'https://api.parse.com/1/classes/Cheat',
                 res = {};
 
+            res.municipalities = [
+
+            ];
+
             res.getItem = function (aId) {
                 var config = {
                         headers: {
