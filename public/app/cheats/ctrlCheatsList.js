@@ -59,7 +59,7 @@ var angular = angular || null,
             getItems();
 
             $scope.onAddClick = function () {
-                $state.go('cheatsedit', {'eventId': '_new'});
+                $state.go('cheatsedit', {'cacheId': '_new'});
             };
 
             $scope.onEditClick = function (cache) {
