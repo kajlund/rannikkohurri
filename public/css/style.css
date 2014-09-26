@@ -9,6 +9,11 @@ h1, h2, h3, h4 {
     font-weight: 300;
 }
 
+button.navbar-btn {
+    margin-left: 4px;
+    margin-right: 8px;
+}
+
 .navbar {
     background: #3c3c3c url('../img/linen.png') repeat-x;
 }

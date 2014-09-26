@@ -39,17 +39,19 @@ var angular = angular || null,
             };
 
             function getItems() {
-                $rootScope.busy(true);
-                cheatsDataService.getItems()
-                    .then(function (res) {
-                        $log.info(res);
-                        $scope.items = res.data.results;
-                        $rootScope.busy(false);
-                    }, function (err) {
-                        $rootScope.busy(false);
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
+                if (SessionService.userObj) {
+                    $rootScope.busy(true);
+                    cheatsDataService.getItems()
+                        .then(function (res) {
+                            $log.info(res);
+                            $scope.items = res.data.results;
+                            $rootScope.busy(false);
+                        }, function (err) {
+                            $rootScope.busy(false);
+                            $log.error(err);
+                            toastr.error(err.data.code + ' ' + err.data.error);
+                        });
+                }
             }
 
             $scope.session = SessionService;

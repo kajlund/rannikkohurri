@@ -46,26 +46,10 @@ var angular = angular || null;
                     url: '/home',
                     templateUrl: 'app/home.html',
                     controller: 'HomeController'
-                }).state('posts', {
-                    abstract: true,
-                    url: '/posts',
-                    templateUrl: 'app/posts/posts.html'
-                }).state('posts.list', {
-                    url: '/list',
-                    templateUrl: 'app/posts/list.html',
-                    controller: 'postListController'
-                }).state('posts.detail', {
-                    url: '/:slug',
-                    templateUrl: 'app/posts/detail.html',
-                    controller: 'PostDetailController'
                 }).state('links', {
                     url: '/links',
                     templateUrl: 'app/links/links.html',
                     controller: 'LinksController'
-                }).state('about', {
-                    url: '/about',
-                    templateUrl: 'app/about.html',
-                    controller: 'AboutController'
                 }).state('books', {
                     url: '/books',
                     templateUrl: 'app/books/list.html',
@@ -147,22 +131,14 @@ var angular = angular || null;
     });
 
 }(angular));
-(function (angular) {
-    'use strict';
-
-    angular.module('app').controller('AboutController', ['$scope', '$rootScope', '$location', '$log',
-        function ($scope, $rootScope, $location, $log) {
-
-        }]);
-}(angular));
 var angular = angular || null,
     toastr = toastr || null;
 
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('headerController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
-        function ($scope, $rootScope, $location, $log, $modal, SessionService) {
+    angular.module('app').controller('headerController', ['$scope', '$rootScope', '$location', '$log', '$modal', '$state', '$stateParams', 'SessionService',
+        function ($scope, $rootScope, $location, $log, $modal, $state, $stateParams, SessionService) {
             var modalInstance = $modal({
                 scope: $scope,
                 template: 'app/signon.html',
@@ -185,6 +161,7 @@ var angular = angular || null,
                 modalInstance.hide();
                 SessionService.signon($scope.user.name, $scope.user.pwd).then(function () {
                     toastr.info(SessionService.userObj.username + ' signed on');
+                    $state.reload();
                 }, function (error) {
                     toastr.error(error.error);
                 });
@@ -695,17 +672,19 @@ var angular = angular || null,
             };
 
             function getItems() {
-                $rootScope.busy(true);
-                cheatsDataService.getItems()
-                    .then(function (res) {
-                        $log.info(res);
-                        $scope.items = res.data.results;
-                        $rootScope.busy(false);
-                    }, function (err) {
-                        $rootScope.busy(false);
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
+                if (SessionService.userObj) {
+                    $rootScope.busy(true);
+                    cheatsDataService.getItems()
+                        .then(function (res) {
+                            $log.info(res);
+                            $scope.items = res.data.results;
+                            $rootScope.busy(false);
+                        }, function (err) {
+                            $rootScope.busy(false);
+                            $log.error(err);
+                            toastr.error(err.data.code + ' ' + err.data.error);
+                        });
+                }
             }
 
             $scope.session = SessionService;
@@ -1228,239 +1207,6 @@ var angular = angular || null;
                         },
                         method: 'DELETE',
                         url: url
-                    };
-                return $http(config);
-            };
-
-            return res;
-        }]);
-}(angular.module('app')));
-(function (angular) {
-    'use strict';
-    angular.module('app').controller('postDeleteController', ['$scope', '$modalInstance', 'post',
-        function ($scope, $modalInstance, post) {
-            $scope.post = post;
-
-            $scope.ok = function () {
-                $modalInstance.close('OK');
-            };
-
-            $scope.cancel = function () {
-                $modalInstance.dismiss('Cancel');
-            };
-        }]);
-}(angular));
-var angular = angular || null,
-    marked = marked || null,
-    toastr = toastr || null;
-
-(function (angular, marked, toastr) {
-    'use strict';
-
-    angular.module('app').controller('PostDetailController', ['$scope', '$rootScope', '$stateParams', '$http', '$sce', '$log', 'PostDataService',
-        function ($scope, $rootScope, $stateParams, $http, $sce, $log, PostDataService) {
-            $scope.currentPost = null;
-            $rootScope.busy(true);
-
-            function renderData(aPost) {
-                $log.info('slug = ' + aPost.slug);
-                $http.get('/dropbox/' + aPost.slug)
-                    .then(function (res) {
-                        $scope.markdown = $sce.trustAsHtml(marked(res.data));
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
-            }
-
-            if ($stateParams.slug) {
-                $log.info('post = ' + $stateParams.slug);
-                PostDataService.getPost($stateParams.slug)
-                    .then(function (res) {
-                        $log.info('res = %o', res);
-                        $scope.currentPost = res.data.results[0];
-                        $scope.title = $scope.currentPost.title;
-                        renderData($scope.currentPost);
-                        $rootScope.busy(false);
-                    },  function (err) {
-                        $rootScope.busy(false);
-                        $scope.currentPost = null;
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
-            }
-        }]);
-}(angular, marked, toastr));
-(function (angular) {
-    'use strict';
-    angular.module('app').controller('postEditController', ['$scope', '$modalInstance', 'post',
-        function ($scope, $modalInstance, post) {
-            $scope.post = post;
-
-            $scope.ok = function () {
-                $modalInstance.close('OK');
-            };
-
-            $scope.cancel = function () {
-                $modalInstance.dismiss('Cancel');
-            };
-        }]);
-}(angular));
-var angular = angular || null,
-    toastr = toastr || null;
-
-(function (angular, toastr) {
-    'use strict';
-
-    angular.module('app').controller('postListController', ['$scope', '$rootScope', '$log', '$modal', 'PostDataService',
-        function ($scope, $rootScope, $log, $modal, PostDataService) {
-            $rootScope.busy(true);
-
-            PostDataService.getPosts()
-                .then(function (res) {
-                    $log.info(res);
-                    $scope.posts = res.data.results;
-                    $rootScope.busy(false);
-                }, function (err) {
-                    $rootScope.busy(false);
-                    $log.error(err);
-                    toastr.error(err.error.code + ' ' + err.error.error);
-                });
-
-            $scope.onAddClick = function () {
-                var post = new PostDataService.PostModel(),
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/posts/edit.html',
-                        controller: 'postEditController',
-                        resolve: {
-                            post: function () {
-                                return post;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    post.save(null, {
-                        success: function (newPost) {
-                            //refreshData($scope.currentPage);
-                            toastr.success('Post added');
-                        },
-                        error: function (newPost, error) {
-                            toastr.error(error.description);
-                        }
-                    });
-                }, function () {
-                    $log.info('Cancel');
-                    toastr.warning('Edit cancelled');
-                });
-            };
-
-            $scope.onEditClick = function (p) {
-                var post = {
-                        slug: p.get('slug'),
-                        title: p.get('title'),
-                        excerpt: p.get('excerpt'),
-                        tags: p.get('tags'),
-                        published: p.get('published'),
-                        publishDate: p.get('publishDate')
-                    },
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/posts/edit.html',
-                        controller: 'postEditController',
-                        resolve: {
-                            post: function () {
-                                return post;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    post.save({
-                        success: function (newPost) {
-                            //refreshData($scope.currentPage);
-                            toastr.success('Post updated');
-                        },
-                        error: function (newPost, error) {
-                            toastr.error(error.description);
-                        }
-                    });
-                }, function () {
-                    $log.info('Cancel');
-                    toastr.warning('Edit cancelled');
-                });
-            };
-
-            $scope.onDeleteClick = function (p) {
-                $log.info('Deleting post %o', p);
-                var post = p,
-                    modalInstance = $modal.open({
-                        templateUrl: 'app/posts/delete.html',
-                        controller: 'postDeleteController',
-                        resolve: {
-                            post: function () {
-                                return post;
-                            }
-                        }
-                    });
-
-                modalInstance.result.then(function () {
-                    post.destroy({
-                        success: function (myObject) {
-                            //refreshData($scope.currentPage);
-                            toastr.success('Post deleted');
-                        },
-                        error: function (myObject, error) {
-
-                        }
-                    });
-                }, function () {
-                    $log.info('Cancel');
-                    toastr.warning('Delete cancelled');
-                });
-            };
-        }]);
-}(angular, toastr));
-var angular = angular || null;
-
-(function (app) {
-    'use strict';
-
-    app.factory('PostDataService', ['$log', '$q', '$http', 'SessionService',
-        function ($log, $q, $http, SessionService) {
-            var baseUrl = 'https://api.parse.com/1/classes/Post',
-                res = {};
-
-            res.getPost = function (aSlug) {
-                var config = {
-                    headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
-                    },
-                    isArray: false,
-                    method: 'GET',
-                    url: baseUrl + '?where={"slug":"' + aSlug + '"}'
-                };
-                return $http(config);
-            };
-
-            res.getPosts = function () {
-                var config = {
-                    headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
-                    },
-                    isArray: false,
-                    method: 'GET',
-                    url: baseUrl + '?where={"published":true}&count=1&limit=1000&order=-publishDate'
-                };
-                return $http(config);
-            };
-
-            res.deletePost = function (post) {
-                var config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: 'DELETE',
-                        url: baseUrl + '/' + post.objectId
                     };
                 return $http(config);
             };

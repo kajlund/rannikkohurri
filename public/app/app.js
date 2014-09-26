@@ -46,26 +46,10 @@ var angular = angular || null;
                     url: '/home',
                     templateUrl: 'app/home.html',
                     controller: 'HomeController'
-                }).state('posts', {
-                    abstract: true,
-                    url: '/posts',
-                    templateUrl: 'app/posts/posts.html'
-                }).state('posts.list', {
-                    url: '/list',
-                    templateUrl: 'app/posts/list.html',
-                    controller: 'postListController'
-                }).state('posts.detail', {
-                    url: '/:slug',
-                    templateUrl: 'app/posts/detail.html',
-                    controller: 'PostDetailController'
                 }).state('links', {
                     url: '/links',
                     templateUrl: 'app/links/links.html',
                     controller: 'LinksController'
-                }).state('about', {
-                    url: '/about',
-                    templateUrl: 'app/about.html',
-                    controller: 'AboutController'
                 }).state('books', {
                     url: '/books',
                     templateUrl: 'app/books/list.html',

@@ -4,8 +4,8 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('headerController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
-        function ($scope, $rootScope, $location, $log, $modal, SessionService) {
+    angular.module('app').controller('headerController', ['$scope', '$rootScope', '$location', '$log', '$modal', '$state', '$stateParams', 'SessionService',
+        function ($scope, $rootScope, $location, $log, $modal, $state, $stateParams, SessionService) {
             var modalInstance = $modal({
                 scope: $scope,
                 template: 'app/signon.html',
@@ -28,6 +28,7 @@ var angular = angular || null,
                 modalInstance.hide();
                 SessionService.signon($scope.user.name, $scope.user.pwd).then(function () {
                     toastr.info(SessionService.userObj.username + ' signed on');
+                    $state.reload();
                 }, function (error) {
                     toastr.error(error.error);
                 });
