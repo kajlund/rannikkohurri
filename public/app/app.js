@@ -38,7 +38,6 @@ var angular = angular || null;
                 html: true
             });
 
-            $urlRouterProvider.when("/posts", "/posts/list");
             $urlRouterProvider.otherwise('home');
 
             $stateProvider
