@@ -8,15 +8,12 @@ var angular = angular || null;
             $scope.session = SessionService;
 
             if (!SessionService.loggedOn()) {
-                $rootScope.busy(true);
                 $log.info('not logged on');
                 SessionService.autoSignon()
                     .then(function (data) {
                         $log.info($scope.session);
-                        $rootScope.busy(false);
                     }, function (err) {
                         $log.error(err);
-                        $rootScope.busy(false);
                     });
             }
         }]);

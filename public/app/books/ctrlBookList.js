@@ -13,15 +13,12 @@ var angular = angular || null,
                     return;
                 }
                 $scope.fetching = true;
-                $rootScope.busy(true);
                 bookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
                         $scope.items = $scope.items.concat(res.data.results);
                         $scope.totalItems = res.data.count;
-                        $rootScope.busy(false);
                         $scope.fetching = false;
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                         $scope.fetching = false;
@@ -66,7 +63,6 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                $rootScope.busy(true);
                 bookDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Book');
@@ -74,9 +70,7 @@ var angular = angular || null,
                         $scope.items = _.filter($scope.items, function (book) {
                             return book.objectId !== $scope.currentItem.objectId;
                         });
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
 

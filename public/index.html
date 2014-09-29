@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="lib/toastr.css">
     <link rel="stylesheet" href="lib/angular-motion.min.css">
     <link rel="stylesheet" href="lib/ng-grid.min.css">
+    <link rel="stylesheet" href="lib/loading-bar.min.css">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/style.min.css">
     <script src="lib/modernizr.js"></script>
@@ -18,10 +19,6 @@
 </head>
 <body data-ng-app="app">
     <div data-ng-include="'app/header.html'"></div>
-
-    <div id="cntSpinner" class="container" data-ng-show="isBusy">
-        <div id="cntSpin" data-spinner="spinnerOptions"></div>
-    </div>
 
     <div class="container">
         <div ui-view></div>
@@ -39,13 +36,12 @@
     <script src="lib/angular-sanitize.min.js" data-semver="1.2.16"></script>
     <script src="lib/angular-ui-router.min.js"></script>
     <script src="lib/bootstrap.min.js"></script>
-    <script src="lib/marked.js"></script>
-    <script src="lib/spin.js"></script>
     <script src="lib/toastr.min.js"></script>
     <script src="lib/angular-strap.min.js"></script>
     <script src="lib/angular-strap.tpl.min.js"></script>
     <script src="lib/ng-infinite-scroll.min.js"></script>
     <script src="lib/ng-grid.min.js"></script>
+    <script src="lib/loading-bar.min.js"></script>
     <!-- Application Scripts -->
     <script src="app-all.min.js"></script>
 </body>

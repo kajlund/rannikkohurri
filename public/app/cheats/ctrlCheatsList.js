@@ -40,14 +40,11 @@ var angular = angular || null,
 
             function getItems() {
                 if (SessionService.userObj) {
-                    $rootScope.busy(true);
                     cheatsDataService.getItems()
                         .then(function (res) {
                             $log.info(res);
                             $scope.items = res.data.results;
-                            $rootScope.busy(false);
                         }, function (err) {
-                            $rootScope.busy(false);
                             $log.error(err);
                             toastr.error(err.data.code + ' ' + err.data.error);
                         });
@@ -86,7 +83,6 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                $rootScope.busy(true);
                 cheatsDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Cache');
@@ -94,9 +90,7 @@ var angular = angular || null,
                         $scope.items = _.filter($scope.items, function (cache) {
                             return cache.objectId !== $scope.currentItem.objectId;
                         });
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
 

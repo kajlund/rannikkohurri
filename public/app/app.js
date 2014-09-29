@@ -3,28 +3,15 @@ var angular = angular || null;
 (function (angular) {
     'use strict';
 
-    // Spinner Configuration
-    var spinnerOpts = {
-            radius: 40,
-            lines: 7,
-            length: 0,
-            width: 30,
-            speed: 1.7,
-            corners: 1,
-            trail: 100,
-            color: '#333',
-            zIndex: 2e9,
-            left: 'auto',
-            top: '200px'
-        },
-        app = angular.module('app', [
+    var app = angular.module('app', [
             // Angular modules
             'ui.router',     // state-based UI routing
             'ngAnimate',     // animate (for angular-strap)
             'ngCookies',     // cookies
             'infinite-scroll',
             'mgcrea.ngStrap', // angular-strap library
-            'ngGrid'
+            'ngGrid',
+            'angular-loading-bar'
         ]);
 
     // Configure Routes
@@ -86,24 +73,9 @@ var angular = angular || null;
 
     app.run(['$rootScope', '$state', '$stateParams', '$log', '$window',
         function ($rootScope, $state, $stateParams, $log, $window) {
-
-            $rootScope.busy = function (isBusy) {
-                if (isBusy) {
-                    if (!$rootScope.spinner) {
-                        $rootScope.spinner = new $window.Spinner(spinnerOpts);
-                    }
-                    $rootScope.spinner.spin($window.document.documentElement);
-                } else {
-                    if ($rootScope.spinner) {
-                        $rootScope.spinner.stop();
-                    }
-                }
-            };
             // Configure Toastr library
             $window.toastr.options.timeOut = 2000;
             $window.toastr.options.positionClass = 'toast-bottom-right';
-            // Configure marked library
-            $window.marked.setOptions({gfm: true});
             // Configure moment library
             //$window.moment.lang('sv');
             $rootScope.$state = $state;

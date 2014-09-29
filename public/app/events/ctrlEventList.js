@@ -9,13 +9,10 @@ var angular = angular || null,
             var modalInstance = null;
 
             function getEvents() {
-                $rootScope.busy(true);
                 eventDataService.getEvents()
                     .then(function (res) {
                         $scope.events = res.data.results;
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
@@ -53,7 +50,6 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                $rootScope.busy(true);
                 eventDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Event');
@@ -61,12 +57,9 @@ var angular = angular || null,
                         $scope.events = _.filter($scope.events, function (event) {
                             return event.objectId !== $scope.currentItem.objectId;
                         });
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-
                     });
             };
         }]);
