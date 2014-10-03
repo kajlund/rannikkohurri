@@ -3,28 +3,15 @@ var angular = angular || null;
 (function (angular) {
     'use strict';
 
-    // Spinner Configuration
-    var spinnerOpts = {
-            radius: 40,
-            lines: 7,
-            length: 0,
-            width: 30,
-            speed: 1.7,
-            corners: 1,
-            trail: 100,
-            color: '#333',
-            zIndex: 2e9,
-            left: 'auto',
-            top: '200px'
-        },
-        app = angular.module('app', [
+    var app = angular.module('app', [
             // Angular modules
             'ui.router',     // state-based UI routing
             'ngAnimate',     // animate (for angular-strap)
             'ngCookies',     // cookies
             'infinite-scroll',
             'mgcrea.ngStrap', // angular-strap library
-            'ngGrid'
+            'ngGrid',
+            'angular-loading-bar'
         ]);
 
     // Configure Routes
@@ -38,7 +25,6 @@ var angular = angular || null;
                 html: true
             });
 
-            $urlRouterProvider.when("/posts", "/posts/list");
             $urlRouterProvider.otherwise('home');
 
             $stateProvider
@@ -87,24 +73,9 @@ var angular = angular || null;
 
     app.run(['$rootScope', '$state', '$stateParams', '$log', '$window',
         function ($rootScope, $state, $stateParams, $log, $window) {
-
-            $rootScope.busy = function (isBusy) {
-                if (isBusy) {
-                    if (!$rootScope.spinner) {
-                        $rootScope.spinner = new $window.Spinner(spinnerOpts);
-                    }
-                    $rootScope.spinner.spin($window.document.documentElement);
-                } else {
-                    if ($rootScope.spinner) {
-                        $rootScope.spinner.stop();
-                    }
-                }
-            };
             // Configure Toastr library
             $window.toastr.options.timeOut = 2000;
             $window.toastr.options.positionClass = 'toast-bottom-right';
-            // Configure marked library
-            $window.marked.setOptions({gfm: true});
             // Configure moment library
             //$window.moment.lang('sv');
             $rootScope.$state = $state;
@@ -188,15 +159,12 @@ var angular = angular || null;
             $scope.session = SessionService;
 
             if (!SessionService.loggedOn()) {
-                $rootScope.busy(true);
                 $log.info('not logged on');
                 SessionService.autoSignon()
                     .then(function (data) {
                         $log.info($scope.session);
-                        $rootScope.busy(false);
                     }, function (err) {
                         $log.error(err);
-                        $rootScope.busy(false);
                     });
             }
         }]);
@@ -366,15 +334,12 @@ var angular = angular || null,
                     return;
                 }
                 $scope.fetching = true;
-                $rootScope.busy(true);
                 bookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
                         $scope.items = $scope.items.concat(res.data.results);
                         $scope.totalItems = res.data.count;
-                        $rootScope.busy(false);
                         $scope.fetching = false;
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                         $scope.fetching = false;
@@ -419,7 +384,6 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                $rootScope.busy(true);
                 bookDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Book');
@@ -427,9 +391,7 @@ var angular = angular || null,
                         $scope.items = _.filter($scope.items, function (book) {
                             return book.objectId !== $scope.currentItem.objectId;
                         });
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
 
@@ -673,14 +635,11 @@ var angular = angular || null,
 
             function getItems() {
                 if (SessionService.userObj) {
-                    $rootScope.busy(true);
                     cheatsDataService.getItems()
                         .then(function (res) {
                             $log.info(res);
                             $scope.items = res.data.results;
-                            $rootScope.busy(false);
                         }, function (err) {
-                            $rootScope.busy(false);
                             $log.error(err);
                             toastr.error(err.data.code + ' ' + err.data.error);
                         });
@@ -719,7 +678,6 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                $rootScope.busy(true);
                 cheatsDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Cache');
@@ -727,9 +685,7 @@ var angular = angular || null,
                         $scope.items = _.filter($scope.items, function (cache) {
                             return cache.objectId !== $scope.currentItem.objectId;
                         });
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
 
@@ -869,13 +825,10 @@ var angular = angular || null,
             var modalInstance = null;
 
             function getEvents() {
-                $rootScope.busy(true);
                 eventDataService.getEvents()
                     .then(function (res) {
                         $scope.events = res.data.results;
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
@@ -913,7 +866,6 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                $rootScope.busy(true);
                 eventDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Event');
@@ -921,12 +873,9 @@ var angular = angular || null,
                         $scope.events = _.filter($scope.events, function (event) {
                             return event.objectId !== $scope.currentItem.objectId;
                         });
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-
                     });
             };
         }]);
@@ -1059,15 +1008,12 @@ var angular = angular || null,
                     return;
                 }
                 $scope.fetching = true;
-                $rootScope.busy(true);
                 movieDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
                     .then(function (res) {
                         $scope.items = $scope.items.concat(res.data.results);
                         $scope.totalItems = res.data.count;
-                        $rootScope.busy(false);
                         $scope.fetching = false;
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                         $scope.fetching = false;
@@ -1112,7 +1058,6 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                $rootScope.busy(true);
                 movieDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
                         $log.info('Deleted Movie');
@@ -1120,9 +1065,7 @@ var angular = angular || null,
                         $scope.items = _.filter($scope.items, function (movie) {
                             return movie.objectId !== $scope.currentItem.objectId;
                         });
-                        $rootScope.busy(false);
                     }, function (err) {
-                        $rootScope.busy(false);
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
