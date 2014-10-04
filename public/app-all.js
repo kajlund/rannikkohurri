@@ -5,18 +5,19 @@ var angular = angular || null;
 
     var app = angular.module('app', [
             // Angular modules
-            'ui.router',     // state-based UI routing
-            'ngAnimate',     // animate (for angular-strap)
-            'ngCookies',     // cookies
+            'ngRoute',          // routing
+            'ngAnimate',        // animate (for angular-strap)
+            'ngCookies',        // cookies
             'infinite-scroll',
-            'mgcrea.ngStrap', // angular-strap library
+            'mgcrea.ngStrap',   // angular-strap library
             'ngGrid',
             'angular-loading-bar'
         ]);
 
     // Configure Routes
-    app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider',
-        function ($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider) {
+    app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$modalProvider',
+        function ($routeProvider, $locationProvider, $httpProvider, $modalProvider) {
+            //$locationProvider.html5Mode(true);
             $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
             angular.extend($modalProvider.defaults, {
@@ -25,61 +26,43 @@ var angular = angular || null;
                 html: true
             });
 
-            $urlRouterProvider.otherwise('home');
-
-            $stateProvider
-                .state('home', {
-                    url: '/home',
-                    templateUrl: 'app/home.html',
-                    controller: 'HomeController'
-                }).state('links', {
-                    url: '/links',
-                    templateUrl: 'app/links/links.html',
-                    controller: 'LinksController'
-                }).state('books', {
-                    url: '/books',
-                    templateUrl: 'app/books/list.html',
-                    controller: 'bookListController'
-                }).state('bookedit', {
-                    url: '/books:bookId',
-                    templateUrl: 'app/books/edit.html',
-                    controller: 'bookEditController'
-                }).state('movies', {
-                    url: '/movies',
-                    templateUrl: 'app/movies/list.html',
-                    controller: 'movieListController'
-                }).state('movieedit', {
-                    url: '/movies:movieId',
-                    templateUrl: 'app/movies/edit.html',
-                    controller: 'movieEditController'
-                }).state('events', {
-                    url: '/events',
-                    templateUrl: 'app/events/list.html',
-                    controller: 'EventListController'
-                }).state('eventedit', {
-                    url: '/events:eventId',
-                    templateUrl: 'app/events/edit.html',
-                    controller: 'eventEditController'
-                }).state('cheats', {
-                    url: '/cheats',
-                    templateUrl: 'app/cheats/list.html',
-                    controller: 'cheatsListController'
-                }).state('cheatsedit', {
-                    url: '/cheats/:cacheId',
-                    templateUrl: 'app/cheats/edit.html',
-                    controller: 'cheatsEditController'
-                });
+            $routeProvider.when('/', {
+                templateUrl: 'app/home.html',
+                controller: 'HomeController'
+            }).when('/books', {
+                templateUrl: 'app/books/list.html',
+                controller: 'bookListController'
+            }).when('/books/:bookId', {
+                templateUrl: 'app/books/edit.html',
+                controller: 'bookEditController'
+            }).when('/movies', {
+                templateUrl: 'app/movies/list.html',
+                controller: 'movieListController'
+            }).when('/movies/:movieId', {
+                templateUrl: 'app/movies/edit.html',
+                controller: 'movieEditController'
+            }).when('/events', {
+                templateUrl: 'app/events/list.html',
+                controller: 'EventListController'
+            }).when('/events/:eventId', {
+                templateUrl: 'app/events/edit.html',
+                controller: 'eventEditController'
+            }).when('/cheats', {
+                templateUrl: 'app/cheats/list.html',
+                controller: 'cheatsListController'
+            }).when('/cheats/:cacheId', {
+                templateUrl: 'app/cheats/edit.html',
+                controller: 'cheatsEditController'
+            }).otherwise({ redirectTo: '/' });
         }]);
 
-    app.run(['$rootScope', '$state', '$stateParams', '$log', '$window',
-        function ($rootScope, $state, $stateParams, $log, $window) {
+    app.run(['$log', '$window',
+        function ($log, $window) {
             // Configure Toastr library
             $window.toastr.options.timeOut = 2000;
             $window.toastr.options.positionClass = 'toast-bottom-right';
             // Configure moment library
             //$window.moment.lang('sv');
-            $rootScope.$state = $state;
-            $rootScope.$stateParams = $stateParams;
             $log.info('App Loaded');
         }]);
 
@@ -108,8 +91,8 @@ var angular = angular || null,
 (function (angular, toastr) {
     'use strict';
 
-    angular.module('app').controller('headerController', ['$scope', '$rootScope', '$location', '$log', '$modal', '$state', '$stateParams', 'SessionService',
-        function ($scope, $rootScope, $location, $log, $modal, $state, $stateParams, SessionService) {
+    angular.module('app').controller('headerController', ['$scope', '$location', '$log', '$modal', 'SessionService',
+        function ($scope, $location, $log, $modal, SessionService) {
             var modalInstance = $modal({
                 scope: $scope,
                 template: 'app/signon.html',
@@ -121,7 +104,6 @@ var angular = angular || null,
 
             $scope.getClass = function (path) {
                 var className = "";
-
                 if ($location.path().substr(0, path.length) === path) {
                     className = "active";
                 }
@@ -132,7 +114,6 @@ var angular = angular || null,
                 modalInstance.hide();
                 SessionService.signon($scope.user.name, $scope.user.pwd).then(function () {
                     toastr.info(SessionService.userObj.username + ' signed on');
-                    $state.reload();
                 }, function (error) {
                     toastr.error(error.error);
                 });
@@ -154,9 +135,10 @@ var angular = angular || null;
 (function (angular) {
     'use strict';
 
-    angular.module('app').controller('HomeController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
-        function ($scope, $rootScope, $location, $log, $modal, SessionService) {
+    angular.module('app').controller('HomeController', ['$scope', '$log', 'SessionService',
+        function ($scope, $log, SessionService) {
             $scope.session = SessionService;
+            $log.info('Activating HomeController');
 
             if (!SessionService.loggedOn()) {
                 $log.info('not logged on');
@@ -259,10 +241,10 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('bookEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'bookDataService',
-        function ($scope, $rootScope, $state, $log, SessionService, bookDataService) {
+    app.controller('bookEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'bookDataService',
+        function ($scope, $routeParams, $location, $log, SessionService, bookDataService) {
             $scope.session = SessionService;
-            $scope.bookId = $rootScope.$stateParams.bookId;
+            $scope.bookId = $routeParams.bookId;
             $scope.languages = [
                 'swe',
                 'eng',
@@ -294,7 +276,7 @@ var angular = angular || null,
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('books');
+                        $location.url('/books');
                     });
             }
 
@@ -304,18 +286,18 @@ var angular = angular || null,
                         // data.createdAt data.objectId
                         $log.info('Saved Book %o', res);
                         toastr.success('Book saved');
-                        $state.go('books');
+                        $location.url('/books');
                     }, function (err) {
                         $log.error('Error saving Book %o', err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('books');
+                        $location.url('/books');
                     });
             };
 
             $scope.cancel = function () {
                 $log.info('Cancelled Edit');
                 toastr.warning('Edit cancelled');
-                $state.go('books');
+                $location.url('/books');
             };
         }]);
 }(angular.module('app')));
@@ -325,8 +307,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('bookListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'bookDataService',
-        function ($scope, $rootScope, $state, $log, $modal, SessionService, bookDataService) {
+    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService',
+        function ($scope, $location, $log, $modal, SessionService, bookDataService) {
             var modalInstance = null;
 
             function getItems() {
@@ -346,6 +328,7 @@ var angular = angular || null,
                     });
             }
 
+            $log.info('Activating bookListController');
             $scope.session = SessionService;
             $scope.filter = '';
             $scope.currentPage = 1;
@@ -359,11 +342,11 @@ var angular = angular || null,
             getItems();
 
             $scope.onAddClick = function () {
-                $state.go('bookedit', {'bookId': '_new'});
+                $location.path('/books/_new');
             };
 
             $scope.onEditClick = function (book) {
-                $state.go('bookedit', {'bookId': book.objectId});
+                $location.path('/books/' + book.objectId);
             };
 
             $scope.onDeleteClick = function (book) {
@@ -386,7 +369,7 @@ var angular = angular || null,
                 modalInstance.hide();
                 bookDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
-                        $log.info('Deleted Book');
+                        $log.info('Deleted Book %o', data);
                         toastr.success('Book deleted');
                         $scope.items = _.filter($scope.items, function (book) {
                             return book.objectId !== $scope.currentItem.objectId;
@@ -490,10 +473,10 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('cheatsEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'cheatsDataService',
-        function ($scope, $rootScope, $state, $log, SessionService, cheatsDataService) {
+    app.controller('cheatsEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'cheatsDataService',
+        function ($scope, $routeParams, $location, $log, SessionService, cheatsDataService) {
             $scope.session = SessionService;
-            $scope.cacheId = $rootScope.$stateParams.cacheId;
+            $scope.cacheId = $routeParams.cacheId;
             $scope.cacheTypes = [
                 'Tradi',
                 'Mystery',
@@ -568,7 +551,7 @@ var angular = angular || null,
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('cheats');
+                        $location.url('/cheats');
                     });
             }
 
@@ -578,18 +561,18 @@ var angular = angular || null,
                         // data.createdAt data.objectId
                         $log.info('Saved Cache %o', res);
                         toastr.success('Cache saved');
-                        $state.go('cheats');
+                        $location.url('/cheats');
                     }, function (err) {
                         $log.error('Error saving Cache %o', err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('cheats');
+                        $location.url('/cheats');
                     });
             };
 
             $scope.cancel = function () {
                 $log.info('Cancelled Edit');
                 toastr.warning('Edit cancelled');
-                $state.go('cheats');
+                $location.url('/cheats');
             };
         }]);
 }(angular.module('app')));
@@ -599,8 +582,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('cheatsListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'cheatsDataService',
-        function ($scope, $rootScope, $state, $log, $modal, SessionService, cheatsDataService) {
+    app.controller('cheatsListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'cheatsDataService',
+        function ($scope, $location, $log, $modal, SessionService, cheatsDataService) {
             var modalInstance = null,
                 linkCellTemplate = '<div class="ngCellText" ng-class="col.colIndex()">' +
                     '  <a target="_blank" href="http://coord.info/{{row.entity.cacheId}}">{{row.getProperty(col.field)}}</a>' +
@@ -653,11 +636,11 @@ var angular = angular || null,
             getItems();
 
             $scope.onAddClick = function () {
-                $state.go('cheatsedit', {'cacheId': '_new'});
+                $location.path('/cheats/_new');
             };
 
             $scope.onEditClick = function (cache) {
-                $state.go('cheatsedit', {'cacheId': cache.objectId});
+                $location.path('/cheats/' + cache.objectId);
             };
 
             $scope.onDeleteClick = function (cache) {
@@ -768,10 +751,10 @@ var angular = angular || null,
 (function (angular) {
     'use strict';
 
-    angular.module('app').controller('eventEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'eventDataService',
-        function ($scope, $rootScope, $state, $log, SessionService, eventDataService) {
+    angular.module('app').controller('eventEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'eventDataService',
+        function ($scope, $routeParams, $location, $log, SessionService, eventDataService) {
             $scope.session = SessionService;
-            $scope.eventId = $rootScope.$stateParams.eventId;
+            $scope.eventId = $routeParams.eventId;
 
             if ($scope.eventId === '_new') {
                 $scope.event = {
@@ -789,7 +772,7 @@ var angular = angular || null,
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('events');
+                        $location.url('/events');
                     });
             }
 
@@ -799,18 +782,18 @@ var angular = angular || null,
                         // data.createdAt data.objectId
                         $log.info('Saved Event %o', res);
                         toastr.success('Event saved');
-                        $state.go('events');
+                        $location.url('/events');
                     }, function (err) {
                         $log.error('Error saving Event %o', err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('events');
+                        $location.url('/events');
                     });
             };
 
             $scope.cancel = function () {
                 $log.info('Cancelled Edit');
                 toastr.warning('Edit cancelled');
-                $state.go('events');
+                $location.url('/events');
             };
         }]);
 }(angular));
@@ -820,8 +803,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('EventListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'eventDataService',
-        function ($scope, $rootScope, $state, $log, $modal, SessionService, eventDataService) {
+    app.controller('EventListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'eventDataService',
+        function ($scope, $location, $log, $modal, SessionService, eventDataService) {
             var modalInstance = null;
 
             function getEvents() {
@@ -841,11 +824,11 @@ var angular = angular || null,
             getEvents();
 
             $scope.onAddClick = function () {
-                $state.go('eventedit', {'eventId': '_new'});
+                $location.path('/events/_new');
             };
 
             $scope.onEditClick = function (event) {
-                $state.go('eventedit', {'eventId': event.objectId});
+                $location.path('/events/' + event.objectId);
             };
 
             $scope.onDeleteClick = function (event) {
@@ -945,10 +928,10 @@ var angular = angular || null,
 (function (app, toastr) {
     'use strict';
 
-    app.controller('movieEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'movieDataService',
-        function ($scope, $rootScope, $state, $log, SessionService, movieDataService) {
+    app.controller('movieEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'movieDataService',
+        function ($scope, $routeParams, $location, $log, SessionService, movieDataService) {
             $scope.session = SessionService;
-            $scope.movieId = $rootScope.$stateParams.movieId;
+            $scope.movieId = $routeParams.movieId;
 
             if ($scope.movieId === '_new') {
                 $scope.movie = {
@@ -968,7 +951,7 @@ var angular = angular || null,
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('movies');
+                        $location.url('/movies');
                     });
             }
 
@@ -978,18 +961,18 @@ var angular = angular || null,
                         // data.createdAt data.objectId
                         $log.info('Saved Movie %o', res);
                         toastr.success('Movie saved');
-                        $state.go('movies');
+                        $location.url('/movies');
                     }, function (err) {
                         $log.error('Error saving Movie %o', err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('movies');
+                        $location.url('/movies');
                     });
             };
 
             $scope.cancel = function () {
                 $log.info('Cancelled Edit');
                 toastr.warning('Edit cancelled');
-                $state.go('movies');
+                $location.url('/movies');
             };
         }]);
 }(angular.module('app'), toastr));
@@ -999,8 +982,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('movieListController', ['$scope', '$rootScope', '$modal', '$log', '$state', 'SessionService', 'movieDataService',
-        function ($scope, $rootScope, $modal, $log, $state, SessionService, movieDataService) {
+    app.controller('movieListController', ['$scope', '$location', '$modal', '$log', 'SessionService', 'movieDataService',
+        function ($scope, $location, $modal, $log, SessionService, movieDataService) {
             var modalInstance = null;
 
             function getItems() {
@@ -1033,11 +1016,11 @@ var angular = angular || null,
             getItems();
 
             $scope.onAddClick = function () {
-                $state.go('movieedit', {'movieId': '_new'});
+                $location.path('/movies/_new');
             };
 
             $scope.onEditClick = function (movie) {
-                $state.go('movieedit', {'movieId': movie.objectId});
+                $location.path('/movies/' + movie.objectId);
             };
 
             $scope.onDeleteClick = function (movie) {
