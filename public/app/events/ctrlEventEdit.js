@@ -4,10 +4,10 @@ var angular = angular || null,
 (function (angular) {
     'use strict';
 
-    angular.module('app').controller('eventEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'eventDataService',
-        function ($scope, $rootScope, $state, $log, SessionService, eventDataService) {
+    angular.module('app').controller('eventEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'eventDataService',
+        function ($scope, $routeParams, $location, $log, SessionService, eventDataService) {
             $scope.session = SessionService;
-            $scope.eventId = $rootScope.$stateParams.eventId;
+            $scope.eventId = $routeParams.eventId;
 
             if ($scope.eventId === '_new') {
                 $scope.event = {
@@ -25,7 +25,7 @@ var angular = angular || null,
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('events');
+                        $location.url('/events');
                     });
             }
 
@@ -35,18 +35,18 @@ var angular = angular || null,
                         // data.createdAt data.objectId
                         $log.info('Saved Event %o', res);
                         toastr.success('Event saved');
-                        $state.go('events');
+                        $location.url('/events');
                     }, function (err) {
                         $log.error('Error saving Event %o', err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('events');
+                        $location.url('/events');
                     });
             };
 
             $scope.cancel = function () {
                 $log.info('Cancelled Edit');
                 toastr.warning('Edit cancelled');
-                $state.go('events');
+                $location.url('/events');
             };
         }]);
 }(angular));

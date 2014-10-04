@@ -4,8 +4,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('cheatsListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'cheatsDataService',
-        function ($scope, $rootScope, $state, $log, $modal, SessionService, cheatsDataService) {
+    app.controller('cheatsListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'cheatsDataService',
+        function ($scope, $location, $log, $modal, SessionService, cheatsDataService) {
             var modalInstance = null,
                 linkCellTemplate = '<div class="ngCellText" ng-class="col.colIndex()">' +
                     '  <a target="_blank" href="http://coord.info/{{row.entity.cacheId}}">{{row.getProperty(col.field)}}</a>' +
@@ -58,11 +58,11 @@ var angular = angular || null,
             getItems();
 
             $scope.onAddClick = function () {
-                $state.go('cheatsedit', {'cacheId': '_new'});
+                $location.path('/cheats/_new');
             };
 
             $scope.onEditClick = function (cache) {
-                $state.go('cheatsedit', {'cacheId': cache.objectId});
+                $location.path('/cheats/' + cache.objectId);
             };
 
             $scope.onDeleteClick = function (cache) {

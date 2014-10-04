@@ -4,8 +4,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('bookListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'bookDataService',
-        function ($scope, $rootScope, $state, $log, $modal, SessionService, bookDataService) {
+    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService',
+        function ($scope, $location, $log, $modal, SessionService, bookDataService) {
             var modalInstance = null;
 
             function getItems() {
@@ -25,6 +25,7 @@ var angular = angular || null,
                     });
             }
 
+            $log.info('Activating bookListController');
             $scope.session = SessionService;
             $scope.filter = '';
             $scope.currentPage = 1;
@@ -38,11 +39,11 @@ var angular = angular || null,
             getItems();
 
             $scope.onAddClick = function () {
-                $state.go('bookedit', {'bookId': '_new'});
+                $location.path('/books/_new');
             };
 
             $scope.onEditClick = function (book) {
-                $state.go('bookedit', {'bookId': book.objectId});
+                $location.path('/books/' + book.objectId);
             };
 
             $scope.onDeleteClick = function (book) {
@@ -65,7 +66,7 @@ var angular = angular || null,
                 modalInstance.hide();
                 bookDataService.deleteItem($scope.currentItem)
                     .then(function (data) {
-                        $log.info('Deleted Book');
+                        $log.info('Deleted Book %o', data);
                         toastr.success('Book deleted');
                         $scope.items = _.filter($scope.items, function (book) {
                             return book.objectId !== $scope.currentItem.objectId;

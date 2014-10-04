@@ -4,10 +4,10 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('cheatsEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'cheatsDataService',
-        function ($scope, $rootScope, $state, $log, SessionService, cheatsDataService) {
+    app.controller('cheatsEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'cheatsDataService',
+        function ($scope, $routeParams, $location, $log, SessionService, cheatsDataService) {
             $scope.session = SessionService;
-            $scope.cacheId = $rootScope.$stateParams.cacheId;
+            $scope.cacheId = $routeParams.cacheId;
             $scope.cacheTypes = [
                 'Tradi',
                 'Mystery',
@@ -82,7 +82,7 @@ var angular = angular || null,
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('cheats');
+                        $location.url('/cheats');
                     });
             }
 
@@ -92,18 +92,18 @@ var angular = angular || null,
                         // data.createdAt data.objectId
                         $log.info('Saved Cache %o', res);
                         toastr.success('Cache saved');
-                        $state.go('cheats');
+                        $location.url('/cheats');
                     }, function (err) {
                         $log.error('Error saving Cache %o', err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('cheats');
+                        $location.url('/cheats');
                     });
             };
 
             $scope.cancel = function () {
                 $log.info('Cancelled Edit');
                 toastr.warning('Edit cancelled');
-                $state.go('cheats');
+                $location.url('/cheats');
             };
         }]);
 }(angular.module('app')));

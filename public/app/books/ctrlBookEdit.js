@@ -4,10 +4,10 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('bookEditController', ['$scope', '$rootScope', '$state', '$log', 'SessionService', 'bookDataService',
-        function ($scope, $rootScope, $state, $log, SessionService, bookDataService) {
+    app.controller('bookEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'bookDataService',
+        function ($scope, $routeParams, $location, $log, SessionService, bookDataService) {
             $scope.session = SessionService;
-            $scope.bookId = $rootScope.$stateParams.bookId;
+            $scope.bookId = $routeParams.bookId;
             $scope.languages = [
                 'swe',
                 'eng',
@@ -39,7 +39,7 @@ var angular = angular || null,
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('books');
+                        $location.url('/books');
                     });
             }
 
@@ -49,18 +49,18 @@ var angular = angular || null,
                         // data.createdAt data.objectId
                         $log.info('Saved Book %o', res);
                         toastr.success('Book saved');
-                        $state.go('books');
+                        $location.url('/books');
                     }, function (err) {
                         $log.error('Error saving Book %o', err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-                        $state.go('books');
+                        $location.url('/books');
                     });
             };
 
             $scope.cancel = function () {
                 $log.info('Cancelled Edit');
                 toastr.warning('Edit cancelled');
-                $state.go('books');
+                $location.url('/books');
             };
         }]);
 }(angular.module('app')));

@@ -4,8 +4,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('movieListController', ['$scope', '$rootScope', '$modal', '$log', '$state', 'SessionService', 'movieDataService',
-        function ($scope, $rootScope, $modal, $log, $state, SessionService, movieDataService) {
+    app.controller('movieListController', ['$scope', '$location', '$modal', '$log', 'SessionService', 'movieDataService',
+        function ($scope, $location, $modal, $log, SessionService, movieDataService) {
             var modalInstance = null;
 
             function getItems() {
@@ -38,11 +38,11 @@ var angular = angular || null,
             getItems();
 
             $scope.onAddClick = function () {
-                $state.go('movieedit', {'movieId': '_new'});
+                $location.path('/movies/_new');
             };
 
             $scope.onEditClick = function (movie) {
-                $state.go('movieedit', {'movieId': movie.objectId});
+                $location.path('/movies/' + movie.objectId);
             };
 
             $scope.onDeleteClick = function (movie) {

@@ -4,8 +4,8 @@ var angular = angular || null,
 (function (app) {
     'use strict';
 
-    app.controller('EventListController', ['$scope', '$rootScope', '$state', '$log', '$modal', 'SessionService', 'eventDataService',
-        function ($scope, $rootScope, $state, $log, $modal, SessionService, eventDataService) {
+    app.controller('EventListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'eventDataService',
+        function ($scope, $location, $log, $modal, SessionService, eventDataService) {
             var modalInstance = null;
 
             function getEvents() {
@@ -25,11 +25,11 @@ var angular = angular || null,
             getEvents();
 
             $scope.onAddClick = function () {
-                $state.go('eventedit', {'eventId': '_new'});
+                $location.path('/events/_new');
             };
 
             $scope.onEditClick = function (event) {
-                $state.go('eventedit', {'eventId': event.objectId});
+                $location.path('/events/' + event.objectId);
             };
 
             $scope.onDeleteClick = function (event) {

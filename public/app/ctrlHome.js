@@ -3,9 +3,10 @@ var angular = angular || null;
 (function (angular) {
     'use strict';
 
-    angular.module('app').controller('HomeController', ['$scope', '$rootScope', '$location', '$log', '$modal', 'SessionService',
-        function ($scope, $rootScope, $location, $log, $modal, SessionService) {
+    angular.module('app').controller('HomeController', ['$scope', '$log', 'SessionService',
+        function ($scope, $log, SessionService) {
             $scope.session = SessionService;
+            $log.info('Activating HomeController');
 
             if (!SessionService.loggedOn()) {
                 $log.info('not logged on');
