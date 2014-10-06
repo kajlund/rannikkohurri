@@ -1,7 +1,7 @@
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').factory('SessionService', ['$rootScope', '$http', '$cookieStore', '$log', '$q',
+    app.factory('SessionService', ['$rootScope', '$http', '$cookieStore', '$log', '$q',
         function ($rootScope, $http, $cookieStore, $log, $q) {
             var res = {};
             res.sessionToken = '';
@@ -81,4 +81,4 @@
 
             return res;
         }]);
-}(angular));
+}(angular.module('app')));

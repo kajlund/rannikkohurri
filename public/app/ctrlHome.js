@@ -1,5 +1,3 @@
-var angular = angular || null;
-
 (function (angular) {
     'use strict';
 

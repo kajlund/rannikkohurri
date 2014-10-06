@@ -1,10 +1,7 @@
-var angular = angular || null,
-    toastr = toastr || null;
-
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').controller('eventEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'eventDataService',
+    app.controller('eventEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'eventDataService',
         function ($scope, $routeParams, $location, $log, SessionService, eventDataService) {
             $scope.session = SessionService;
             $scope.eventId = $routeParams.eventId;
@@ -49,4 +46,4 @@ var angular = angular || null,
                 $location.url('/events');
             };
         }]);
-}(angular));
+}(angular.module('app')));
