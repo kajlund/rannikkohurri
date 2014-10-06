@@ -1,13 +1,12 @@
 (function (app) {
     'use strict';
 
-    app.factory('movieDataService', ['$log', '$q', '$http', 'SessionService',
+    app.service('movieDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/Movie',
-                res = {};
 
-            res.pageSize = 100;
-            res.getItem = function (aId) {
+            pageSize = 100,
+            getItem = function (aId) {
                 var config = {
                     headers: {
                         'X-Parse-Session-Token': SessionService.sessionToken
@@ -17,9 +16,9 @@
                     url: baseUrl + '/' + aId
                 };
                 return $http(config);
-            };
+            },
 
-            res.getItems = function () {
+            getItems = function () {
                 var config = {
                     headers: {
                         'X-Parse-Session-Token': SessionService.sessionToken
@@ -29,12 +28,12 @@
                     url: baseUrl + '?count=1&limit=1000&order=-seenAt'
                 };
                 return $http(config);
-            };
+            },
 
-            res.getPage = function (aOrder, aFilter, aPageNum) {
+            getPage = function (aOrder, aFilter, aPageNum) {
                 var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
-                    skip = (aPageNum - 1) * res.pageSize,
-                    params = '?count=1&limit=' + res.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
+                    skip = (aPageNum - 1) * this.pageSize,
+                    params = '?count=1&limit=' + this.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
                     config = {
                         headers: {
                             'X-Parse-Session-Token': SessionService.sessionToken
@@ -45,9 +44,9 @@
                     };
 
                 return $http(config);
-            };
+            },
 
-            res.updateItem = function (obj) {
+            updateItem = function (obj) {
                 var isNew = obj.objectId === undefined,
                     url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
                     config = {
@@ -59,9 +58,9 @@
                         data: obj
                     };
                 return $http(config);
-            };
+            },
 
-            res.deleteItem = function (obj) {
+            deleteItem = function (obj) {
                 var url = baseUrl + '/' + obj.objectId,
                     config = {
                         headers: {
@@ -73,6 +72,13 @@
                 return $http(config);
             };
 
-            return res;
+            return {
+                pageSize: pageSize,
+                getItem: getItem,
+                getItems: getItems,
+                getPage: getPage,
+                updateItem: updateItem,
+                deleteItem: deleteItem
+            };
         }]);
 }(angular.module('app')));
