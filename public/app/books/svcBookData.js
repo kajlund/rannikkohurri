@@ -1,7 +1,7 @@
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').factory('bookDataService', ['$log', '$q', '$http', 'SessionService',
+    app.factory('bookDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/AudioBook',
                 res = {};
@@ -75,4 +75,4 @@
 
             return res;
         }]);
-}(angular));
+}(angular.module('app')));
