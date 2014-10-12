@@ -1,5 +1,3 @@
-var angular = angular || null;
-
 (function (angular) {
     'use strict';
 
@@ -7,16 +5,17 @@ var angular = angular || null;
             // Angular modules
             'ngRoute',          // routing
             'ngAnimate',        // animate (for angular-strap)
-            'ngCookies',        // cookies
             'infinite-scroll',
             'mgcrea.ngStrap',   // angular-strap library
             'ngGrid',
-            'angular-loading-bar'
+            'angular-loading-bar',
+            'LocalStorageModule'
         ]);
 
     // Configure Routes
     app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$modalProvider',
         function ($routeProvider, $locationProvider, $httpProvider, $modalProvider) {
+            Parse.initialize("HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1", "BxuS4AKpUCoP6Ea6pOn1O0PXlmPu5wYvvlSxLJVE");
             //$locationProvider.html5Mode(true);
             $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
@@ -85,9 +84,6 @@ var angular = angular || null;
     });
 
 }(angular));
-var angular = angular || null,
-    toastr = toastr || null;
-
 (function (angular, toastr) {
     'use strict';
 
@@ -130,8 +126,6 @@ var angular = angular || null,
             };
         }]);
 }(angular, toastr));
-var angular = angular || null;
-
 (function (angular) {
     'use strict';
 
@@ -151,11 +145,11 @@ var angular = angular || null;
             }
         }]);
 }(angular));
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').factory('SessionService', ['$rootScope', '$http', '$cookieStore', '$log', '$q',
-        function ($rootScope, $http, $cookieStore, $log, $q) {
+    app.factory('SessionService', ['$rootScope', '$http', '$log', '$q', 'localStorageService',
+        function ($rootScope, $http, $log, $q, localStorageService) {
             var res = {};
             res.sessionToken = '';
             res.userObj = null;
@@ -163,17 +157,24 @@ var angular = angular || null;
             function setSession(data) {
                 res.userObj = data;
                 res.sessionToken = data.sessionToken;
-                $cookieStore.put('ParseUser', data);
+                localStorageService.set('ParseUser', data);
+                Parse.User.become(data.sessionToken).then(function (user) {
+                    // The current user is now set to user.
+                    $log.info('*** Parse user set to %o', user);
+                }, function (error) {
+                    $log.error('The Parse user could not be set');
+                });
 
             }
             function clearSession() {
                 res.userObj = null;
                 res.sessionToken = '';
-                $cookieStore.remove('ParseUser');
+                localStorageService.remove('ParseUser');
+                Parse.User.logOut();
             }
 
             res.autoSignon = function () {
-                var user = $cookieStore.get('ParseUser'),
+                var user = localStorageService.get('ParseUser'),
                     config = {
                         headers: {
                             'X-Parse-Application-Id': 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1',
@@ -234,10 +235,7 @@ var angular = angular || null;
 
             return res;
         }]);
-}(angular));
-var angular = angular || null,
-    toastr = toastr || null;
-
+}(angular.module('app')));
 (function (app) {
     'use strict';
 
@@ -301,52 +299,57 @@ var angular = angular || null,
             };
         }]);
 }(angular.module('app')));
-var angular = angular || null,
-    toastr = toastr || null;
-
 (function (app) {
     'use strict';
 
-    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService',
-        function ($scope, $location, $log, $modal, SessionService, bookDataService) {
-            var modalInstance = null;
+    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService', 'cfpLoadingBar',
+        function ($scope, $location, $log, $modal, SessionService, bookDataService, cfpLoadingBar) {
+            var modalInstance = null,
+                BookObject = Parse.Object.extend('AudioBook');
 
-            function getItems() {
-                if ($scope.fetching) {
-                    return;
-                }
-                $scope.fetching = true;
-                bookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
-                    .then(function (res) {
-                        $scope.items = $scope.items.concat(res.data.results);
-                        $scope.totalItems = res.data.count;
-                        $scope.fetching = false;
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $scope.fetching = false;
-                    });
+            function getItems(aField, aVal) {
+                var query = new Parse.Query(BookObject);
+
+                query.startsWith(aField, aVal);
+                cfpLoadingBar.start();
+                query.find({
+                    success: function (results) {
+                        $scope.items = results;
+                        $scope.$apply();
+                        cfpLoadingBar.complete();
+                    },
+                    error: function (error) {
+                        $log.error('Error fetching Book data %o', error);
+                        toastr.error(error.message);
+                        cfpLoadingBar.complete();
+                    }
+                });
             }
 
             $log.info('Activating bookListController');
+
             $scope.session = SessionService;
-            $scope.filter = '';
-            $scope.currentPage = 1;
-            $scope.maxSize = 10;
-            $scope.order = 'title';
-            $scope.totalItems = 0;
+            $scope.searchKey = '';
             $scope.currentItem = null;
             $scope.items = [];
-            $scope.fetching = false;
 
-            getItems();
+            $scope.searchFields = [
+                { name: 'title', description: 'By Title'  },
+                { name: 'subtitle', description: 'By Subtitle' },
+                { name: 'authors', description: "By Authors" }
+            ];
+            $scope.currentSearchField = $scope.searchFields[0];
+
+            $scope.search = function() {
+                getItems($scope.currentSearchField.name, $scope.searchKey);
+            };
 
             $scope.onAddClick = function () {
                 $location.path('/books/_new');
             };
 
             $scope.onEditClick = function (book) {
-                $location.path('/books/' + book.objectId);
+                $location.path('/books/' + book.id);
             };
 
             $scope.onDeleteClick = function (book) {
@@ -356,7 +359,7 @@ var angular = angular || null,
                     template: 'app/tmplVerify.html',
                     show: true,
                     title: 'Delete Book?',
-                    content: 'You are about to delete book <em>' + book.title + '</em>'
+                    content: 'You are about to delete book <em>' + book.get('title') + '</em>'
                 });
             };
 
@@ -367,32 +370,33 @@ var angular = angular || null,
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                bookDataService.deleteItem($scope.currentItem)
+                bookDataService.deleteItem($scope.currentItem.id)
                     .then(function (data) {
                         $log.info('Deleted Book %o', data);
                         toastr.success('Book deleted');
-                        $scope.items = _.filter($scope.items, function (book) {
-                            return book.objectId !== $scope.currentItem.objectId;
-                        });
+                        $scope.search();
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-
                     });
             };
 
-            $scope.scroll = function () {
-                $scope.currentPage += 1;
-                getItems();
-            };
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+
+            getItems('title', '');
         }]);
 }(angular.module('app')));
-var angular = angular || null;
-
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').factory('bookDataService', ['$log', '$q', '$http', 'SessionService',
+    app.factory('bookDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/AudioBook',
                 res = {};
@@ -452,8 +456,8 @@ var angular = angular || null;
                 return $http(config);
             };
 
-            res.deleteItem = function (obj) {
-                var url = baseUrl + '/' + obj.objectId,
+            res.deleteItem = function (objId) {
+                var url = baseUrl + '/' + objId,
                     config = {
                         headers: {
                             'X-Parse-Session-Token': SessionService.sessionToken
@@ -466,10 +470,7 @@ var angular = angular || null;
 
             return res;
         }]);
-}(angular));
-var angular = angular || null,
-    toastr = toastr || null;
-
+}(angular.module('app')));
 (function (app) {
     'use strict';
 
@@ -576,9 +577,6 @@ var angular = angular || null,
             };
         }]);
 }(angular.module('app')));
-var angular = angular || null,
-    toastr = toastr || null;
-
 (function (app) {
     'use strict';
 
@@ -633,8 +631,6 @@ var angular = angular || null,
             $scope.totalItems = 0;
             $scope.currentItem = null;
 
-            getItems();
-
             $scope.onAddClick = function () {
                 $location.path('/cheats/_new');
             };
@@ -674,10 +670,18 @@ var angular = angular || null,
 
                     });
             };
+
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+            getItems();
         }]);
 }(angular.module('app')));
-var angular = angular || null;
-
 (function (app) {
     'use strict';
 
@@ -745,13 +749,10 @@ var angular = angular || null;
             return res;
         }]);
 }(angular.module('app')));
-var angular = angular || null,
-    toastr = toastr || null;
-
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').controller('eventEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'eventDataService',
+    app.controller('eventEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'eventDataService',
         function ($scope, $routeParams, $location, $log, SessionService, eventDataService) {
             $scope.session = SessionService;
             $scope.eventId = $routeParams.eventId;
@@ -796,10 +797,7 @@ var angular = angular || null,
                 $location.url('/events');
             };
         }]);
-}(angular));
-var angular = angular || null,
-    toastr = toastr || null;
-
+}(angular.module('app')));
 (function (app) {
     'use strict';
 
@@ -820,8 +818,6 @@ var angular = angular || null,
             $scope.session = SessionService;
             $scope.totalItems = 0;
             $scope.currentItem = null;
-
-            getEvents();
 
             $scope.onAddClick = function () {
                 $location.path('/events/_new');
@@ -861,14 +857,22 @@ var angular = angular || null,
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
             };
+
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+            getEvents();
         }]);
 }(angular.module('app')));
-var angular = angular || null;
-
-(function (angular) {
+(function (app) {
     'use strict';
 
-    angular.module('app').factory('eventDataService', ['$log', '$q', '$http', 'SessionService',
+    app.factory('eventDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/Event',
                 res = {};
@@ -921,10 +925,7 @@ var angular = angular || null;
 
             return res;
         }]);
-}(angular));
-var angular = angular || null,
-    toastr = toastr || null;
-
+}(angular.module('app')));
 (function (app, toastr) {
     'use strict';
 
@@ -976,9 +977,6 @@ var angular = angular || null,
             };
         }]);
 }(angular.module('app'), toastr));
-var angular = angular || null,
-    toastr = toastr || null;
-
 (function (app) {
     'use strict';
 
@@ -1012,8 +1010,6 @@ var angular = angular || null,
             $scope.currentItem = null;
             $scope.items = [];
             $scope.fetching = false;
-
-            getItems();
 
             $scope.onAddClick = function () {
                 $location.path('/movies/_new');
@@ -1058,20 +1054,27 @@ var angular = angular || null,
                 $scope.currentPage += 1;
                 getItems();
             };
+
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+            getItems();
         }]);
 }(angular.module('app')));
-var angular = angular || null;
-
 (function (app) {
     'use strict';
 
-    app.factory('movieDataService', ['$log', '$q', '$http', 'SessionService',
+    app.service('movieDataService', ['$log', '$q', '$http', 'SessionService',
         function ($log, $q, $http, SessionService) {
             var baseUrl = 'https://api.parse.com/1/classes/Movie',
-                res = {};
 
-            res.pageSize = 100;
-            res.getItem = function (aId) {
+            pageSize = 100,
+            getItem = function (aId) {
                 var config = {
                     headers: {
                         'X-Parse-Session-Token': SessionService.sessionToken
@@ -1081,9 +1084,9 @@ var angular = angular || null;
                     url: baseUrl + '/' + aId
                 };
                 return $http(config);
-            };
+            },
 
-            res.getItems = function () {
+            getItems = function () {
                 var config = {
                     headers: {
                         'X-Parse-Session-Token': SessionService.sessionToken
@@ -1093,12 +1096,12 @@ var angular = angular || null;
                     url: baseUrl + '?count=1&limit=1000&order=-seenAt'
                 };
                 return $http(config);
-            };
+            },
 
-            res.getPage = function (aOrder, aFilter, aPageNum) {
+            getPage = function (aOrder, aFilter, aPageNum) {
                 var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
-                    skip = (aPageNum - 1) * res.pageSize,
-                    params = '?count=1&limit=' + res.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
+                    skip = (aPageNum - 1) * this.pageSize,
+                    params = '?count=1&limit=' + this.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
                     config = {
                         headers: {
                             'X-Parse-Session-Token': SessionService.sessionToken
@@ -1109,9 +1112,9 @@ var angular = angular || null;
                     };
 
                 return $http(config);
-            };
+            },
 
-            res.updateItem = function (obj) {
+            updateItem = function (obj) {
                 var isNew = obj.objectId === undefined,
                     url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
                     config = {
@@ -1123,9 +1126,9 @@ var angular = angular || null;
                         data: obj
                     };
                 return $http(config);
-            };
+            },
 
-            res.deleteItem = function (obj) {
+            deleteItem = function (obj) {
                 var url = baseUrl + '/' + obj.objectId,
                     config = {
                         headers: {
@@ -1137,6 +1140,13 @@ var angular = angular || null;
                 return $http(config);
             };
 
-            return res;
+            return {
+                pageSize: pageSize,
+                getItem: getItem,
+                getItems: getItems,
+                getPage: getPage,
+                updateItem: updateItem,
+                deleteItem: deleteItem
+            };
         }]);
 }(angular.module('app')));
