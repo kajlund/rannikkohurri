@@ -19,7 +19,7 @@
             <ul class="nav navbar-nav">
                 <li data-ng-class="getClass('/books')">
                     <a href="#/books">
-                        <i class="fa fa-headphones"></i> Books
+                        <i class="fa fa-book"></i> Books
                     </a>
                 </li>
                 <li data-ng-class="getClass('/movies')">
@@ -42,14 +42,22 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li data-ng-class="{hidden: session.loggedOn()}">
-                    <button class="btn btn-primary navbar-btn" ng-click="onSignonClick()" a-disabled="session.loggedOn()">Sign on</button>
+                    <a href="" ng-click="onSignonClick()" a-disabled="session.loggedOn()">
+                        <i class="fa fa-sign-in"></i> Sign in
+                    </a>
                 </li>
                 <li data-ng-class="{hidden: !session.loggedOn()}">
-                    <button class="btn btn-default navbar-btn" ng-click="onSignoffClick()" a-disabled="!session.loggedOn()">Sign off</button>
+                    <a href="" ng-click="onSignoffClick()" a-disabled="!session.loggedOn()">
+                        <i class="fa fa-sign-out"></i> Sign out
+                    </a>
+                </li>
+                <li class="divider"></li>
+                <li class="navbar-text" data-ng-class="{hidden: session.loggedOn()}">
+                    <i class="fa fa-user"></i> anonymous&nbsp;
+                </li>
+                <li class="navbar-text" data-ng-class="{hidden: !session.loggedOn()}">
+                    <i class="fa fa-user"></i> {{session.userObj.username}}&nbsp;
                 </li>
             </ul>
-            <p class="navbar-text navbar-right">
-                <span data-ng-class="{hidden: !session.loggedOn()}">{{session.userObj.username}}</span>
-            </p>
         </div> <!-- /.navbar-collapse -->
 </nav>
