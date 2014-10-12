@@ -8,13 +8,26 @@
         <h1><i class="fa fa-headphones"></i> BOOKS <small>&raquo;is my audiobooks list</small></h1>
     </div>
 
+    <div class="row" style="padding-bottom: 18px;">
+        <div class="col-xs-12">
+            <form name="frm" class="form-inline" role="form" novalidate>
+                <div class="form-group">
+                    <select class="form-control input-sm" ng-model="currentSearchField" ng-options="s.description for s in searchFields">
+                    </select>
+                    <input type="text" class="form-control input-sm" ng-model="searchKey" placeholder="Search for" required />
+                    <button class="btn btn-success btn-sm" ng-disabled="frm.$invalid" ng-click="search()"><i class="fa fa-search"></i> Find</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-md-12" infinite-scroll="scroll()" infinite-scroll-distance="1" infinite-scroll-disabled="fetching">
+        <div class="col-md-12">
             <ul class="media-list">
                 <li class="media" data-ng-repeat="i in items">
-                    <img class="pull-left media-object img-rounded" ng-src="https://dl.dropboxusercontent.com/u/133963/Images/Books/thumbs/{{ i.image }}.jpg">
+                    <img class="pull-left media-object img-rounded" ng-src="https://dl.dropboxusercontent.com/u/133963/Images/Books/thumbs/{{ i.get('image') }}.jpg">
                     <div class="media-body">
-                        <div class="btn-group pull-right">
+                        <div class="btn-group pull-right" data-ng-class="{hidden: !session.loggedOn()}">
                             <button type="button" class="btn btn-primary"
                                     data-ng-click="onEditClick(i)">
                                 <i class="fa fa-edit"></i>
@@ -24,8 +37,8 @@
                                 <i class="fa fa-trash-o"></i>
                             </button>
                         </div>
-                        <h4 class="media-heading">{{ i.title }}&nbsp;<small>{{ i.subtitle }}</small></h4>
-                        <small>Author: {{ i.authors }} | Genre: {{ i.genre }} | Lang: {{ i.lang }}</small>
+                        <h4 class="media-heading">{{ i.get('title') }}&nbsp;<small>{{ i.get('subtitle') }}</small></h4>
+                        <small>Author: {{ i.get('authors') }} | Genre: {{ i.get('genre') }} | Lang: {{ i.get('lang') }}</small>
                     </div>
                 </li>
             </ul>

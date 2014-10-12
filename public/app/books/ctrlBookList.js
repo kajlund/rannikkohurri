@@ -1,46 +1,54 @@
 (function (app) {
     'use strict';
 
-    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService',
-        function ($scope, $location, $log, $modal, SessionService, bookDataService) {
-            var modalInstance = null;
+    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService', 'cfpLoadingBar',
+        function ($scope, $location, $log, $modal, SessionService, bookDataService, cfpLoadingBar) {
+            var modalInstance = null,
+                BookObject = Parse.Object.extend('AudioBook');
 
-            function getItems() {
-                if ($scope.fetching) {
-                    return;
-                }
-                $scope.fetching = true;
-                bookDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
-                    .then(function (res) {
-                        $scope.items = $scope.items.concat(res.data.results);
-                        $scope.totalItems = res.data.count;
-                        $scope.fetching = false;
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $scope.fetching = false;
-                    });
+            function getItems(aField, aVal) {
+                var query = new Parse.Query(BookObject);
+
+                query.startsWith(aField, aVal);
+                cfpLoadingBar.start();
+                query.find({
+                    success: function (results) {
+                        $scope.items = results;
+                        $scope.$apply();
+                        cfpLoadingBar.complete();
+                    },
+                    error: function (error) {
+                        $log.error('Error fetching Book data %o', error);
+                        toastr.error(error.message);
+                        cfpLoadingBar.complete();
+                    }
+                });
             }
 
             $log.info('Activating bookListController');
+
             $scope.session = SessionService;
-            $scope.filter = '';
-            $scope.currentPage = 1;
-            $scope.maxSize = 10;
-            $scope.order = 'title';
-            $scope.totalItems = 0;
+            $scope.searchKey = '';
             $scope.currentItem = null;
             $scope.items = [];
-            $scope.fetching = false;
 
-            getItems();
+            $scope.searchFields = [
+                { name: 'title', description: 'By Title'  },
+                { name: 'subtitle', description: 'By Subtitle' },
+                { name: 'authors', description: "By Authors" }
+            ];
+            $scope.currentSearchField = $scope.searchFields[0];
+
+            $scope.search = function() {
+                getItems($scope.currentSearchField.name, $scope.searchKey);
+            };
 
             $scope.onAddClick = function () {
                 $location.path('/books/_new');
             };
 
             $scope.onEditClick = function (book) {
-                $location.path('/books/' + book.objectId);
+                $location.path('/books/' + book.id);
             };
 
             $scope.onDeleteClick = function (book) {
@@ -50,7 +58,7 @@
                     template: 'app/tmplVerify.html',
                     show: true,
                     title: 'Delete Book?',
-                    content: 'You are about to delete book <em>' + book.title + '</em>'
+                    content: 'You are about to delete book <em>' + book.get('title') + '</em>'
                 });
             };
 
@@ -61,23 +69,26 @@
 
             $scope.dlgVerifyOK = function () {
                 modalInstance.hide();
-                bookDataService.deleteItem($scope.currentItem)
+                bookDataService.deleteItem($scope.currentItem.id)
                     .then(function (data) {
                         $log.info('Deleted Book %o', data);
                         toastr.success('Book deleted');
-                        $scope.items = _.filter($scope.items, function (book) {
-                            return book.objectId !== $scope.currentItem.objectId;
-                        });
+                        $scope.search();
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
-
                     });
             };
 
-            $scope.scroll = function () {
-                $scope.currentPage += 1;
-                getItems();
-            };
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+
+            getItems('title', '');
         }]);
 }(angular.module('app')));

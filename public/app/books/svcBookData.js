@@ -61,8 +61,8 @@
                 return $http(config);
             };
 
-            res.deleteItem = function (obj) {
-                var url = baseUrl + '/' + obj.objectId,
+            res.deleteItem = function (objId) {
+                var url = baseUrl + '/' + objId,
                     config = {
                         headers: {
                             'X-Parse-Session-Token': SessionService.sessionToken

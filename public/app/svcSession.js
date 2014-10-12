@@ -11,12 +11,19 @@
                 res.userObj = data;
                 res.sessionToken = data.sessionToken;
                 localStorageService.set('ParseUser', data);
+                Parse.User.become(data.sessionToken).then(function (user) {
+                    // The current user is now set to user.
+                    $log.info('*** Parse user set to %o', user);
+                }, function (error) {
+                    $log.error('The Parse user could not be set');
+                });
 
             }
             function clearSession() {
                 res.userObj = null;
                 res.sessionToken = '';
                 localStorageService.remove('ParseUser');
+                Parse.User.logOut();
             }
 
             res.autoSignon = function () {

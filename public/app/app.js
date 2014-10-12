@@ -15,6 +15,7 @@
     // Configure Routes
     app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$modalProvider',
         function ($routeProvider, $locationProvider, $httpProvider, $modalProvider) {
+            Parse.initialize("HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1", "BxuS4AKpUCoP6Ea6pOn1O0PXlmPu5wYvvlSxLJVE");
             //$locationProvider.html5Mode(true);
             $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
             $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
