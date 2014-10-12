@@ -32,8 +32,6 @@
             $scope.items = [];
             $scope.fetching = false;
 
-            getItems();
-
             $scope.onAddClick = function () {
                 $location.path('/movies/_new');
             };
@@ -77,5 +75,15 @@
                 $scope.currentPage += 1;
                 getItems();
             };
+
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+            getItems();
         }]);
 }(angular.module('app')));

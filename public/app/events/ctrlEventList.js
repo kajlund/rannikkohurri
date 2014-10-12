@@ -19,8 +19,6 @@
             $scope.totalItems = 0;
             $scope.currentItem = null;
 
-            getEvents();
-
             $scope.onAddClick = function () {
                 $location.path('/events/_new');
             };
@@ -59,5 +57,15 @@
                         toastr.error(err.error.code + ' ' + err.error.error);
                     });
             };
+
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+            getEvents();
         }]);
 }(angular.module('app')));

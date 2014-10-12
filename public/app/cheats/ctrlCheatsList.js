@@ -52,8 +52,6 @@
             $scope.totalItems = 0;
             $scope.currentItem = null;
 
-            getItems();
-
             $scope.onAddClick = function () {
                 $location.path('/cheats/_new');
             };
@@ -93,5 +91,15 @@
 
                     });
             };
+
+            if (!SessionService.loggedOn()) {
+                SessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info($scope.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+            getItems();
         }]);
 }(angular.module('app')));
