@@ -5,11 +5,11 @@
             // Angular modules
             'ngRoute',          // routing
             'ngAnimate',        // animate (for angular-strap)
-            'ngCookies',        // cookies
             'infinite-scroll',
             'mgcrea.ngStrap',   // angular-strap library
             'ngGrid',
-            'angular-loading-bar'
+            'angular-loading-bar',
+            'LocalStorageModule'
         ]);
 
     // Configure Routes

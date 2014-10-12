@@ -18,8 +18,6 @@ var gulp = require('gulp'),
         'public/vendor/angular/angular.min.js.map',
         'public/vendor/angular-animate/angular-animate.min.js',
         'public/vendor/angular-animate/angular-animate.min.js.map',
-        'public/vendor/angular-cookies/angular-cookies.min.js',
-        'public/vendor/angular-cookies/angular-cookies.min.js.map',
         'public/vendor/angular-sanitize/angular-sanitize.min.js',
         'public/vendor/angular-sanitize/angular-sanitize.min.js.map',
         'public/vendor/angular-route/angular-route.min.js',
@@ -42,7 +40,8 @@ var gulp = require('gulp'),
         'public/vendor/angular-motion/dist/angular-motion.min.css',
         'public/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js',
         'public/vendor/ng-grid/build/ng-grid.min.js',
-        'public/vendor/ng-grid/ng-grid.min.css'
+        'public/vendor/ng-grid/ng-grid.min.css',
+        'public/vendor/angular-local-storage/angular-local-storage.min.js'
     ];
 
 gulp.task('copydist', function () {

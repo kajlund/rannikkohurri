@@ -1,8 +1,8 @@
 (function (app) {
     'use strict';
 
-    app.factory('SessionService', ['$rootScope', '$http', '$cookieStore', '$log', '$q',
-        function ($rootScope, $http, $cookieStore, $log, $q) {
+    app.factory('SessionService', ['$rootScope', '$http', '$log', '$q', 'localStorageService',
+        function ($rootScope, $http, $log, $q, localStorageService) {
             var res = {};
             res.sessionToken = '';
             res.userObj = null;
@@ -10,17 +10,17 @@
             function setSession(data) {
                 res.userObj = data;
                 res.sessionToken = data.sessionToken;
-                $cookieStore.put('ParseUser', data);
+                localStorageService.set('ParseUser', data);
 
             }
             function clearSession() {
                 res.userObj = null;
                 res.sessionToken = '';
-                $cookieStore.remove('ParseUser');
+                localStorageService.remove('ParseUser');
             }
 
             res.autoSignon = function () {
-                var user = $cookieStore.get('ParseUser'),
+                var user = localStorageService.get('ParseUser'),
                     config = {
                         headers: {
                             'X-Parse-Application-Id': 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1',
