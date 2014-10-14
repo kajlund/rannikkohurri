@@ -30,10 +30,12 @@
                 controller: 'HomeController'
             }).when('/books', {
                 templateUrl: 'app/books/list.html',
-                controller: 'bookListController'
+                controller: 'BookListController',
+                controllerAs: 'vm'
             }).when('/books/:bookId', {
                 templateUrl: 'app/books/edit.html',
-                controller: 'bookEditController'
+                controller: 'bookEditController',
+                controllerAs: 'vm'
             }).when('/movies', {
                 templateUrl: 'app/movies/list.html',
                 controller: 'movieListController'

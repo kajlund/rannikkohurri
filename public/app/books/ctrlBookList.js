@@ -1,94 +1,93 @@
-(function (app) {
+(function () {
     'use strict';
 
-    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService', 'cfpLoadingBar',
-        function ($scope, $location, $log, $modal, SessionService, bookDataService, cfpLoadingBar) {
-            var modalInstance = null,
-                BookObject = Parse.Object.extend('AudioBook');
+    function BookListController ($scope, $location, $log, $modal, SessionService, bookDataService, cfpLoadingBar) {
+        var vm = this,
+            modalInstance;
 
-            function getItems(aField, aVal) {
-                var query = new Parse.Query(BookObject);
+        function getItems(aField, aVal) {
+            cfpLoadingBar.start();
+            bookDataService.queryData(aField, aVal).then(function (data) {
+                vm.items = data;
+            }, function (error) {
+                $log.error('Error fetching Book data %o', error);
+                toastr.error(error.message);
+            }).then(function () {
+                cfpLoadingBar.complete();
+            });
+        }
 
-                query.startsWith(aField, aVal);
-                cfpLoadingBar.start();
-                query.find({
-                    success: function (results) {
-                        $scope.items = results;
-                        $scope.$apply();
-                        cfpLoadingBar.complete();
-                    },
-                    error: function (error) {
-                        $log.error('Error fetching Book data %o', error);
-                        toastr.error(error.message);
-                        cfpLoadingBar.complete();
-                    }
+        vm.searchFields = [
+            { name: 'title', description: 'By Title'  },
+            { name: 'subtitle', description: 'By Subtitle' },
+            { name: 'authors', description: "By Authors" }
+        ];
+
+        vm.currentSearchField = vm.searchFields[0];
+
+        vm.search = function() {
+            getItems(vm.currentSearchField.name, vm.searchKey);
+        };
+
+        vm.onAddClick = function () {
+            $location.path('/books/_new');
+        };
+
+        vm.onEditClick = function (book) {
+            $location.path('/books/' + book.id);
+        };
+
+        vm.onDeleteClick = function (book) {
+            vm.currentItem = book;
+            modalInstance = $modal({
+                scope: $scope,
+                template: 'app/tmplVerify.html',
+                show: true,
+                title: 'Delete Book?',
+                content: 'You are about to delete book <em>' + book.get('title') + '</em>'
+            });
+        };
+
+        $scope.dlgVerifyCancel = function () {
+            modalInstance.hide();
+            toastr.warning('Delete cancelled');
+        };
+
+        $scope.dlgVerifyOK = function () {
+            modalInstance.hide();
+            bookDataService.deleteItem(vm.currentItem.id)
+                .then(function (data) {
+                    $log.info('Deleted Book %o', data);
+                    toastr.success('Book deleted');
+                    vm.search();
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
                 });
-            }
+        };
 
-            $log.info('Activating bookListController');
+        // Initialize Controller
+        vm.session = SessionService;
+        vm.searchKey = '';
+        vm.currentItem = null;
+        vm.items = [];
+        $log.info('Activating bookListController');
 
-            $scope.session = SessionService;
-            $scope.searchKey = '';
-            $scope.currentItem = null;
-            $scope.items = [];
 
-            $scope.searchFields = [
-                { name: 'title', description: 'By Title'  },
-                { name: 'subtitle', description: 'By Subtitle' },
-                { name: 'authors', description: "By Authors" }
-            ];
-            $scope.currentSearchField = $scope.searchFields[0];
-
-            $scope.search = function() {
-                getItems($scope.currentSearchField.name, $scope.searchKey);
-            };
-
-            $scope.onAddClick = function () {
-                $location.path('/books/_new');
-            };
-
-            $scope.onEditClick = function (book) {
-                $location.path('/books/' + book.id);
-            };
-
-            $scope.onDeleteClick = function (book) {
-                $scope.currentItem = book;
-                modalInstance = $modal({
-                    scope: $scope,
-                    template: 'app/tmplVerify.html',
-                    show: true,
-                    title: 'Delete Book?',
-                    content: 'You are about to delete book <em>' + book.get('title') + '</em>'
+        if (!SessionService.loggedOn()) {
+            SessionService.autoSignon()
+                .then(function (data) {
+                    toastr.success(data.username + ' signed on');
+                    $log.debug('[ctrlBookList.autoSignon] success %o', data);
+                }, function (err) {
+                    $log.debug('[ctrlBookList.autoSignon] error %o', err);
                 });
-            };
+        }
 
-            $scope.dlgVerifyCancel = function () {
-                modalInstance.hide();
-                toastr.warning('Delete cancelled');
-            };
+        // Get some default data
+        getItems('title', '');
+    }
 
-            $scope.dlgVerifyOK = function () {
-                modalInstance.hide();
-                bookDataService.deleteItem($scope.currentItem.id)
-                    .then(function (data) {
-                        $log.info('Deleted Book %o', data);
-                        toastr.success('Book deleted');
-                        $scope.search();
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
-            };
-
-            if (!SessionService.loggedOn()) {
-                SessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info($scope.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
-            }
-
-            getItems('title', '');
-        }]);
-}(angular.module('app')));
+    BookListController.$inject = ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService', 'cfpLoadingBar'];
+    angular.module('app').controller('BookListController', BookListController);
+}());

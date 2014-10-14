@@ -1,63 +1,53 @@
 (function (app) {
     'use strict';
 
-    app.controller('bookEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'bookDataService',
-        function ($scope, $routeParams, $location, $log, SessionService, bookDataService) {
-            $scope.session = SessionService;
-            $scope.bookId = $routeParams.bookId;
-            $scope.languages = [
-                'swe',
-                'eng',
-                'fin'
-            ];
-            $scope.genres = [
-                'Biography',
-                'History',
-                'Kids',
-                'Misc',
-                'Novel',
-                'Science',
-                'Technology'
-            ];
+    function BookEditController($routeParams, $location, $log, SessionService, bookDataService) {
+        var vm = this;
+        vm.session = SessionService;
+        vm.bookId = $routeParams.bookId;
+        vm.languages = ['swe', 'eng', 'fin' ];
+        vm.genres = [ 'Biography', 'History', 'Kids', 'Misc', 'Novel', 'Science', 'Technology' ];
 
-            if ($scope.bookId === '_new') {
-                $scope.book = {
-                    authors: "",
-                    genre: "",
-                    image: "",
-                    lang: "",
-                    subtitle: "",
-                    title: ""
-                };
-            } else {
-                bookDataService.getItem($scope.bookId)
-                    .then(function (res) {
-                        $scope.book = res.data;
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $location.url('/books');
-                    });
-            }
+        vm.save = function () {
+            bookDataService.updateItem(vm.book)
+                .then(function (res) {
+                    // data.createdAt data.objectId
+                    $log.info('Saved Book %o', res);
+                    toastr.success('Book saved');
+                    $location.url('/books');
+                }, function (err) {
+                    $log.error('Error saving Book %o', err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    $location.url('/books');
+                });
+        };
 
-            $scope.save = function () {
-                bookDataService.updateItem($scope.book)
-                    .then(function (res) {
-                        // data.createdAt data.objectId
-                        $log.info('Saved Book %o', res);
-                        toastr.success('Book saved');
-                        $location.url('/books');
-                    }, function (err) {
-                        $log.error('Error saving Book %o', err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $location.url('/books');
-                    });
+        vm.cancel = function () {
+            $log.info('Cancelled Edit');
+            toastr.warning('Edit cancelled');
+            $location.url('/books');
+        };
+
+        if (vm.bookId === '_new') {
+            vm.book = {
+                authors: "",
+                genre: "",
+                image: "",
+                lang: "",
+                subtitle: "",
+                title: ""
             };
-
-            $scope.cancel = function () {
-                $log.info('Cancelled Edit');
-                toastr.warning('Edit cancelled');
-                $location.url('/books');
-            };
-        }]);
-}(angular.module('app')));
+        } else {
+            bookDataService.getItem(vm.bookId)
+                .then(function (res) {
+                    vm.book = res.data;
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    $location.url('/books');
+                });
+        }
+    }
+    BookEditController.$inject = ['$routeParams', '$location', '$log', 'SessionService', 'bookDataService'];
+    angular.module('app').controller('bookEditController', BookEditController);
+}());

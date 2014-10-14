@@ -1,78 +1,98 @@
-(function (app) {
+(function () {
     'use strict';
 
-    app.factory('bookDataService', ['$log', '$q', '$http', 'SessionService',
-        function ($log, $q, $http, SessionService) {
-            var baseUrl = 'https://api.parse.com/1/classes/AudioBook',
-                res = {};
+    function BookDataService($http, $q, SessionService) {
+        var bookDataservice = {},
+            baseUrl = 'https://api.parse.com/1/classes/AudioBook',
+            BookObject = Parse.Object.extend('AudioBook'),
+            pageSize = 100;
 
-            res.pageSize = 100;
-            res.getItem = function (aId) {
-                var config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        isArray: false,
-                        method: 'GET',
-                        url: baseUrl + '/' + aId
-                    };
-                return $http(config);
+        bookDataservice.getItem = function (aId) {
+            var config = {
+                headers: {
+                    'X-Parse-Session-Token': SessionService.sessionToken
+                },
+                isArray: false,
+                method: 'GET',
+                url: baseUrl + '/' + aId
             };
+            return $http(config);
+        };
 
-            res.getItems = function () {
-                var config = {
+        bookDataservice.getItems = function () {
+            var config = {
+                headers: {
+                    'X-Parse-Session-Token': SessionService.sessionToken
+                },
+                isArray: false,
+                method: 'GET',
+                url: baseUrl + '?count=1&limit=1000&order=title'
+            };
+            return $http(config);
+        };
+
+        bookDataservice.getPage = function (aOrder, aFilter, aPageNum) {
+            var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
+                skip = (aPageNum - 1) * pageSize,
+                params = '?count=1&limit=' + pageSize + '&skip=' + skip + '&order=' + aOrder + where,
+                config = {
                     headers: {
                         'X-Parse-Session-Token': SessionService.sessionToken
                     },
                     isArray: false,
                     method: 'GET',
-                    url: baseUrl + '?count=1&limit=1000&order=title'
+                    url: baseUrl + params
                 };
-                return $http(config);
-            };
+            return $http(config);
+        };
 
-            res.getPage = function (aOrder, aFilter, aPageNum) {
-                var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
-                    skip = (aPageNum - 1) * res.pageSize,
-                    params = '?count=1&limit=' + res.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        isArray: false,
-                        method: 'GET',
-                        url: baseUrl + params
-                    };
+        bookDataservice.queryData = function (aQueryField, aQueryValue) {
+            var query = new Parse.Query(BookObject),
+                defer = $q.defer();
 
-                return $http(config);
-            };
+            query.startsWith(aQueryField, aQueryValue);
+            query.find({
+                success: function (results) {
+                    defer.resolve(results);
+                },
+                error: function (error) {
+                    defer.reject(error);
+                }
+            });
 
-            res.updateItem = function (obj) {
-                var isNew = obj.objectId === undefined,
-                    url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: isNew ? 'POST' : 'PUT',
-                        url: url,
-                        data: obj
-                    };
-                return $http(config);
-            };
+            return defer.promise;
+        };
 
-            res.deleteItem = function (objId) {
-                var url = baseUrl + '/' + objId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: 'DELETE',
-                        url: url
-                    };
-                return $http(config);
-            };
+        bookDataservice.updateItem = function (obj) {
+            var isNew = obj.objectId === undefined,
+                url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
+                config = {
+                    headers: {
+                        'X-Parse-Session-Token': SessionService.sessionToken
+                    },
+                    method: isNew ? 'POST' : 'PUT',
+                    url: url,
+                    data: obj
+                };
+            return $http(config);
+        };
 
-            return res;
-        }]);
-}(angular.module('app')));
+        bookDataservice.deleteItem = function (objId) {
+            var url = baseUrl + '/' + objId,
+                config = {
+                    headers: {
+                        'X-Parse-Session-Token': SessionService.sessionToken
+                    },
+                    method: 'DELETE',
+                    url: url
+                };
+            return $http(config);
+        };
+
+        return bookDataservice;
+    }
+
+    BookDataService.$inject = ['$http', '$q', 'SessionService'];
+
+    angular.module('app').factory('bookDataService', BookDataService);
+}());
