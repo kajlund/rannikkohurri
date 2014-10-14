@@ -30,10 +30,12 @@
                 controller: 'HomeController'
             }).when('/books', {
                 templateUrl: 'app/books/list.html',
-                controller: 'bookListController'
+                controller: 'BookListController',
+                controllerAs: 'vm'
             }).when('/books/:bookId', {
                 templateUrl: 'app/books/edit.html',
-                controller: 'bookEditController'
+                controller: 'bookEditController',
+                controllerAs: 'vm'
             }).when('/movies', {
                 templateUrl: 'app/movies/list.html',
                 controller: 'movieListController'
@@ -239,238 +241,247 @@
 (function (app) {
     'use strict';
 
-    app.controller('bookEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'bookDataService',
-        function ($scope, $routeParams, $location, $log, SessionService, bookDataService) {
-            $scope.session = SessionService;
-            $scope.bookId = $routeParams.bookId;
-            $scope.languages = [
-                'swe',
-                'eng',
-                'fin'
-            ];
-            $scope.genres = [
-                'Biography',
-                'History',
-                'Kids',
-                'Misc',
-                'Novel',
-                'Science',
-                'Technology'
-            ];
+    function BookEditController($routeParams, $location, $log, SessionService, bookDataService) {
+        var vm = this;
+        vm.session = SessionService;
+        vm.bookId = $routeParams.bookId;
+        vm.languages = ['swe', 'eng', 'fin' ];
+        vm.genres = [ 'Biography', 'History', 'Kids', 'Misc', 'Novel', 'Science', 'Technology' ];
 
-            if ($scope.bookId === '_new') {
-                $scope.book = {
-                    authors: "",
-                    genre: "",
-                    image: "",
-                    lang: "",
-                    subtitle: "",
-                    title: ""
-                };
-            } else {
-                bookDataService.getItem($scope.bookId)
-                    .then(function (res) {
-                        $scope.book = res.data;
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $location.url('/books');
-                    });
-            }
+        vm.save = function () {
+            bookDataService.updateItem(vm.book)
+                .then(function (res) {
+                    // data.createdAt data.objectId
+                    $log.info('Saved Book %o', res);
+                    toastr.success('Book saved');
+                    $location.url('/books');
+                }, function (err) {
+                    $log.error('Error saving Book %o', err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    $location.url('/books');
+                });
+        };
 
-            $scope.save = function () {
-                bookDataService.updateItem($scope.book)
-                    .then(function (res) {
-                        // data.createdAt data.objectId
-                        $log.info('Saved Book %o', res);
-                        toastr.success('Book saved');
-                        $location.url('/books');
-                    }, function (err) {
-                        $log.error('Error saving Book %o', err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $location.url('/books');
-                    });
+        vm.cancel = function () {
+            $log.info('Cancelled Edit');
+            toastr.warning('Edit cancelled');
+            $location.url('/books');
+        };
+
+        if (vm.bookId === '_new') {
+            vm.book = {
+                authors: "",
+                genre: "",
+                image: "",
+                lang: "",
+                subtitle: "",
+                title: ""
             };
-
-            $scope.cancel = function () {
-                $log.info('Cancelled Edit');
-                toastr.warning('Edit cancelled');
-                $location.url('/books');
-            };
-        }]);
-}(angular.module('app')));
-(function (app) {
+        } else {
+            bookDataService.getItem(vm.bookId)
+                .then(function (res) {
+                    vm.book = res.data;
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    $location.url('/books');
+                });
+        }
+    }
+    BookEditController.$inject = ['$routeParams', '$location', '$log', 'SessionService', 'bookDataService'];
+    angular.module('app').controller('bookEditController', BookEditController);
+}());
+(function () {
     'use strict';
 
-    app.controller('bookListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService', 'cfpLoadingBar',
-        function ($scope, $location, $log, $modal, SessionService, bookDataService, cfpLoadingBar) {
-            var modalInstance = null,
-                BookObject = Parse.Object.extend('AudioBook');
+    function BookListController ($scope, $location, $log, $modal, SessionService, bookDataService, cfpLoadingBar) {
+        var vm = this,
+            modalInstance;
 
-            function getItems(aField, aVal) {
-                var query = new Parse.Query(BookObject);
+        function getItems(aField, aVal) {
+            cfpLoadingBar.start();
+            bookDataService.queryData(aField, aVal).then(function (data) {
+                vm.items = data;
+            }, function (error) {
+                $log.error('Error fetching Book data %o', error);
+                toastr.error(error.message);
+            }).then(function () {
+                cfpLoadingBar.complete();
+            });
+        }
 
-                query.startsWith(aField, aVal);
-                cfpLoadingBar.start();
-                query.find({
-                    success: function (results) {
-                        $scope.items = results;
-                        $scope.$apply();
-                        cfpLoadingBar.complete();
-                    },
-                    error: function (error) {
-                        $log.error('Error fetching Book data %o', error);
-                        toastr.error(error.message);
-                        cfpLoadingBar.complete();
-                    }
+        vm.searchFields = [
+            { name: 'title', description: 'By Title'  },
+            { name: 'subtitle', description: 'By Subtitle' },
+            { name: 'authors', description: "By Authors" }
+        ];
+
+        vm.currentSearchField = vm.searchFields[0];
+
+        vm.search = function() {
+            getItems(vm.currentSearchField.name, vm.searchKey);
+        };
+
+        vm.onAddClick = function () {
+            $location.path('/books/_new');
+        };
+
+        vm.onEditClick = function (book) {
+            $location.path('/books/' + book.id);
+        };
+
+        vm.onDeleteClick = function (book) {
+            vm.currentItem = book;
+            modalInstance = $modal({
+                scope: $scope,
+                template: 'app/tmplVerify.html',
+                show: true,
+                title: 'Delete Book?',
+                content: 'You are about to delete book <em>' + book.get('title') + '</em>'
+            });
+        };
+
+        $scope.dlgVerifyCancel = function () {
+            modalInstance.hide();
+            toastr.warning('Delete cancelled');
+        };
+
+        $scope.dlgVerifyOK = function () {
+            modalInstance.hide();
+            bookDataService.deleteItem(vm.currentItem.id)
+                .then(function (data) {
+                    $log.info('Deleted Book %o', data);
+                    toastr.success('Book deleted');
+                    vm.search();
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
                 });
-            }
+        };
 
-            $log.info('Activating bookListController');
+        // Initialize Controller
+        vm.session = SessionService;
+        vm.searchKey = '';
+        vm.currentItem = null;
+        vm.items = [];
+        $log.info('Activating bookListController');
 
-            $scope.session = SessionService;
-            $scope.searchKey = '';
-            $scope.currentItem = null;
-            $scope.items = [];
 
-            $scope.searchFields = [
-                { name: 'title', description: 'By Title'  },
-                { name: 'subtitle', description: 'By Subtitle' },
-                { name: 'authors', description: "By Authors" }
-            ];
-            $scope.currentSearchField = $scope.searchFields[0];
-
-            $scope.search = function() {
-                getItems($scope.currentSearchField.name, $scope.searchKey);
-            };
-
-            $scope.onAddClick = function () {
-                $location.path('/books/_new');
-            };
-
-            $scope.onEditClick = function (book) {
-                $location.path('/books/' + book.id);
-            };
-
-            $scope.onDeleteClick = function (book) {
-                $scope.currentItem = book;
-                modalInstance = $modal({
-                    scope: $scope,
-                    template: 'app/tmplVerify.html',
-                    show: true,
-                    title: 'Delete Book?',
-                    content: 'You are about to delete book <em>' + book.get('title') + '</em>'
+        if (!SessionService.loggedOn()) {
+            SessionService.autoSignon()
+                .then(function (data) {
+                    toastr.success(data.username + ' signed on');
+                    $log.debug('[ctrlBookList.autoSignon] success %o', data);
+                }, function (err) {
+                    $log.debug('[ctrlBookList.autoSignon] error %o', err);
                 });
-            };
+        }
 
-            $scope.dlgVerifyCancel = function () {
-                modalInstance.hide();
-                toastr.warning('Delete cancelled');
-            };
+        // Get some default data
+        getItems('title', '');
+    }
 
-            $scope.dlgVerifyOK = function () {
-                modalInstance.hide();
-                bookDataService.deleteItem($scope.currentItem.id)
-                    .then(function (data) {
-                        $log.info('Deleted Book %o', data);
-                        toastr.success('Book deleted');
-                        $scope.search();
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
-            };
-
-            if (!SessionService.loggedOn()) {
-                SessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info($scope.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
-            }
-
-            getItems('title', '');
-        }]);
-}(angular.module('app')));
-(function (app) {
+    BookListController.$inject = ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService', 'cfpLoadingBar'];
+    angular.module('app').controller('BookListController', BookListController);
+}());
+(function () {
     'use strict';
 
-    app.factory('bookDataService', ['$log', '$q', '$http', 'SessionService',
-        function ($log, $q, $http, SessionService) {
-            var baseUrl = 'https://api.parse.com/1/classes/AudioBook',
-                res = {};
+    function BookDataService($http, $q, SessionService) {
+        var bookDataservice = {},
+            baseUrl = 'https://api.parse.com/1/classes/AudioBook',
+            BookObject = Parse.Object.extend('AudioBook'),
+            pageSize = 100;
 
-            res.pageSize = 100;
-            res.getItem = function (aId) {
-                var config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        isArray: false,
-                        method: 'GET',
-                        url: baseUrl + '/' + aId
-                    };
-                return $http(config);
+        bookDataservice.getItem = function (aId) {
+            var config = {
+                headers: {
+                    'X-Parse-Session-Token': SessionService.sessionToken
+                },
+                isArray: false,
+                method: 'GET',
+                url: baseUrl + '/' + aId
             };
+            return $http(config);
+        };
 
-            res.getItems = function () {
-                var config = {
+        bookDataservice.getItems = function () {
+            var config = {
+                headers: {
+                    'X-Parse-Session-Token': SessionService.sessionToken
+                },
+                isArray: false,
+                method: 'GET',
+                url: baseUrl + '?count=1&limit=1000&order=title'
+            };
+            return $http(config);
+        };
+
+        bookDataservice.getPage = function (aOrder, aFilter, aPageNum) {
+            var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
+                skip = (aPageNum - 1) * pageSize,
+                params = '?count=1&limit=' + pageSize + '&skip=' + skip + '&order=' + aOrder + where,
+                config = {
                     headers: {
                         'X-Parse-Session-Token': SessionService.sessionToken
                     },
                     isArray: false,
                     method: 'GET',
-                    url: baseUrl + '?count=1&limit=1000&order=title'
+                    url: baseUrl + params
                 };
-                return $http(config);
-            };
+            return $http(config);
+        };
 
-            res.getPage = function (aOrder, aFilter, aPageNum) {
-                var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
-                    skip = (aPageNum - 1) * res.pageSize,
-                    params = '?count=1&limit=' + res.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        isArray: false,
-                        method: 'GET',
-                        url: baseUrl + params
-                    };
+        bookDataservice.queryData = function (aQueryField, aQueryValue) {
+            var query = new Parse.Query(BookObject),
+                defer = $q.defer();
 
-                return $http(config);
-            };
+            query.startsWith(aQueryField, aQueryValue);
+            query.find({
+                success: function (results) {
+                    defer.resolve(results);
+                },
+                error: function (error) {
+                    defer.reject(error);
+                }
+            });
 
-            res.updateItem = function (obj) {
-                var isNew = obj.objectId === undefined,
-                    url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: isNew ? 'POST' : 'PUT',
-                        url: url,
-                        data: obj
-                    };
-                return $http(config);
-            };
+            return defer.promise;
+        };
 
-            res.deleteItem = function (objId) {
-                var url = baseUrl + '/' + objId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: 'DELETE',
-                        url: url
-                    };
-                return $http(config);
-            };
+        bookDataservice.updateItem = function (obj) {
+            var isNew = obj.objectId === undefined,
+                url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
+                config = {
+                    headers: {
+                        'X-Parse-Session-Token': SessionService.sessionToken
+                    },
+                    method: isNew ? 'POST' : 'PUT',
+                    url: url,
+                    data: obj
+                };
+            return $http(config);
+        };
 
-            return res;
-        }]);
-}(angular.module('app')));
+        bookDataservice.deleteItem = function (objId) {
+            var url = baseUrl + '/' + objId,
+                config = {
+                    headers: {
+                        'X-Parse-Session-Token': SessionService.sessionToken
+                    },
+                    method: 'DELETE',
+                    url: url
+                };
+            return $http(config);
+        };
+
+        return bookDataservice;
+    }
+
+    BookDataService.$inject = ['$http', '$q', 'SessionService'];
+
+    angular.module('app').factory('bookDataService', BookDataService);
+}());
 (function (app) {
     'use strict';
 
