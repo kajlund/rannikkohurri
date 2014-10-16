@@ -32,7 +32,11 @@
                 templateUrl: 'app/books/list.html',
                 controller: 'BookListController',
                 controllerAs: 'vm'
-            }).when('/books/:bookId', {
+            }).when('/books/view/:bookId', {
+                templateUrl: 'app/books/view.html',
+                controller: 'BookViewController',
+                controllerAs: 'vm'
+            }).when('/books/edit/:bookId', {
                 templateUrl: 'app/books/edit.html',
                 controller: 'bookEditController',
                 controllerAs: 'vm'
@@ -248,24 +252,27 @@
         vm.languages = ['swe', 'eng', 'fin' ];
         vm.genres = [ 'Biography', 'History', 'Kids', 'Misc', 'Novel', 'Science', 'Technology' ];
 
+        vm.getReturnUrl = function() {
+            return (vm.bookId === '_new') ?  '/books' : '/books/view/' + vm.bookId;
+        };
+
         vm.save = function () {
             bookDataService.updateItem(vm.book)
                 .then(function (res) {
                     // data.createdAt data.objectId
                     $log.info('Saved Book %o', res);
                     toastr.success('Book saved');
-                    $location.url('/books');
+                    $location.url(vm.getReturnUrl());
                 }, function (err) {
                     $log.error('Error saving Book %o', err);
                     toastr.error(err.error.code + ' ' + err.error.error);
-                    $location.url('/books');
                 });
         };
 
         vm.cancel = function () {
             $log.info('Cancelled Edit');
             toastr.warning('Edit cancelled');
-            $location.url('/books');
+            $location.url(vm.getReturnUrl());
         };
 
         if (vm.bookId === '_new') {
@@ -284,7 +291,7 @@
                 }, function (err) {
                     $log.error(err);
                     toastr.error(err.error.code + ' ' + err.error.error);
-                    $location.url('/books');
+                    $location.url(vm.getReturnUrl());
                 });
         }
     }
@@ -294,9 +301,8 @@
 (function () {
     'use strict';
 
-    function BookListController ($scope, $location, $log, $modal, SessionService, bookDataService, cfpLoadingBar) {
-        var vm = this,
-            modalInstance;
+    function BookListController ($location, $log, SessionService, bookDataService, cfpLoadingBar) {
+        var vm = this;
 
         function getItems(aField, aVal) {
             cfpLoadingBar.start();
@@ -323,40 +329,7 @@
         };
 
         vm.onAddClick = function () {
-            $location.path('/books/_new');
-        };
-
-        vm.onEditClick = function (book) {
-            $location.path('/books/' + book.id);
-        };
-
-        vm.onDeleteClick = function (book) {
-            vm.currentItem = book;
-            modalInstance = $modal({
-                scope: $scope,
-                template: 'app/tmplVerify.html',
-                show: true,
-                title: 'Delete Book?',
-                content: 'You are about to delete book <em>' + book.get('title') + '</em>'
-            });
-        };
-
-        $scope.dlgVerifyCancel = function () {
-            modalInstance.hide();
-            toastr.warning('Delete cancelled');
-        };
-
-        $scope.dlgVerifyOK = function () {
-            modalInstance.hide();
-            bookDataService.deleteItem(vm.currentItem.id)
-                .then(function (data) {
-                    $log.info('Deleted Book %o', data);
-                    toastr.success('Book deleted');
-                    vm.search();
-                }, function (err) {
-                    $log.error(err);
-                    toastr.error(err.error.code + ' ' + err.error.error);
-                });
+            $location.path('/books/edit/_new');
         };
 
         // Initialize Controller
@@ -365,7 +338,6 @@
         vm.currentItem = null;
         vm.items = [];
         $log.info('Activating bookListController');
-
 
         if (!SessionService.loggedOn()) {
             SessionService.autoSignon()
@@ -381,8 +353,90 @@
         getItems('title', '');
     }
 
-    BookListController.$inject = ['$scope', '$location', '$log', '$modal', 'SessionService', 'bookDataService', 'cfpLoadingBar'];
+    BookListController.$inject = ['$location', '$log', 'SessionService', 'bookDataService', 'cfpLoadingBar'];
     angular.module('app').controller('BookListController', BookListController);
+}());
+(function () {
+    'use strict';
+
+    function BookViewController ($scope, $location, $routeParams, $log, $modal, SessionService, bookDataService) {
+        var vm = this,
+            modalInstance,
+            bookId = $routeParams.bookId;
+
+        vm.canEdit = function () {
+            return vm.loggedOn && bookId;
+        };
+
+        vm.edit = function () {
+            var path = '/books/edit' + bookId;
+            //$log.info(path);
+            $location.path('/books/edit/' + bookId);
+        };
+
+        vm.delete = function () {
+            modalInstance = $modal({
+                scope: $scope,
+                template: 'app/tmplVerify.html',
+                show: true,
+                title: 'Delete Book?',
+                content: 'You are about to delete book <em>' + vm.book.title + '</em>'
+            });
+        };
+
+        $scope.dlgVerifyCancel = function () {
+            modalInstance.hide();
+        };
+
+        $scope.dlgVerifyOK = function () {
+            modalInstance.hide();
+            bookDataService.deleteItem(bookId)
+                .then(function (data) {
+                    $log.info('Deleted Book %o', data);
+                    toastr.success('Book deleted');
+                    $location.url('/books');
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                });
+        };
+
+        // Initialize Controller
+        function init () {
+            bookDataService.getItem(bookId)
+                .then(function (res) {
+                    vm.book = res.data;
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    $location.url('/books');
+                }).then(function () {
+                    vm.loggedOn = SessionService.loggedOn();
+                    $log.info('*** Activated BookViewController');
+                    $log.debug('   bookId      => %s', bookId);
+                    $log.debug('   vm.book     => %o', vm.book);
+                    $log.debug('   vm.loggedOn => ' + vm.loggedOn);
+                });
+        }
+
+
+        if (!SessionService.loggedOn()) {
+            SessionService.autoSignon()
+                .then(function (data) {
+                    toastr.success(data.username + ' signed on');
+                    $log.debug('[ctrlBookView.autoSignon] success %o', data);
+                }, function (err) {
+                    $log.debug('[ctrlBookView.autoSignon] error %o', err);
+                }).then(function () {
+                    init();
+                });
+        } else {
+            init();
+        }
+    }
+
+    BookViewController.$inject = ['$scope', '$location', '$routeParams', '$log', '$modal', 'SessionService', 'bookDataService'];
+    angular.module('app').controller('BookViewController', BookViewController);
 }());
 (function () {
     'use strict';
