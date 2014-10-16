@@ -65,3 +65,40 @@ footer {
     width: auto;
     height: 600px;
 }
+
+.list-group-item > img {
+    margin-right: 12px;
+}
+
+.list-group-item > i {
+    padding-top: 0.5em;
+}
+
+
+.data-presentation {
+    padding: 1em;
+}
+
+.data-title {
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-weight: 400;
+    font-size: 1.3em;
+}
+
+.data-content {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.cover-image {
+    width: 180px;
+    height: 180px;
+}
+
+.commands {
+    padding-top: 3em;
+}
+
+.commands button {
+    margin-bottom: 1em;
+}

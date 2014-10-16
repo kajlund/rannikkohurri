@@ -8,24 +8,27 @@
         vm.languages = ['swe', 'eng', 'fin' ];
         vm.genres = [ 'Biography', 'History', 'Kids', 'Misc', 'Novel', 'Science', 'Technology' ];
 
+        vm.getReturnUrl = function() {
+            return (vm.bookId === '_new') ?  '/books' : '/books/view/' + vm.bookId;
+        };
+
         vm.save = function () {
             bookDataService.updateItem(vm.book)
                 .then(function (res) {
                     // data.createdAt data.objectId
                     $log.info('Saved Book %o', res);
                     toastr.success('Book saved');
-                    $location.url('/books');
+                    $location.url(vm.getReturnUrl());
                 }, function (err) {
                     $log.error('Error saving Book %o', err);
                     toastr.error(err.error.code + ' ' + err.error.error);
-                    $location.url('/books');
                 });
         };
 
         vm.cancel = function () {
             $log.info('Cancelled Edit');
             toastr.warning('Edit cancelled');
-            $location.url('/books');
+            $location.url(vm.getReturnUrl());
         };
 
         if (vm.bookId === '_new') {
@@ -44,7 +47,7 @@
                 }, function (err) {
                     $log.error(err);
                     toastr.error(err.error.code + ' ' + err.error.error);
-                    $location.url('/books');
+                    $location.url(vm.getReturnUrl());
                 });
         }
     }

@@ -32,7 +32,11 @@
                 templateUrl: 'app/books/list.html',
                 controller: 'BookListController',
                 controllerAs: 'vm'
-            }).when('/books/:bookId', {
+            }).when('/books/view/:bookId', {
+                templateUrl: 'app/books/view.html',
+                controller: 'BookViewController',
+                controllerAs: 'vm'
+            }).when('/books/edit/:bookId', {
                 templateUrl: 'app/books/edit.html',
                 controller: 'bookEditController',
                 controllerAs: 'vm'
