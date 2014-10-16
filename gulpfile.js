@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    jshint = require('gulp-jshint'),
     mincss = require('gulp-minify-css'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
@@ -92,7 +93,7 @@ gulp.task('buildjs', function () {
 });
 
 gulp.task('lint', function () {
-    gulp.src(scripts).pipe(jshint());
+    gulp.src(paths.scripts).pipe(jshint());
 });
 
 gulp.task('develop', function () {
