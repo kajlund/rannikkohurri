@@ -52,12 +52,6 @@
             }).when('/events/:eventId', {
                 templateUrl: 'app/events/edit.html',
                 controller: 'eventEditController'
-            }).when('/cheats', {
-                templateUrl: 'app/cheats/list.html',
-                controller: 'cheatsListController'
-            }).when('/cheats/:cacheId', {
-                templateUrl: 'app/cheats/edit.html',
-                controller: 'cheatsEditController'
             }).otherwise({ redirectTo: '/' });
         }]);
 
