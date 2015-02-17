@@ -1,0 +1,46 @@
+<div class="container">
+    <div class="page-header">
+        <a href="#/cheats" class="pull-right btn btn-default"><i class="fa fa-chevron-left"></i> Back</a>
+        <h1><i class="fa fa-dot-circle-o"></i></i> Cache <small>{{ vm.cache.name }}</small></h1>
+    </div>
+
+    <div class="row data-presentation">
+        <div class="row">
+            <div class="col-xs-4 col-sm-2 data-title">Id</div>
+            <div class="col-xs-8 col-sm-10 data-content">{{ vm.cache.cacheId }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-2 data-title">Type</div>
+            <div class="col-xs-8 col-sm-10 data-content">{{ vm.cache.cacheType }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-2 data-title">Name</div>
+            <div class="col-xs-8 col-sm-10 data-content">{{ vm.cache.name }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-2 data-title">Verified</div>
+            <div class="col-xs-8 col-sm-10 data-content">{{ vm.cache.verifiedCoords }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-2 data-title">Choords</div>
+            <div class="col-xs-8 col-sm-10 data-content">{{ vm.cache.coords }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-2 data-title">Municipality</div>
+            <div class="col-xs-8 col-sm-10 data-content">{{ vm.cache.municipality }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-2 data-title">Notes</div>
+            <div class="col-xs-8 col-sm-10 data-content">{{ vm.cache.notes }}</div>
+        </div>
+    </div>
+
+    <div class="row commands" ng-class="{hidden: !vm.session.loggedOn}">
+        <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-3 col-lg-offset-1">
+            <a href="" class="btn btn-link pull-right" ng-click="vm.doDelete()">Delete</a>
+            <a href="#/cheats/edit/{{vm.cache.objectId}}" class="btn btn-default pull-right">
+                <i class="fa fa-edit"></i> Edit
+            </a>
+        </div>
+    </div>
+</div>

@@ -6,12 +6,12 @@
     <div data-ng-if="!vm.session.loggedOn">
         <div class="jumbotron">
             <h1>Sorry <small>:-(</small></h1>
-            <p>You need to be logged on to edit cheats.</p>
+            <p>You need to be logged on to use cheats.</p>
         </div>
     </div>
 
-    <div data-ng-if="vm.session.loggedOn()">
-        <form name="frm" role="form" ng-submit="vm.save()">
+    <div data-ng-if="vm.session.loggedOn">
+        <form name="frm" role="form" ng-submit="vm.doSave()">
             <div class="form-group">
                 <label class="control-label">Id</label>
                 <input type="text" class="form-control" ng-model="vm.cache.cacheId" required autofocus>
@@ -48,8 +48,8 @@
                 <textarea class="form-control" rows="3" ng-model="vm.cache.notes"></textarea>
             </div>
             <div class="form-actions pull-right">
-                <button class="btn btn-lg btn-default" ng-click="vm.cancel()">Cancel</button>
-                <input class="btn btn-lg btn-success" type="submit" ng-disabled="frm.$invalid" value="Save">
+                <a href="" class="btn btn-link pull-right" ng-click="vm.doCancel()">Cancel</a>
+                <input class="btn btn-default" type="submit" ng-disabled="frm.$invalid" value="Save">
             </div>
         </form>
     </div>

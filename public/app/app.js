@@ -67,6 +67,18 @@
             templateUrl: 'app/movies/edit.html',
             controller: 'MovieEditController',
             controllerAs: 'vm'
+        }).when('/cheats', {
+            templateUrl: 'app/cheats/list.html',
+            controller: 'CheatListController',
+            controllerAs: 'vm'
+        }).when('/cheats/view/:cacheId', {
+            templateUrl: 'app/cheats/view.html',
+            controller: 'CheatViewController',
+            controllerAs: 'vm'
+        }).when('/cheats/edit/:cacheId', {
+            templateUrl: 'app/cheats/edit.html',
+            controller: 'CheatEditController',
+            controllerAs: 'vm'
         }).when('/events', {
             templateUrl: 'app/events/list.html',
             controller: 'EventListController',

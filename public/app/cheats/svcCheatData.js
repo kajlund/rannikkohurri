@@ -3,12 +3,12 @@
 
     angular
         .module('app')
-        .factory('cheatsDataService', cheatsDataService);
+        .factory('cheatDataService', cheatDataService);
 
     /* @ngInject */
-    cheatsDataService.$inject = ['$log', '$q', '$http', 'sessionService'];
+    cheatDataService.$inject = ['$log', '$q', '$http', 'sessionService'];
 
-    function cheatsDataService($log, $q, $http, sessionService) {
+    function cheatDataService($log, $q, $http, sessionService) {
         var baseUrl = 'https://api.parse.com/1/classes/Cheat',
             service = {
                 deleteItem: deleteItem,
@@ -22,8 +22,8 @@
 
     //////////////////////////////////////////////////////////////////////////
 
-        function deleteItem (obj) {
-            var url = baseUrl + '/' + obj.objectId,
+        function deleteItem (aId) {
+            var url = baseUrl + '/' + aId,
                 config = {
                     headers: {
                         'X-Parse-Session-Token': sessionService.sessionToken
@@ -54,7 +54,7 @@
                 },
                 isArray: false,
                 method: 'GET',
-                url: baseUrl + '?count=1&limit=1000&order=name'
+                url: baseUrl + '?count=1&limit=1000&order=-updatedAt'
             };
             return $http(config);
         }

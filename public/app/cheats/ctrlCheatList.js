@@ -3,13 +3,12 @@
 
     angular
         .module('app')
-        .controller('CheatsListController', CheatsListController);
+        .controller('CheatListController', CheatListController);
 
     /* @ngInject */
-    CheatsListController.$inject = ['$location', '$log', '$modal', 'sessionService', 'cheatsDataService', 'toastr', '_'];
-    function CheatsListController ($location, $log, $modal, sessionService, cheatsDataService, _) {
+    CheatListController.$inject = ['$location', '$log', '$modal', 'sessionService', 'cheatDataService', 'toastr', '_'];
+    function CheatListController ($location, $log, $modal, sessionService, cheatDataService, _) {
         var vm = this,
-            modalInstance = null,
             linkCellTemplate = '<div class="ngCellText" ng-class="col.colIndex()">' +
                 '  <a target="_blank" href="http://coord.info/{{row.entity.cacheId}}">{{row.getProperty(col.field)}}</a>' +
                 '</div>',
@@ -24,10 +23,7 @@
                 '  </div>' +
                 '</div>';
 
-        vm.dlgVerifyCancel = dlgVerifyCancel;
-        vm.dlgVerifyOK = dlgVerifyOK;
         vm.onAddClick = onAddClick;
-        vm.onDeleteClick = onDeleteClick;
         vm.onEditClick = onEditClick;
         vm.totalItems = 0;
         vm.currentItem = null;
@@ -54,20 +50,12 @@
         //////////////////////////////////////////////////////////////////////////////////
 
         function activate () {
-            if (!sessionService.loggedOn()) {
-                sessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info(vm.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
-            }
+            $log.info('Activating CheatListController');
             getItems();
         }
 
         function getItems () {
-            if (sessionService.userObj) {
-                cheatsDataService.getItems()
+                cheatDataService.getItems()
                     .then(function (res) {
                         $log.info(res);
                         vm.items = res.data.results;
@@ -75,46 +63,14 @@
                         $log.error(err);
                         toastr.error(err.data.code + ' ' + err.data.error);
                     });
-            }
         }
 
         function onAddClick () {
-            $location.path('/cheats/_new');
+            $location.path('/cheats/edit/_new');
         }
 
         function onEditClick (cache) {
-            $location.path('/cheats/' + cache.objectId);
-        }
-
-        function onDeleteClick (cache) {
-            vm.currentItem = cache;
-            modalInstance = $modal({
-                scope: vm,
-                template: 'app/tmplVerify.html',
-                show: true,
-                title: 'Delete Cache?',
-                content: 'You are about to delete cache <strong>' + cache.name + '</strong>'
-            });
-        }
-
-        function dlgVerifyCancel () {
-            modalInstance.hide();
-            toastr.warning('Delete cancelled');
-        }
-
-        function dlgVerifyOK () {
-            modalInstance.hide();
-            cheatsDataService.deleteItem(vm.currentItem)
-                .then(function (data) {
-                    $log.info('Deleted Cache');
-                    toastr.success('Cache deleted');
-                    vm.items = _.filter(vm.items, function (cache) {
-                        return cache.objectId !== vm.currentItem.objectId;
-                    });
-                }, function (err) {
-                    $log.error(err);
-                    toastr.error(err.error.code + ' ' + err.error.error);
-                });
+            $location.path('/cheats/edit/' + cache.objectId);
         }
     }
 }());

@@ -3,18 +3,19 @@
 
     angular
         .module('app')
-        .controller('CheatsEditController', CheatsEditController);
+        .controller('CheatEditController', CheatEditController);
 
     /* @ngInject */
-    CheatsEditController.$inject =['$routeParams', '$location', '$log', 'sessionService', 'cheatsDataService', 'toastr'];
+    CheatEditController.$inject =['$routeParams', '$location', '$log', 'sessionService', 'cheatDataService', 'toastr'];
 
-    function CheatsEditController ($routeParams, $location, $log, sessionService, cheatsDataService, toastr) {
+    function CheatEditController ($routeParams, $location, $log, sessionService, cheatDataService, toastr) {
         var vm = this;
 
-        vm.cancel = cancel;
-        vm.save = save;
-        vm.session = sessionService;
-        vm.cacheId = $routeParams.cacheId;
+        vm.cacheId  = $routeParams.cacheId;
+        vm.doCancel = doCancel;
+        vm.doSave   = doSave;
+        vm.session  = sessionService;
+
         vm.cacheTypes = ['Tradi', 'Mystery', 'Multi', 'Chirp', 'Earth', 'Letterbox', 'Event', 'Lab', 'Virtual', 'Wherigo'];
         vm.municipalities = [
             'Akaa', 'Alajärvi', 'Alavieska', 'Alavus', 'Asikkala', 'Askola', 'Aura', 'Brändö',
@@ -76,20 +77,26 @@
                     verifiedCoords: false
                 };
             } else {
-                cheatsDataService.getItem(vm.cacheId)
+                cheatDataService.getItem(vm.cacheId)
                     .then(function (res) {
                         vm.cache = res.data;
                         vm.currentType = vm.cache.cacheType;
                     }, function (err) {
                         $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
+                        toastr.error(err.data.code + ' ' + err.data.error);
                         $location.url('/cheats');
                     });
             }
         }
 
-        function save () {
-            cheatsDataService.updateItem(vm.cache)
+        function doCancel () {
+            $log.info('Cancelled Edit');
+            toastr.warning('Edit cancelled');
+            $location.url('/cheats');
+        }
+
+        function doSave () {
+            cheatDataService.updateItem(vm.cache)
                 .then(function (res) {
                     // data.createdAt data.objectId
                     $log.info('Saved Cache %o', res);
@@ -100,12 +107,6 @@
                     toastr.error(err.error.code + ' ' + err.error.error);
                     $location.url('/cheats');
                 });
-        }
-
-        function cancel () {
-            $log.info('Cancelled Edit');
-            toastr.warning('Edit cancelled');
-            $location.url('/cheats');
         }
     }
 }());
