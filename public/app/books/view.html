@@ -32,12 +32,12 @@
                  class="cover-image img-thumbnail" alt="Cover image">
         </div>
     </div>
-    <div class="row commands" ng-class="{hidden: !vm.canEdit()}">
+    <div class="row commands" ng-class="{hidden: !vm.session.loggedOn}">
         <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-3 col-lg-offset-1">
-            <button class="btn btn-lg btn-block btn-primary" ng-click="vm.edit()">Edit</button>
-        </div>
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-3 col-lg-offset-1">
-            <button class="btn btn-lg btn-block btn-danger" ng-click="vm.delete()">Delete</button>
+            <a href="" class="btn btn-link pull-right" ng-click="vm.delete()">Delete</a>
+            <button class="btn btn-default pull-right" ng-click="vm.edit()">
+                <i class="fa fa-edit"></i> Edit
+            </button>
         </div>
     </div>
 </div>

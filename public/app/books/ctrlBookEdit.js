@@ -11,13 +11,14 @@
     function BookEditController($routeParams, $location, $log, sessionService, bookDataService, toastr) {
         var vm = this;
 
-        vm.cancel = cancel;
-        vm.session = sessionService;
-        vm.bookId = $routeParams.bookId;
+        vm.bookId       = $routeParams.bookId;
+        vm.doCancel     = doCancel;
+        vm.doSave       = doSave;
+        vm.getReturnUrl = getReturnUrl;
+        vm.session      = sessionService;
+
         vm.languages = ['swe', 'eng', 'fin' ];
         vm.genres = [ 'Biography', 'History', 'Kids', 'Misc', 'Novel', 'Science', 'Technology' ];
-        vm.getReturnUrl = getReturnUrl;
-        vm.save = save;
 
         activate();
 
@@ -45,14 +46,15 @@
             }
         }
 
-        function getReturnUrl () {
-            return (vm.bookId === '_new') ?  '/books' : '/books/view/' + vm.bookId;
+        function doCancel () {
+            $log.info('Cancelled Edit');
+            toastr.warning('Edit cancelled');
+            $location.url(vm.getReturnUrl());
         }
 
-        function save () {
+        function doSave () {
             bookDataService.updateItem(vm.book)
                 .then(function (res) {
-                    // data.createdAt data.objectId
                     $log.info('Saved Book %o', res);
                     toastr.success('Book saved');
                     $location.url(vm.getReturnUrl());
@@ -62,10 +64,8 @@
                 });
         }
 
-        function cancel () {
-            $log.info('Cancelled Edit');
-            toastr.warning('Edit cancelled');
-            $location.url(vm.getReturnUrl());
+        function getReturnUrl () {
+            return (vm.bookId === '_new') ?  '/books' : '/books/view/' + vm.bookId;
         }
     }
 }());

@@ -6,16 +6,15 @@
         .controller('BookListController', BookListController);
 
     /* @ngInject */
-    BookListController.$inject = ['$location', '$log', 'sessionService', 'bookDataService', 'cfpLoadingBar'];
+    BookListController.$inject = ['$log', 'sessionService', 'bookDataService', 'cfpLoadingBar'];
 
-    function BookListController ($location, $log, sessionService, bookDataService, cfpLoadingBar) {
+    function BookListController ($log, sessionService, bookDataService, cfpLoadingBar) {
         var vm = this;
 
         vm.currentItem = null;
         vm.items = [];
         vm.session = sessionService;
         vm.searchKey = '';
-        vm.onAddClick = onAddClick;
         vm.search = search;
         vm.searchFields = [
             { name: 'title', description: 'By Title'  },
@@ -51,8 +50,5 @@
             getItems(vm.currentSearchField.name, vm.searchKey);
         }
 
-        function onAddClick () {
-            $location.path('/books/edit/_new');
-        }
     }
 }());

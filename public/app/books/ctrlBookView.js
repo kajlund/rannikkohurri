@@ -23,6 +23,8 @@
     /////////////////////////////////////////////////////////////////////////////////////
 
         function activate () {
+            $log.info('*** Activated BookViewController');
+            $log.debug('   bookId      => %s', bookId);
             init();
         }
 
@@ -37,7 +39,7 @@
         function doDelete () {
             var options = {
                     title: 'Delete Book?',
-                    content: 'You are about to delete book <em>' + vm.book.title + '</em>'
+                    content: 'You are about to delete book "' + vm.book.title + '"'
                 },
                 modalInstance = $modal.open({
                     controller: 'VerificationController',
@@ -72,14 +74,11 @@
             bookDataService.getItem(bookId)
                 .then(function (res) {
                     vm.book = res.data;
+                    $log.debug('   vm.book     => %o', vm.book);
                 }, function (err) {
                     $log.error(err);
                     toastr.error(err.error.code + ' ' + err.error.error);
                     $location.url('/books');
-                }).then(function () {
-                    $log.info('*** Activated BookViewController');
-                    $log.debug('   bookId      => %s', bookId);
-                    $log.debug('   vm.book     => %o', vm.book);
                 });
         }
     }

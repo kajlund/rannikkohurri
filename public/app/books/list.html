@@ -1,11 +1,11 @@
 <div class="container">
     <div class="page-header">
-        <button type="button" class="btn btn-primary pull-right"
-                data-ng-click="vm.onAddClick()"
-                data-ng-class="{hidden: !vm.session.loggedOn}">
-            New Book
-        </button>
-        <h1><i class="fa fa-book"></i> BOOKS <small>&raquo; audiobooks list</small></h1>
+        <a ng-href="#/books/edit/_new" class="btn btn-default pull-right" ng-class="{hidden: !vm.session.loggedOn}">
+            <i class="fa fa-plus"></i> Add Book
+        </a>
+        <h1>
+            <i class="fa fa-book"></i> BOOKS <small>&raquo; audiobooks list</small>
+        </h1>
     </div>
 
     <div class="row" style="padding-bottom: 18px;">
@@ -32,23 +32,6 @@
                         Authors: {{ i.get('authors') }} | Genre: {{ i.get('genre') }} | Language: {{ i.get('lang') }}
                     </p>
                 </a>
-                <!--li class="media" data-ng-repeat="i in vm.items">
-
-                    <div class="media-body">
-                        <div class="btn-group pull-right" data-ng-class="{hidden: !vm.session.loggedOn}">
-                            <button type="button" class="btn btn-primary"
-                                    data-ng-click="vm.onEditClick(i)">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger"
-                                    data-ng-click="vm.onDeleteClick(i)">
-                                <i class="fa fa-trash-o"></i>
-                            </button>
-                        </div>
-                        <h4 class="media-heading">{{ i.get('title') }}&nbsp;<small>{{ i.get('subtitle') }}</small></h4>
-                        <small>Author: {{ i.get('authors') }} | Genre: {{ i.get('genre') }} | Lang: {{ i.get('lang') }}</small>
-                    </div>
-                </li-->
             </div>
         </div>
     </div>
