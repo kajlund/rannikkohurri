@@ -2,7 +2,7 @@
     <div class="page-header">
         <button type="button" class="btn btn-primary pull-right"
                 data-ng-click="vm.onAddClick()"
-                data-ng-class="{hidden: !vm.session.loggedOn()}">
+                data-ng-class="{hidden: !vm.session.loggedOn}">
             New Book
         </button>
         <h1><i class="fa fa-book"></i> BOOKS <small>&raquo; audiobooks list</small></h1>
@@ -35,7 +35,7 @@
                 <!--li class="media" data-ng-repeat="i in vm.items">
 
                     <div class="media-body">
-                        <div class="btn-group pull-right" data-ng-class="{hidden: !vm.session.loggedOn()}">
+                        <div class="btn-group pull-right" data-ng-class="{hidden: !vm.session.loggedOn}">
                             <button type="button" class="btn btn-primary"
                                     data-ng-click="vm.onEditClick(i)">
                                 <i class="fa fa-edit"></i>

@@ -1,51 +1,79 @@
-(function (app, toastr) {
+(function () {
     'use strict';
 
-    app.controller('movieEditController', ['$scope', '$routeParams', '$location', '$log', 'SessionService', 'movieDataService',
-        function ($scope, $routeParams, $location, $log, SessionService, movieDataService) {
-            $scope.session = SessionService;
-            $scope.movieId = $routeParams.movieId;
+    angular
+        .module('app')
+        .controller('MovieEditController', MovieEditController);
 
-            if ($scope.movieId === '_new') {
-                $scope.movie = {
-                    seenAt: {"__type": "Date", "iso": new Date().toISOString()},
-                    etitle: "",
-                    otitle: "",
-                    pic: "",
+    /* @ngInject */
+    MovieEditController.$inject = ['$routeParams', '$location', '$log',
+        'sessionService', 'movieDataService', 'toastr'];
+
+    function MovieEditController ($routeParams, $location, $log, sessionService,
+                                  movieDataService, toastr) {
+        var vm = this;
+
+        vm.dateOptions = { formatYear: 'yy', startingDay: 1 };
+        vm.doCancel = doCancel;
+        vm.doSave   = doSave;
+        vm.movieId  = $routeParams.movieId;
+        vm.open     = doOpen;
+        vm.opened   = false;
+        vm.session = sessionService;
+
+        activate();
+
+    /////////////////////////////////////////////////////////////////////////
+
+        function activate () {
+            if (vm.movieId === '_new') {
+                vm.movie = {
+                    seenAt: {'__type': 'Date', 'iso': new Date().toISOString()},
+                    etitle: '',
+                    otitle: '',
+                    pic: '',
                     rating: 0,
-                    url: "",
-                    synopsis: "",
-                    comment: ""
+                    url: '',
+                    synopsis: '',
+                    comment: ''
                 };
             } else {
-                movieDataService.getItem($scope.movieId)
+                movieDataService.getItem(vm.movieId)
                     .then(function (res) {
-                        $scope.movie = res.data;
+                        vm.movie = res.data;
+                        $log.debug('vm.movie -> %o', vm.movie);
                     }, function (err) {
                         $log.error(err);
                         toastr.error(err.error.code + ' ' + err.error.error);
                         $location.url('/movies');
                     });
             }
+        }
 
-            $scope.save = function () {
-                movieDataService.updateItem($scope.movie)
-                    .then(function (res) {
-                        // data.createdAt data.objectId
-                        $log.info('Saved Movie %o', res);
-                        toastr.success('Movie saved');
-                        $location.url('/movies');
-                    }, function (err) {
-                        $log.error('Error saving Movie %o', err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $location.url('/movies');
-                    });
-            };
+        function doCancel () {
+            $log.info('Cancelled Edit');
+            toastr.warning('Edit cancelled');
+            $location.url('/movies');
+        }
 
-            $scope.cancel = function () {
-                $log.info('Cancelled Edit');
-                toastr.warning('Edit cancelled');
-                $location.url('/movies');
-            };
-        }]);
-}(angular.module('app'), toastr));
+        function doSave () {
+            movieDataService.updateItem(vm.movie)
+                .then(function (res) {
+                    // data.createdAt data.objectId
+                    $log.info('Saved Movie %o', res);
+                    toastr.success('Movie saved');
+                    $location.url('/movies');
+                }, function (err) {
+                    $log.error('Error saving Movie %o', err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    $location.url('/movies');
+                });
+        }
+
+        function doOpen ($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            vm.opened = true;
+        }
+    }
+}());

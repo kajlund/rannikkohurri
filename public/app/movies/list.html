@@ -1,40 +1,54 @@
 <div class="container">
     <div class="page-header">
-        <button type="button" class="btn btn-primary pull-right"
-                data-ng-click="onAddClick()"
-                data-ng-class="{hidden: !session.loggedOn()}">
-            New Movie
-        </button>
-        <h1><i class="fa fa-film"></i> MOVIES <small>&raquo;is all about movies I've seen</small></h1>
+        <a href="#movies/edit/_new"
+           class="btn btn-default pull-right"
+           ng-class="{hidden: !vm.session.loggedOn}">
+            <i class="fa fa-plus"></i> Add Movie
+        </a>
+        <h1><i class="fa fa-film"></i> MOVIES <small>&raquo; is movies I've seen</small></h1>
     </div>
 
     <div class="row">
-        <div class="col-md-12" infinite-scroll="scroll()" infinite-scroll-distance="1" infinite-scroll-disabled="fetching">
-            <table class="table table-striped table-hover">
+        <div class="col-xs-12" infinite-scroll="vm.scroll()" infinite-scroll-distance="1" infinite-scroll-disabled="fetching">
+            <div class="list-group">
+                <a class="list-group-item" href="#/movies/view/{{i.objectId}}" data-ng-repeat="i in vm.items">
+                    <i class="pull-right fa  fa-2x fa-chevron-right"></i>
+                    <h3 class="list-group-item-heading">
+                        {{ i.otitle }}&nbsp;
+                        <small>{{ i.seenAt.iso | date: 'yyyy-MM-dd'}}</small>
+                    </h3>
+                    <p class="list-group-item-text">
+                        Rating: {{ i.rating }}
+                    </p>
+                </a>
+            </div>
+
+
+            <!--table class="table table-striped table-hover">
                 <tr>
                     <th>Seen</th><th>Title</th><th>Rating</th>
-                    <th data-ng-class="{hidden: !session.loggedOn()}">
+                    <th data-ng-class="{hidden: !vm.session.loggedOn}">
                         Commands
                     </th>
                 </tr>
-                <tr data-ng-repeat="i in items">
+                <tr data-ng-repeat="i in vm.items">
                     <td>{{ i.seenAt.iso | date: 'yyyy-MM-dd'}}</td>
                     <td><a href="{{ i.url }}" target="_blank">{{ i.etitle }}</a></td>
                     <td>{{ i.rating }}</td>
-                    <td data-ng-class="{hidden: !session.loggedOn()}">
+                    <td data-ng-class="{hidden: !vm.session.loggedOn}">
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary"
-                                    data-ng-click="onEditClick(i)">
+                                    data-ng-click="vm.onEditClick(i)">
                                 <i class="fa fa-edit"></i>
                             </button>
                             <button type="button" class="btn btn-danger"
-                                    data-ng-click="onDeleteClick(i)">
+                                    data-ng-click="vm.onDeleteClick(i)">
                                 <i class="fa fa-trash-o"></i>
                             </button>
                         </div>
                     </td>
                 </tr>
-            </table>
+            </table-->
         </div>
     </div>
 </div>

@@ -1,67 +1,77 @@
-(function (app) {
+(function () {
     'use strict';
 
-    app.factory('cheatsDataService', ['$log', '$q', '$http', 'SessionService',
-        function ($log, $q, $http, SessionService) {
-            var baseUrl = 'https://api.parse.com/1/classes/Cheat',
-                res = {};
+    angular
+        .module('app')
+        .factory('cheatsDataService', cheatsDataService);
 
-            res.municipalities = [
+    /* @ngInject */
+    cheatsDataService.$inject = ['$log', '$q', '$http', 'sessionService'];
 
-            ];
-
-            res.getItem = function (aId) {
-                var config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        isArray: false,
-                        method: 'GET',
-                        url: baseUrl + '/' + aId
-                    };
-                return $http(config);
+    function cheatsDataService($log, $q, $http, sessionService) {
+        var baseUrl = 'https://api.parse.com/1/classes/Cheat',
+            service = {
+                deleteItem: deleteItem,
+                getItem: getItem,
+                getItems: getItems,
+                municipalities: [],
+                updateItem: updateItem
             };
 
-            res.getItems = function () {
-                var config = {
+        return service;
+
+    //////////////////////////////////////////////////////////////////////////
+
+        function deleteItem (obj) {
+            var url = baseUrl + '/' + obj.objectId,
+                config = {
                     headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
+                        'X-Parse-Session-Token': sessionService.sessionToken
+                    },
+                    method: 'DELETE',
+                    url: url
+                };
+
+            return $http(config);
+        }
+
+        function getItem (aId) {
+            var config = {
+                    headers: {
+                        'X-Parse-Session-Token': sessionService.sessionToken
                     },
                     isArray: false,
                     method: 'GET',
-                    url: baseUrl + '?count=1&limit=1000&order=name'
+                    url: baseUrl + '/' + aId
                 };
-                return $http(config);
+            return $http(config);
+        }
+
+        function getItems () {
+            var config = {
+                headers: {
+                    'X-Parse-Session-Token': sessionService.sessionToken
+                },
+                isArray: false,
+                method: 'GET',
+                url: baseUrl + '?count=1&limit=1000&order=name'
             };
+            return $http(config);
+        }
 
-            res.updateItem = function (obj) {
-                var isNew = obj.objectId === undefined,
-                    url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: isNew ? 'POST' : 'PUT',
-                        url: url,
-                        data: obj
-                    };
+        function updateItem (obj) {
+            var isNew = obj.objectId === undefined,
+                url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
+                config = {
+                    headers: {
+                        'X-Parse-Session-Token': sessionService.sessionToken
+                    },
+                    method: isNew ? 'POST' : 'PUT',
+                    url: url,
+                    data: obj
+                };
 
-                return $http(config);
-            };
-
-            res.deleteItem = function (obj) {
-                var url = baseUrl + '/' + obj.objectId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: 'DELETE',
-                        url: url
-                    };
-
-                return $http(config);
-            };
-
-            return res;
-        }]);
-}(angular.module('app')));
+            return $http(config);
+        }
+    }
+}());

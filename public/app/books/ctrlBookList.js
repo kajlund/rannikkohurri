@@ -1,8 +1,39 @@
 (function () {
     'use strict';
 
-    function BookListController ($location, $log, SessionService, bookDataService, cfpLoadingBar) {
+    angular
+        .module('app')
+        .controller('BookListController', BookListController);
+
+    /* @ngInject */
+    BookListController.$inject = ['$location', '$log', 'sessionService', 'bookDataService', 'cfpLoadingBar'];
+
+    function BookListController ($location, $log, sessionService, bookDataService, cfpLoadingBar) {
         var vm = this;
+
+        vm.currentItem = null;
+        vm.items = [];
+        vm.session = sessionService;
+        vm.searchKey = '';
+        vm.onAddClick = onAddClick;
+        vm.search = search;
+        vm.searchFields = [
+            { name: 'title', description: 'By Title'  },
+            { name: 'subtitle', description: 'By Subtitle' },
+            { name: 'authors', description: 'By Authors' }
+        ];
+        vm.currentSearchField = vm.searchFields[0];
+
+        activate();
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
+        function activate() {
+            $log.info('Activating BookListController');
+
+            // Get some default data
+            getItems('title', '');
+        }
 
         function getItems(aField, aVal) {
             cfpLoadingBar.start();
@@ -16,43 +47,12 @@
             });
         }
 
-        vm.searchFields = [
-            { name: 'title', description: 'By Title'  },
-            { name: 'subtitle', description: 'By Subtitle' },
-            { name: 'authors', description: "By Authors" }
-        ];
-
-        vm.currentSearchField = vm.searchFields[0];
-
-        vm.search = function() {
+        function search () {
             getItems(vm.currentSearchField.name, vm.searchKey);
-        };
-
-        vm.onAddClick = function () {
-            $location.path('/books/edit/_new');
-        };
-
-        // Initialize Controller
-        vm.session = SessionService;
-        vm.searchKey = '';
-        vm.currentItem = null;
-        vm.items = [];
-        $log.info('Activating bookListController');
-
-        if (!SessionService.loggedOn()) {
-            SessionService.autoSignon()
-                .then(function (data) {
-                    toastr.success(data.username + ' signed on');
-                    $log.debug('[ctrlBookList.autoSignon] success %o', data);
-                }, function (err) {
-                    $log.debug('[ctrlBookList.autoSignon] error %o', err);
-                });
         }
 
-        // Get some default data
-        getItems('title', '');
+        function onAddClick () {
+            $location.path('/books/edit/_new');
+        }
     }
-
-    BookListController.$inject = ['$location', '$log', 'SessionService', 'bookDataService', 'cfpLoadingBar'];
-    angular.module('app').controller('BookListController', BookListController);
 }());

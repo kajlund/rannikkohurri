@@ -1,57 +1,65 @@
 <div class="container">
     <div class="page-header">
-        <h1><i class="fa fa-film"></i> Edit Movie <small>{{ movie.etitle }}</small></h1>
+        <h1><i class="fa fa-film"></i> Edit Movie <small>{{ vm.movie.etitle }}</small></h1>
     </div>
 
-    <div data-ng-if="!session.loggedOn()">
+    <div data-ng-if="!vm.session.loggedOn">
         <div class="jumbotron">
             <h1>Sorry <small>:-(</small></h1>
             <p>You need to be logged on to edit movies.</p>
         </div>
     </div>
 
-    <div data-ng-if="session.loggedOn()">
-        <form name="frm" role="form" ng-submit="save()">
+    <div data-ng-if="vm.session.loggedOn">
+        <form name="frm" role="form" ng-submit="vm.doSave()">
             <div class="form-group">
                 <label class="control-label">Seen</label>
-                <input type="text" class="form-control" ng-model="movie.seenAt.iso"
-                       name="date"
-                       data-date-type="iso"
-                       data-date-format="yyyy-MM-dd"
-                       bs-datepicker autofocus>
+                <p class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="yyyy-MM-dd" autofocus
+                           ng-model="vm.movie.seenAt.iso"
+                           is-open="vm.opened"
+                           datepicker-options="vm.dateOptions"
+                           ng-required="true" close-text="Close" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="vm.open($event)">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+                </p>
             </div>
             <div class="form-group">
-                <label class="control-label">Eng. title</label>
-                <input type="text" class="form-control" ng-model="movie.etitle">
+                <label class="control-label">Original Title</label>
+                <input type="text" class="form-control" ng-model="vm.movie.otitle">
             </div>
             <div class="form-group">
-                <label class="control-label">Orig. title</label>
-                <input type="text" class="form-control" ng-model="movie.otitle">
+                <label class="control-label">Secondary Title</label>
+                <input type="text" class="form-control" ng-model="vm.movie.etitle">
             </div>
+
             <div class="form-group">
                 <label class="control-label">Rating</label>
                 <input type="number" class="form-control" name="rating" min="0"
-                       max="10" step="0.1" ng-model="movie.rating">
+                       max="10" step="0.1" ng-model="vm.movie.rating">
             </div>
             <div class="form-group">
                 <label class="control-label">Url</label>
-                <input type="url" class="form-control" ng-model="movie.url" >
+                <input type="url" class="form-control" ng-model="vm.movie.url" >
             </div>
             <div class="form-group">
                 <label class="control-label">Picture</label>
-                <input type="text" class="form-control" ng-model="movie.pic" >
+                <input type="text" class="form-control" ng-model="vm.movie.pic" >
             </div>
             <div class="form-group">
                 <label>Synopsis</label>
-                <textarea class="form-control" rows="5" ng-model="movie.synopsis"></textarea>
+                <textarea class="form-control" rows="5" ng-model="vm.movie.synopsis"></textarea>
             </div>
             <div class="form-group">
                 <label>Comment</label>
-                <textarea class="form-control" rows="2" ng-model="movie.comment"></textarea>
+                <textarea class="form-control" rows="2" ng-model="vm.movie.comment"></textarea>
             </div>
             <div class="form-actions pull-right">
-                <button class="btn btn-lg btn-default" ng-click="cancel()">Cancel</button>
-                <input class="btn btn-lg btn-success" type="submit" ng-disabled="frm.$invalid" value="Save">
+                <a href="" class="btn btn-link pull-right" ng-click="vm.doCancel()">Cancel</a>
+                <input class="btn btn-default" type="submit" ng-disabled="frm.$invalid" value="Save">
             </div>
         </form>
     </div>

@@ -1,18 +1,55 @@
 (function (app) {
     'use strict';
 
-    function BookEditController($routeParams, $location, $log, SessionService, bookDataService) {
+    angular
+        .module('app')
+        .controller('BookEditController', BookEditController);
+
+    /* @ngInject */
+    BookEditController.$inject = ['$routeParams', '$location', '$log', 'sessionService', 'bookDataService', 'toastr'];
+
+    function BookEditController($routeParams, $location, $log, sessionService, bookDataService, toastr) {
         var vm = this;
-        vm.session = SessionService;
+
+        vm.cancel = cancel;
+        vm.session = sessionService;
         vm.bookId = $routeParams.bookId;
         vm.languages = ['swe', 'eng', 'fin' ];
         vm.genres = [ 'Biography', 'History', 'Kids', 'Misc', 'Novel', 'Science', 'Technology' ];
+        vm.getReturnUrl = getReturnUrl;
+        vm.save = save;
 
-        vm.getReturnUrl = function() {
+        activate();
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+        function activate () {
+            if (vm.bookId === '_new') {
+                vm.book = {
+                    authors: '',
+                    genre: '',
+                    image: '',
+                    lang: '',
+                    subtitle: '',
+                    title: ''
+                };
+            } else {
+                bookDataService.getItem(vm.bookId)
+                    .then(function (res) {
+                        vm.book = res.data;
+                    }, function (err) {
+                        $log.error(err);
+                        toastr.error(err.error.code + ' ' + err.error.error);
+                        $location.url(vm.getReturnUrl());
+                    });
+            }
+        }
+
+        function getReturnUrl () {
             return (vm.bookId === '_new') ?  '/books' : '/books/view/' + vm.bookId;
-        };
+        }
 
-        vm.save = function () {
+        function save () {
             bookDataService.updateItem(vm.book)
                 .then(function (res) {
                     // data.createdAt data.objectId
@@ -23,34 +60,12 @@
                     $log.error('Error saving Book %o', err);
                     toastr.error(err.error.code + ' ' + err.error.error);
                 });
-        };
+        }
 
-        vm.cancel = function () {
+        function cancel () {
             $log.info('Cancelled Edit');
             toastr.warning('Edit cancelled');
             $location.url(vm.getReturnUrl());
-        };
-
-        if (vm.bookId === '_new') {
-            vm.book = {
-                authors: "",
-                genre: "",
-                image: "",
-                lang: "",
-                subtitle: "",
-                title: ""
-            };
-        } else {
-            bookDataService.getItem(vm.bookId)
-                .then(function (res) {
-                    vm.book = res.data;
-                }, function (err) {
-                    $log.error(err);
-                    toastr.error(err.error.code + ' ' + err.error.error);
-                    $location.url(vm.getReturnUrl());
-                });
         }
     }
-    BookEditController.$inject = ['$routeParams', '$location', '$log', 'SessionService', 'bookDataService'];
-    angular.module('app').controller('bookEditController', BookEditController);
 }());

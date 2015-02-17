@@ -9,7 +9,7 @@ var request = require('request');
 app.use(express.static(process.env.PWD + '/public'));
 app.use(logfmt.requestLogger());
 
-var port = Number(process.env.PORT || 8080);
+var port = Number(process.env.PORT || 3000);
 app.listen(port, function() {
     console.log("Listening on " + port);
 });

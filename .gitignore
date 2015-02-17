@@ -1,4 +1,4 @@
 *.idea/
 public/vendor/
 node_modules/
-iisnode/
+public/build/**/*

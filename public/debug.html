@@ -8,56 +8,56 @@
     <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap-theme.css">
     <link rel="stylesheet" href="vendor/ng-grid/ng-grid.css">
     <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.css">
-    <link rel="stylesheet" href="vendor/toastr/toastr.css">
-    <link rel="stylesheet" href="vendor/angular-motion/dist/angular-motion.css">
     <link rel="stylesheet" href="vendor/angular-loading-bar/build/loading-bar.css">
+    <link rel="stylesheet" href="vendor/toastr/toastr.css">
+    <link rel="stylesheet" href="vendor/ng-grid/ng-grid.css">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/style.css">
-    <script src="vendor/modernizr/modernizr.js"></script>
     <script src="vendor/respond/src/respond.js"></script>
+    <script src="vendor/modernizr/modernizr.js"></script>
     <title>Rannikkohurri.net</title>
 </head>
+
 <body data-ng-app="app">
-
     <div data-ng-include="'app/header.html'"></div>
-
         <div ng-view></div>
-
     <div data-ng-include="'app/footer.html'"></div>
 
     <!-- Vendor Scripts  -->
-    <script src="//www.parsecdn.com/js/parse-1.3.0.min.js"></script>
+    <script src="lib/parse-1.3.4.min.js"></script>
     <script src="vendor/underscore/underscore.js"></script>
     <script src="vendor/jquery/jquery.js"></script>
     <script src="vendor/moment/moment.js"></script>
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular-route/angular-route.js"></script>
     <script src="vendor/angular-animate/angular-animate.js"></script>
-    <script src="vendor/angular-cookies/angular-cookies.js"></script>
-    <script src="vendor/angular-sanitize/angular-sanitize.js" data-semver="1.2.16"></script>
-    <script src="vendor/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="vendor/toastr/toastr.js"></script>
-    <script src="vendor/angular-strap/dist/angular-strap.js"></script>
-    <script src="vendor/angular-strap/dist/angular-strap.tpl.js"></script>
+    <script src="vendor/angular-loading-bar/build/loading-bar.js"></script>
+    <script src="vendor/angular-local-storage/dist/angular-local-storage.js"></script>
     <script src="vendor/ngInfiniteScroll/build/ng-infinite-scroll.js"></script>
     <script src="vendor/ng-grid/ng-grid-2.0.13.debug.js"></script>
-    <script src="vendor/angular-loading-bar/build/loading-bar.js"></script>
-    <script src="vendor/angular-local-storage/angular-local-storage.js"></script>
+    <script src="vendor/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="vendor/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="vendor/toastr/toastr.js"></script>
 
     <!-- Application Scripts -->
     <script src="app/app.js"></script>
+    <script src="app/constants.js"></script>
     <script src="app/svcSession.js"></script>
     <script src="app/ctrlHeader.js"></script>
     <script src="app/ctrlHome.js"></script>
+    <script src="app/ctrlVerification.js"></script>
+    <script src="app/ctrlSignon.js"></script>
     <script src="app/books/ctrlBookList.js"></script>
     <script src="app/books/ctrlBookView.js"></script>
     <script src="app/books/ctrlBookEdit.js"></script>
     <script src="app/books/svcBookData.js"></script>
     <script src="app/movies/ctrlMovieList.js"></script>
+    <script src="app/movies/ctrlMovieView.js"></script>
     <script src="app/movies/ctrlMovieEdit.js"></script>
     <script src="app/movies/svcMovieData.js"></script>
     <script src="app/events/ctrlEventList.js"></script>
     <script src="app/events/ctrlEventEdit.js"></script>
     <script src="app/events/svcEventData.js"></script>
 </body>
+
 </html>

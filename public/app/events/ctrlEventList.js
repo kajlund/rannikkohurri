@@ -1,71 +1,84 @@
 (function (app) {
     'use strict';
 
-    app.controller('EventListController', ['$scope', '$location', '$log', '$modal', 'SessionService', 'eventDataService',
-        function ($scope, $location, $log, $modal, SessionService, eventDataService) {
-            var modalInstance = null;
+    angular
+        .module('app')
+        .controller('EventListController', EventListController);
 
-            function getEvents() {
-                eventDataService.getEvents()
-                    .then(function (res) {
-                        $scope.events = res.data.results;
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
-            }
+    /* @ngInject */
+    EventListController.$inject = ['$location', '$log', '$modal',
+        'sessionService', 'eventDataService', '_'];
 
-            $scope.session = SessionService;
-            $scope.totalItems = 0;
-            $scope.currentItem = null;
+    function EventListController ($location, $log, $modal,
+                                  sessionService, eventDataService, _) {
+        var vm = this,
+            modalInstance = null;
 
-            $scope.onAddClick = function () {
-                $location.path('/events/_new');
-            };
+        vm.currentItem = null;
+        vm.dlgVerifyCancel = dlgVerifyCancel;
+        vm.dlgVerifyOK = dlgVerifyOK;
+        vm.events = [];
+        vm.onAddClick = onAddClick;
+        vm.onDeleteClick = onDeleteClick;
+        vm.onEditClick = onEditClick;
+        vm.session = sessionService;
+        vm.totalItems = 0;
 
-            $scope.onEditClick = function (event) {
-                $location.path('/events/' + event.objectId);
-            };
+        activate();
 
-            $scope.onDeleteClick = function (event) {
-                $scope.currentItem = event;
-                modalInstance = $modal({
-                    scope: $scope,
-                    template: 'app/tmplVerify.html',
-                    show: true,
-                    title: 'Delete Event?',
-                    content: 'You are about to delete event <em>' + event.eventName + '/' + event.placeName + '</em>'
-                });
-            };
+    //////////////////////////////////////////////////////////////////////////
 
-            $scope.dlgVerifyCancel = function () {
-                modalInstance.hide();
-                toastr.warning('Delete cancelled');
-            };
-
-            $scope.dlgVerifyOK = function () {
-                modalInstance.hide();
-                eventDataService.deleteItem($scope.currentItem)
-                    .then(function (data) {
-                        $log.info('Deleted Event');
-                        toastr.success('Event deleted');
-                        $scope.events = _.filter($scope.events, function (event) {
-                            return event.objectId !== $scope.currentItem.objectId;
-                        });
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
-            };
-
-            if (!SessionService.loggedOn()) {
-                SessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info($scope.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
-            }
+        function activate() {
             getEvents();
-        }]);
-}(angular.module('app')));
+        }
+
+        function dlgVerifyCancel () {
+            modalInstance.hide();
+            toastr.warning('Delete cancelled');
+        }
+
+        function dlgVerifyOK () {
+            modalInstance.hide();
+            eventDataService.deleteItem(vm.currentItem)
+                .then(function (data) {
+                    $log.info('Deleted Event');
+                    toastr.success('Event deleted');
+                    vm.events = _.filter(vm.events, function (event) {
+                        return event.objectId !== vm.currentItem.objectId;
+                    });
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                });
+        }
+
+        function getEvents() {
+            eventDataService.getEvents()
+                .then(function (res) {
+                    vm.events = res.data.results;
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                });
+        }
+
+        function onAddClick () {
+            $location.path('/events/_new');
+        }
+
+        function onDeleteClick (event) {
+            vm.currentItem = event;
+            modalInstance = $modal({
+                scope: vm,
+                template: 'app/tmplVerify.html',
+                show: true,
+                title: 'Delete Event?',
+                content: 'You are about to delete event <em>' + event.eventName + '/' + event.placeName + '</em>'
+            });
+        }
+
+        function onEditClick (event) {
+            $location.path('/events/' + event.objectId);
+        }
+    }
+}());

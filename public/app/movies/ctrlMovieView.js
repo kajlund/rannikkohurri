@@ -3,16 +3,16 @@
 
     angular
         .module('app')
-        .controller('BookViewController', BookViewController);
+        .controller('MovieViewController', MovieViewController);
 
     /* @ngInject */
-    BookViewController.$inject = ['$location', '$routeParams', '$log', '$modal', 'sessionService', 'bookDataService'];
+    MovieViewController.$inject = ['$location', '$routeParams', '$log', '$modal', 'sessionService', 'movieDataService'];
 
-    function BookViewController ($location, $routeParams, $log, $modal, sessionService, bookDataService) {
+    function MovieViewController ($location, $routeParams, $log, $modal, sessionService, movieDataService) {
         var vm = this,
-            bookId = $routeParams.bookId;
+            movieId = $routeParams.movieId;
 
-        vm.book = null;
+        vm.movie = null;
         vm.canEdit = canEdit;
         vm.delete = doDelete;
         vm.edit = edit;
@@ -23,21 +23,22 @@
     /////////////////////////////////////////////////////////////////////////////////////
 
         function activate () {
+            $log.info('*** Activated MovieViewController');
             init();
         }
 
         function canEdit () {
-            return sessionService.loggedOn && bookId;
+            return sessionService.loggedOn && movieId;
         }
 
         function edit () {
-            $location.path('/books/edit/' + bookId);
+            $location.path('/movies/edit/' + movieId);
         }
 
         function doDelete () {
             var options = {
-                    title: 'Delete Book?',
-                    content: 'You are about to delete book <em>' + vm.book.title + '</em>'
+                    title: 'Delete Movie?',
+                    content: 'You are about to delete Movie "' + vm.movie.otitle + '"'
                 },
                 modalInstance = $modal.open({
                     controller: 'VerificationController',
@@ -53,11 +54,11 @@
 
             modalInstance.result.then(function (response) {
                 if (response === 'ok') {
-                    bookDataService.deleteItem(bookId)
+                    movieDataService.deleteItem(movieId)
                         .then(function (data) {
-                            $log.info('Deleted Book %o', data);
-                            toastr.success('Book deleted');
-                            $location.url('/books');
+                            $log.info('Deleted Movie %o', data);
+                            toastr.success('Movie deleted');
+                            $location.url('/movies');
                         }, function (err) {
                             $log.error(err);
                             toastr.error(err.error.code + ' ' + err.error.error);
@@ -69,17 +70,15 @@
         }
 
         function init () {
-            bookDataService.getItem(bookId)
+            movieDataService.getItem(movieId)
                 .then(function (res) {
-                    vm.book = res.data;
+                    vm.movie = res.data;
+                    $log.debug('   movieId      => %s', movieId);
+                    $log.debug('   vm.movie     => %o', vm.movie);
                 }, function (err) {
                     $log.error(err);
                     toastr.error(err.error.code + ' ' + err.error.error);
-                    $location.url('/books');
-                }).then(function () {
-                    $log.info('*** Activated BookViewController');
-                    $log.debug('   bookId      => %s', bookId);
-                    $log.debug('   vm.book     => %o', vm.book);
+                    $location.url('/movies');
                 });
         }
     }

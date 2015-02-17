@@ -1,71 +1,92 @@
-(function (angular) {
+(function () {
     'use strict';
 
-    var app = angular.module('app', [
-            // Angular modules
-            'ngRoute',          // routing
-            'ngAnimate',        // animate (for angular-strap)
-            'infinite-scroll',
-            'mgcrea.ngStrap',   // angular-strap library
-            'ngGrid',
-            'angular-loading-bar',
-            'LocalStorageModule'
-        ]);
+    angular.module('app', [
+        // Angular modules
+        'ngRoute',          // routing
+        'ngAnimate',        // animate (for angular-strap)
+        'infinite-scroll',
+        'ngGrid',
+        'angular-loading-bar',
+        'LocalStorageModule',
+        'ui.bootstrap'
+    ]);
 
-    // Configure Routes
-    app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$modalProvider',
-        function ($routeProvider, $locationProvider, $httpProvider, $modalProvider) {
-            Parse.initialize("HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1", "BxuS4AKpUCoP6Ea6pOn1O0PXlmPu5wYvvlSxLJVE");
-            //$locationProvider.html5Mode(true);
-            $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
-            $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
-            angular.extend($modalProvider.defaults, {
-                animation: 'am-fade-and-scale',
-                placement: 'center',
-                html: true
-            });
+    angular.module('app').config(configApp);
+    angular.module('app').config(configRoutes);
+    angular.module('app').run(runApp);
 
-            $routeProvider.when('/', {
-                templateUrl: 'app/home.html',
-                controller: 'HomeController'
-            }).when('/books', {
-                templateUrl: 'app/books/list.html',
-                controller: 'BookListController',
-                controllerAs: 'vm'
-            }).when('/books/view/:bookId', {
-                templateUrl: 'app/books/view.html',
-                controller: 'BookViewController',
-                controllerAs: 'vm'
-            }).when('/books/edit/:bookId', {
-                templateUrl: 'app/books/edit.html',
-                controller: 'bookEditController',
-                controllerAs: 'vm'
-            }).when('/movies', {
-                templateUrl: 'app/movies/list.html',
-                controller: 'movieListController'
-            }).when('/movies/:movieId', {
-                templateUrl: 'app/movies/edit.html',
-                controller: 'movieEditController'
-            }).when('/events', {
-                templateUrl: 'app/events/list.html',
-                controller: 'EventListController'
-            }).when('/events/:eventId', {
-                templateUrl: 'app/events/edit.html',
-                controller: 'eventEditController'
-            }).otherwise({ redirectTo: '/' });
-        }]);
+    /* @ngInject */
+    configApp.$inject = ['$httpProvider',  'localStorageServiceProvider', 'toastr', 'Parse'];
 
-    app.run(['$log', '$window',
-        function ($log, $window) {
-            // Configure Toastr library
-            $window.toastr.options.timeOut = 2000;
-            $window.toastr.options.positionClass = 'toast-bottom-right';
-            // Configure moment library
-            //$window.moment.lang('sv');
-            $log.info('App Loaded');
-        }]);
+    function configApp ($httpProvider, localStorageServiceProvider, toastr, Parse) {
+        Parse.initialize('HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1', 'BxuS4AKpUCoP6Ea6pOn1O0PXlmPu5wYvvlSxLJVE');
 
-    app.directive('aDisabled', function ($compile) {
+        $httpProvider.defaults.headers.common['X-Parse-Application-Id'] = 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1';
+        $httpProvider.defaults.headers.common['X-Parse-REST-API-Key'] = 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L';
+
+        //$locationProvider.html5Mode(true);
+
+        localStorageServiceProvider.setPrefix('Rannikk');
+
+        // Configure Toastr
+        toastr.options.timeOut = 4000;
+        toastr.options.positionClass = 'toast-bottom-right';
+
+    }
+
+    /* @ngInject */
+    configRoutes.$inject = ['$routeProvider'];
+
+    function configRoutes ($routeProvider) {
+        $routeProvider.when('/', {
+            templateUrl: 'app/home.html',
+            controller: 'HomeController',
+            controllerAs: 'vm'
+        }).when('/books', {
+            templateUrl: 'app/books/list.html',
+            controller: 'BookListController',
+            controllerAs: 'vm'
+        }).when('/books/view/:bookId', {
+            templateUrl: 'app/books/view.html',
+            controller: 'BookViewController',
+            controllerAs: 'vm'
+        }).when('/books/edit/:bookId', {
+            templateUrl: 'app/books/edit.html',
+            controller: 'BookEditController',
+            controllerAs: 'vm'
+        }).when('/movies', {
+            templateUrl: 'app/movies/list.html',
+            controller: 'MovieListController',
+            controllerAs: 'vm'
+        }).when('/movies/view/:movieId', {
+            templateUrl: 'app/movies/view.html',
+            controller: 'MovieViewController',
+            controllerAs: 'vm'
+        }).when('/movies/edit/:movieId', {
+            templateUrl: 'app/movies/edit.html',
+            controller: 'MovieEditController',
+            controllerAs: 'vm'
+        }).when('/events', {
+            templateUrl: 'app/events/list.html',
+            controller: 'EventListController',
+            controllerAs: 'vm'
+        }).when('/events/:eventId', {
+            templateUrl: 'app/events/edit.html',
+            controller: 'EventEditController',
+            controllerAs: 'vm'
+        }).otherwise({ redirectTo: '/' });
+    }
+
+
+    /* @ngInject */
+    runApp.$inject = ['$log'];
+
+    function runApp ($log) {
+        $log.info('App Loaded');
+    }
+
+    angular.module('app').directive('aDisabled', function ($compile) {
         return {
             restrict: 'A',
             priority: -99999,
@@ -82,5 +103,4 @@
             }
         };
     });
-
-}(angular));
+}());

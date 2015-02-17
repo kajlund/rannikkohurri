@@ -1,8 +1,8 @@
 <div class="container">
     <div class="page-header">
         <button type="button" class="btn btn-primary pull-right"
-                data-ng-click="onAddClick()"
-                data-ng-class="{hidden: !session.loggedOn()}">
+                data-ng-click="vm.onAddClick()"
+                data-ng-class="{hidden: !vm.session.loggedOn}">
             Add Event
         </button>
         <h1><i class="fa fa-flag"></i> EVENTS <small>&raquo;orienteering events</small></h1>
@@ -11,24 +11,24 @@
     <table class="table table-striped table-hover">
         <tr>
             <th>Time</th><th>Place</th><th>Name</th><th>Organizer</th><th>Smartum</th>
-            <th data-ng-class="{hidden: !session.loggedOn()}">
+            <th data-ng-class="{hidden: !vm.session.loggedOn}">
                 Commands
             </th>
         </tr>
-        <tr data-ng-repeat="e in events">
+        <tr data-ng-repeat="e in vm.events">
             <td>{{ e.starts }}</td>
             <td>{{ e.placeName }}</td>
             <td>{{ e.eventName }}</td>
             <td><a href="{{ e.organizerUrl }}" target="_blank">{{ e.organizer }}</a></td>
             <td>{{ e.smartum }}</td>
-            <td data-ng-class="{hidden: !session.loggedOn()}">
+            <td data-ng-class="{hidden: !vm.session.loggedOn}">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary"
-                            data-ng-click="onEditClick(e)">
+                            data-ng-click="vm.onEditClick(e)">
                         <i class="fa fa-edit"></i>
                     </button>
                     <button type="button" class="btn btn-danger"
-                            data-ng-click="onDeleteClick(e)">
+                            data-ng-click="vm.onDeleteClick(e)">
                         <i class="fa fa-trash-o"></i>
                     </button>
                 </div>

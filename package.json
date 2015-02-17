@@ -1,9 +1,21 @@
 {
   "name": "rannikk",
-  "version": "0.0.0",
+  "version": "0.0.1-11",
   "description": "lukaz",
   "main": "web.js",
   "scripts": {
+    "help": "gulp help",
+    "bump": "gulp bump",
+    "analyze": "gulp analyze",
+    "templatecache": "gulp templatecache",
+    "js": "gulp js",
+    "vendorjs": "gulp vendorjs",
+    "css": "gulp css",
+    "vendorcss": "gulp vendorcss",
+    "fonts": "gulp fonts",
+    "images": "gulp images",
+    "build": "gulp build",
+    "clean": "gulp clean",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,13 +40,65 @@
     "node": "0.10.x"
   },
   "devDependencies": {
-    "gulp": "~3.6.2",
-    "gulp-concat": "~2.1.7",
-    "gulp-jshint": "^1.8.5",
-    "gulp-minify-css": "~0.3.0",
-    "gulp-nodemon": "^1.0.3",
-    "gulp-rename": "~1.2.0",
-    "gulp-size": "~0.1.3",
-    "gulp-uglify": "~0.2.1"
+    "del": "^0.1.3",
+    "gulp": "^3.8.10",
+    "gulp-angular-templatecache": "^1.3.0",
+    "gulp-bump": "^0.1.11",
+    "gulp-cache": "^0.2.0",
+    "gulp-concat": "^2.4.0",
+    "gulp-imagemin": "^1.2.1",
+    "gulp-jshint": "^1.8.4",
+    "gulp-minify-css": "^0.3.8",
+    "gulp-minify-html": "^0.1.4",
+    "gulp-ng-annotate": "^0.3.2",
+    "gulp-nodemon": "^1.0.4",
+    "gulp-task-listing": "^0.3.0",
+    "gulp-uglify": "^1.0.1",
+    "gulp-util": "^3.0.1",
+    "imagemin-pngquant": "^4.0.0",
+    "jshint-stylish": "^0.4.0"
+  },
+  "paths": {
+    "vendorjs": [
+      "./public/vendor/respond/dest/respond.min.js",
+      "./public/vendor/modernizr/modernizr.js",
+      "./public/vendor/underscore/underscore.js",
+      "./public/vendor/jquery/jquery.min.js",
+      "./public/vendor/moment/min/moment.min.js",
+      "./public/vendor/angular/angular.min.js",
+      "./public/vendor/angular-route/angular-route.min.js",
+      "./public/vendor/angular-animate/angular-animate.min.js",
+      "./public/vendor/angular-loading-bar/build/loading-bar.min.js",
+      "./public/vendor/angular-local-storage/dist/angular-local-storage.min.js",
+      "./public/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js",
+      "./public/vendor/ng-grid/build/ng-grid.min.js",
+      "./public/vendor/angular-bootstrap/ui-bootstrap-tpls.min.js",
+      "./public/vendor/bootstrap/dist/js/bootstrap.min.js",
+      "./public/vendor/toastr/toastr.js"
+    ],
+    "vendorcss": [
+      "./public/vendor/bootstrap/dist/css/bootstrap.min.css",
+      "./public/vendor/bootstrap/dist/css/bootstrap-theme.min.css",
+      "./public/vendor/font-awesome/css/font-awesome.min.css",
+      "./public/vendor/angular-loading-bar/build/loading-bar.min.css",
+      "./public/vendor/toastr/toastr.css",
+      "./public/vendor/ng-grid/ng-grid.min.css"
+    ],
+    "css": [
+      "./public/css/style.css"
+    ],
+    "htmltemplates": "./public/app/**/*.html",
+    "js": [
+      "./public/app/**/*.js"
+    ],
+    "fonts": [
+      "./public/vendor/bootstrap/fonts/**/*.*",
+      "./public/vendor/font-awesome/fonts/**/*.*"
+    ],
+    "images": [
+      "./public/img/*.*"
+    ],
+    "stage": "./public/build/stage/",
+    "build": "./public/build/"
   }
 }

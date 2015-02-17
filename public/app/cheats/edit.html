@@ -1,54 +1,54 @@
 <div class="container">
     <div class="page-header">
-        <h1><i class="fa fa-dot-circle-o"></i> Edit Cache <small>{{ cache.name }}</small></h1>
+        <h1><i class="fa fa-dot-circle-o"></i> Edit Cache <small>{{ vm.cache.name }}</small></h1>
     </div>
 
-    <div data-ng-if="!session.loggedOn()">
+    <div data-ng-if="!vm.session.loggedOn">
         <div class="jumbotron">
             <h1>Sorry <small>:-(</small></h1>
             <p>You need to be logged on to edit cheats.</p>
         </div>
     </div>
 
-    <div data-ng-if="session.loggedOn()">
-        <form name="frm" role="form" ng-submit="save()">
+    <div data-ng-if="vm.session.loggedOn()">
+        <form name="frm" role="form" ng-submit="vm.save()">
             <div class="form-group">
                 <label class="control-label">Id</label>
-                <input type="text" class="form-control" ng-model="cache.cacheId" required autofocus>
+                <input type="text" class="form-control" ng-model="vm.cache.cacheId" required autofocus>
             </div>
             <div class="form-group">
                 <label class="control-label">Type</label>
                 <select class="form-control"
-                        data-ng-model="cache.cacheType"
-                        data-ng-options="t for t in cacheTypes">
+                        data-ng-model="vm.cache.cacheType"
+                        data-ng-options="t for t in vm.cacheTypes">
                 </select>
             </div>
             <div class="form-group">
                 <label>Name</label>
-                <input type="text" class="form-control" ng-model="cache.name" required>
+                <input type="text" class="form-control" ng-model="vm.cache.name" required>
             </div>
             <div class="form-group">
                 <label>Coords</label>
-                <input type="text" class="form-control" ng-model="cache.coords">
+                <input type="text" class="form-control" ng-model="vm.cache.coords">
             </div>
             <div class="form-group">
                 <label class="control-label">Municipality</label>
                 <select class="form-control"
-                        data-ng-model="cache.municipality"
-                        data-ng-options="m for m in municipalities">
+                        data-ng-model="vm.cache.municipality"
+                        data-ng-options="m for m in vm.municipalities">
                 </select>
             </div>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="cache.verifiedCoords"> Verified Coords
+                    <input type="checkbox" ng-model="vm.cache.verifiedCoords"> Verified Coords
                 </label>
             </div>
             <div class="form-group">
                 <label>Notes</label>
-                <textarea class="form-control" rows="3" ng-model="cache.notes"></textarea>
+                <textarea class="form-control" rows="3" ng-model="vm.cache.notes"></textarea>
             </div>
             <div class="form-actions pull-right">
-                <button class="btn btn-lg btn-default" ng-click="cancel()">Cancel</button>
+                <button class="btn btn-lg btn-default" ng-click="vm.cancel()">Cancel</button>
                 <input class="btn btn-lg btn-success" type="submit" ng-disabled="frm.$invalid" value="Save">
             </div>
         </form>

@@ -1,78 +1,16 @@
 (function (app) {
     'use strict';
 
-    app.service('movieDataService', ['$log', '$q', '$http', 'SessionService',
-        function ($log, $q, $http, SessionService) {
-            var baseUrl = 'https://api.parse.com/1/classes/Movie',
+    angular
+        .module('app')
+        .service('movieDataService', movieDataService);
 
+    /* @ngInject */
+    movieDataService.$inject = ['$http', 'sessionService' ];
+    function movieDataService ($http, sessionService) {
+        var baseUrl = 'https://api.parse.com/1/classes/Movie',
             pageSize = 100,
-            getItem = function (aId) {
-                var config = {
-                    headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
-                    },
-                    isArray: false,
-                    method: 'GET',
-                    url: baseUrl + '/' + aId
-                };
-                return $http(config);
-            },
-
-            getItems = function () {
-                var config = {
-                    headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
-                    },
-                    isArray: false,
-                    method: 'GET',
-                    url: baseUrl + '?count=1&limit=1000&order=-seenAt'
-                };
-                return $http(config);
-            },
-
-            getPage = function (aOrder, aFilter, aPageNum) {
-                var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
-                    skip = (aPageNum - 1) * this.pageSize,
-                    params = '?count=1&limit=' + this.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        isArray: false,
-                        method: 'GET',
-                        url: baseUrl + params
-                    };
-
-                return $http(config);
-            },
-
-            updateItem = function (obj) {
-                var isNew = obj.objectId === undefined,
-                    url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: isNew ? 'POST' : 'PUT',
-                        url: url,
-                        data: obj
-                    };
-                return $http(config);
-            },
-
-            deleteItem = function (obj) {
-                var url = baseUrl + '/' + obj.objectId,
-                    config = {
-                        headers: {
-                            'X-Parse-Session-Token': SessionService.sessionToken
-                        },
-                        method: 'DELETE',
-                        url: url
-                    };
-                return $http(config);
-            };
-
-            return {
+            service = {
                 pageSize: pageSize,
                 getItem: getItem,
                 getItems: getItems,
@@ -80,5 +18,71 @@
                 updateItem: updateItem,
                 deleteItem: deleteItem
             };
-        }]);
-}(angular.module('app')));
+
+        return service;
+
+    /////////////////////////////////////////////////////////
+
+        function getItem (aId) {
+            return $http({
+                headers: {
+                    'X-Parse-Session-Token': sessionService.sessionToken
+                },
+                isArray: false,
+                method: 'GET',
+                url: baseUrl + '/' + aId
+            });
+        }
+
+        function getItems () {
+            return $http({
+                headers: {
+                    'X-Parse-Session-Token': sessionService.sessionToken
+                },
+                isArray: false,
+                method: 'GET',
+                url: baseUrl + '?count=1&limit=1000&order=-seenAt'
+            });
+        }
+
+        function getPage (aOrder, aFilter, aPageNum) {
+            var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
+                skip = (aPageNum - 1) * service.pageSize,
+                params = '?count=1&limit=' + service.pageSize + '&skip=' + skip + '&order=' + aOrder + where,
+                config = {
+                    headers: {
+                        'X-Parse-Session-Token': sessionService.sessionToken
+                    },
+                    isArray: false,
+                    method: 'GET',
+                    url: baseUrl + params
+                };
+
+            return $http(config);
+        }
+
+        function updateItem (obj) {
+            var isNew = obj.objectId === undefined,
+                url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId;
+
+            return $http({
+                headers: {
+                    'X-Parse-Session-Token': sessionService.sessionToken
+                },
+                method: isNew ? 'POST' : 'PUT',
+                url: url,
+                data: obj
+            });
+        }
+
+        function deleteItem (objId) {
+            return $http({
+                headers: {
+                    'X-Parse-Session-Token': sessionService.sessionToken
+                },
+                method: 'DELETE',
+                url: baseUrl + '/' + objId
+            });
+        }
+    }
+}());

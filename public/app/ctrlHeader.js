@@ -1,42 +1,74 @@
-(function (angular, toastr) {
+(function () {
     'use strict';
 
-    angular.module('app').controller('headerController', ['$scope', '$location', '$log', '$modal', 'SessionService',
-        function ($scope, $location, $log, $modal, SessionService) {
-            var modalInstance = $modal({
-                scope: $scope,
-                template: 'app/signon.html',
-                show: false
+    angular
+        .module('app')
+        .controller('HeaderController', HeaderController);
+
+    /* @ngInject */
+    HeaderController.$inject = ['$log', '$location', '$modal', 'sessionService'];
+
+    function HeaderController($log, $location, $modal, sessionService) {
+        var vm = this;
+
+        vm.getClass = getClass;
+        vm.onSignoffClick = onSignoffClick;
+        vm.onSignonClick = onSignonClick;
+        vm.session = sessionService;
+        vm.user = {name: '', pwd: ''};
+
+        activate();
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        function activate () {
+            if (!sessionService.loggedOn) {
+                $log.info('not logged on');
+                sessionService.autoSignon()
+                    .then(function (data) {
+                        $log.info(vm.session);
+                    }, function (err) {
+                        $log.error(err);
+                    });
+            }
+        }
+
+        function getClass(path) {
+            var className = '';
+            if ($location.path().substr(0, path.length) === path) {
+                className = 'active';
+            }
+            return className;
+        }
+
+        function onSignoffClick() {
+            $log.info('Signing off');
+            sessionService.signoff();
+            toastr.info('User signed off');
+        }
+
+        function onSignonClick() {
+            var modalInstance = $modal.open({
+                controller: 'SignonController',
+                controllerAs: 'vm',
+                templateUrl: 'app/tmplSignon.html',
+                size: 'lg',
+                resolve: {
+                    user: function () {
+                        return vm.user;
+                    }
+                }
             });
 
-            $scope.session = SessionService;
-            $scope.user = { name: '', pwd: '' };
-
-            $scope.getClass = function (path) {
-                var className = "";
-                if ($location.path().substr(0, path.length) === path) {
-                    className = "active";
+            modalInstance.result.then(function (response) {
+                if (response === 'ok') {
+                    toastr.info(sessionService.userObj.username + ' signed on');
                 }
-                return className;
-            };
+            }, function () {
+                toastr.info('Signon cancelled by user');
+            });
+        }
+    }
+})();
 
-            $scope.login = function () {
-                modalInstance.hide();
-                SessionService.signon($scope.user.name, $scope.user.pwd).then(function () {
-                    toastr.info(SessionService.userObj.username + ' signed on');
-                }, function (error) {
-                    toastr.error(error.error);
-                });
-            };
 
-            $scope.onSignonClick = function () {
-                modalInstance.$promise.then(modalInstance.show);
-            };
-
-            $scope.onSignoffClick = function () {
-                $log.info('Signing off');
-                SessionService.signoff();
-                toastr.warning('User signed off');
-            };
-        }]);
-}(angular, toastr));

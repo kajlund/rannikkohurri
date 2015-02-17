@@ -1,7 +1,14 @@
 (function () {
     'use strict';
 
-    function BookDataService($http, $q, SessionService) {
+    angular
+        .module('app')
+        .factory('bookDataService', bookDataService);
+
+    /* @ngInject */
+    bookDataService.$inject = ['$http', '$q', 'sessionService', 'Parse'];
+
+    function bookDataService($http, $q, sessionService, Parse) {
         var bookDataservice = {},
             baseUrl = 'https://api.parse.com/1/classes/AudioBook',
             BookObject = Parse.Object.extend('AudioBook'),
@@ -10,7 +17,7 @@
         bookDataservice.getItem = function (aId) {
             var config = {
                 headers: {
-                    'X-Parse-Session-Token': SessionService.sessionToken
+                    'X-Parse-Session-Token': sessionService.sessionToken
                 },
                 isArray: false,
                 method: 'GET',
@@ -22,7 +29,7 @@
         bookDataservice.getItems = function () {
             var config = {
                 headers: {
-                    'X-Parse-Session-Token': SessionService.sessionToken
+                    'X-Parse-Session-Token': sessionService.sessionToken
                 },
                 isArray: false,
                 method: 'GET',
@@ -37,7 +44,7 @@
                 params = '?count=1&limit=' + pageSize + '&skip=' + skip + '&order=' + aOrder + where,
                 config = {
                     headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
+                        'X-Parse-Session-Token': sessionService.sessionToken
                     },
                     isArray: false,
                     method: 'GET',
@@ -68,7 +75,7 @@
                 url = isNew ? baseUrl + '/' : baseUrl + '/' + obj.objectId,
                 config = {
                     headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
+                        'X-Parse-Session-Token': sessionService.sessionToken
                     },
                     method: isNew ? 'POST' : 'PUT',
                     url: url,
@@ -81,7 +88,7 @@
             var url = baseUrl + '/' + objId,
                 config = {
                     headers: {
-                        'X-Parse-Session-Token': SessionService.sessionToken
+                        'X-Parse-Session-Token': sessionService.sessionToken
                     },
                     method: 'DELETE',
                     url: url
@@ -91,8 +98,4 @@
 
         return bookDataservice;
     }
-
-    BookDataService.$inject = ['$http', '$q', 'SessionService'];
-
-    angular.module('app').factory('bookDataService', BookDataService);
 }());

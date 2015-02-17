@@ -1,19 +1,14 @@
-(function (angular) {
+(function () {
     'use strict';
 
-    angular.module('app').controller('HomeController', ['$scope', '$log', 'SessionService',
-        function ($scope, $log, SessionService) {
-            $scope.session = SessionService;
-            $log.info('Activating HomeController');
+    angular
+        .module('app')
+        .controller('HomeController', HomeController);
 
-            if (!SessionService.loggedOn()) {
-                $log.info('not logged on');
-                SessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info($scope.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
-            }
-        }]);
-}(angular));
+    /* @ngInject */
+    HomeController.$inject = ['$log'];
+
+    function HomeController ($log) {
+        $log.info('Activating HomeController');
+    }
+}());

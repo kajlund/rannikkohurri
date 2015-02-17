@@ -1,0 +1,49 @@
+<div class="container">
+    <div class="page-header">
+        <a href="#/movies" class="pull-right btn btn-default"><i class="fa fa-chevron-left"></i> Back</a>
+        <h1><i class="fa fa-film"></i> Movie <small>{{ vm.movie.otitle }}</small></h1>
+    </div>
+
+    <div class="row data-presentation">
+        <div class="col-xs-9">
+            <div class="row">
+                <div class="col-xs-4 col-sm-2 data-title">Original Title</div>
+                <div class="col-xs-8 col-sm-10 data-content">{{ vm.movie.otitle }}</div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-2 data-title">Secondary Title</div>
+                <div class="col-xs-8 col-sm-10 data-content">{{ vm.movie.etitle }}</div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-2 data-title">Seen</div>
+                <div class="col-xs-8 col-sm-10 data-content">{{ vm.movie.seenAt.iso | date: 'dd.MM.yyyy' }}</div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-2 data-title">
+                    <a href="{{vm.movie.url}}" target="_blank">IMDB Rating</a>
+                </div>
+                <div class="col-xs-8 col-sm-10 data-content">{{ vm.movie.rating | number:1}}</div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-2 data-title">Synopsis</div>
+                <div class="col-xs-8 col-sm-10 data-content">{{ vm.movie.synopsis }}</div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-2 data-title">Comment</div>
+                <div class="col-xs-8 col-sm-10 data-content">{{ vm.movie.comment }}</div>
+            </div>
+        </div>
+        <div class="col-xs-3">
+            <img ng-src="https://dl.dropboxusercontent.com/u/133963/Movies/{{vm.movie.pic}}"
+                 class="cover-image img-thumbnail" alt="Cover image">
+        </div>
+    </div>
+    <div class="row commands" ng-class="{hidden: !vm.session.loggedOn}">
+        <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-3 col-lg-offset-1">
+            <a href="" class="btn btn-link pull-right" ng-click="vm.delete()">Delete</a>
+            <button class="btn btn-default pull-right " ng-click="vm.edit()">
+                <i class="fa fa-edit"></i> Edit
+            </button>
+        </div>
+    </div>
+</div>

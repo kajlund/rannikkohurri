@@ -1,89 +1,92 @@
 (function (app) {
     'use strict';
 
-    app.controller('movieListController', ['$scope', '$location', '$modal', '$log', 'SessionService', 'movieDataService',
-        function ($scope, $location, $modal, $log, SessionService, movieDataService) {
-            var modalInstance = null;
+    angular
+        .module('app')
+        .controller('MovieListController', MovieListController);
 
-            function getItems() {
-                if ($scope.fetching) {
-                    return;
-                }
-                $scope.fetching = true;
-                movieDataService.getPage($scope.order, $scope.filter, $scope.currentPage)
-                    .then(function (res) {
-                        $scope.items = $scope.items.concat(res.data.results);
-                        $scope.totalItems = res.data.count;
-                        $scope.fetching = false;
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                        $scope.fetching = false;
-                    });
-            }
+    /* @ngInject */
+    MovieListController.$inject = ['$location', '$modal', '$log',
+        'sessionService', 'movieDataService', 'toastr', '_'];
 
-            $scope.session = SessionService;
-            $scope.filter = '';
-            $scope.currentPage = 1;
-            $scope.maxSize = 10;
-            $scope.order = '-seenAt';
-            $scope.totalItems = 0;
-            $scope.currentItem = null;
-            $scope.items = [];
-            $scope.fetching = false;
+    function MovieListController ($location, $modal, $log,
+                                  sessionService, movieDataService, toastr, _) {
+        var vm = this,
+            modalInstance = null;
 
-            $scope.onAddClick = function () {
-                $location.path('/movies/_new');
-            };
+        vm.session = sessionService;
+        vm.filter = '';
+        vm.currentPage = 1;
+        vm.dlgVerifyCancel = dlgVerifyCancel;
+        vm.dlgVerifyOK = dlgVerifyOK;
+        vm.maxSize = 10;
+        vm.onDeleteClick = onDeleteClick;
+        vm.order = '-seenAt';
+        vm.scroll = doScroll;
+        vm.totalItems = 0;
+        vm.currentItem = null;
+        vm.items = [];
+        vm.fetching = false;
 
-            $scope.onEditClick = function (movie) {
-                $location.path('/movies/' + movie.objectId);
-            };
+        activate();
 
-            $scope.onDeleteClick = function (movie) {
-                $scope.currentItem = movie;
-                modalInstance = $modal({
-                    scope: $scope,
-                    template: 'app/tmplVerify.html',
-                    show: true,
-                    title: 'Delete Movie?',
-                    content: 'You are about to delete movie <em>' + movie.etitle + '</em>'
-                });
-            };
+    ////////////////////////////////////////////////////////////////////////////
 
-            $scope.dlgVerifyCancel = function () {
-                modalInstance.hide();
-                toastr.warning('Delete cancelled');
-            };
-
-            $scope.dlgVerifyOK = function () {
-                modalInstance.hide();
-                movieDataService.deleteItem($scope.currentItem)
-                    .then(function (data) {
-                        $log.info('Deleted Movie');
-                        toastr.success('Movie deleted');
-                        $scope.items = _.filter($scope.items, function (movie) {
-                            return movie.objectId !== $scope.currentItem.objectId;
-                        });
-                    }, function (err) {
-                        $log.error(err);
-                        toastr.error(err.error.code + ' ' + err.error.error);
-                    });
-            };
-
-            $scope.scroll = function () {
-                $scope.currentPage += 1;
-                getItems();
-            };
-
-            if (!SessionService.loggedOn()) {
-                SessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info($scope.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
-            }
+        function activate () {
             getItems();
-        }]);
-}(angular.module('app')));
+        }
+
+        function dlgVerifyCancel () {
+            modalInstance.hide();
+            toastr.warning('Delete cancelled');
+        }
+
+        function dlgVerifyOK () {
+            modalInstance.hide();
+            movieDataService.deleteItem(vm.currentItem)
+                .then(function (data) {
+                    $log.info('Deleted Movie');
+                    toastr.success('Movie deleted');
+                    vm.items = _.filter(vm.items, function (movie) {
+                        return movie.objectId !== vm.currentItem.objectId;
+                    });
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                });
+        }
+
+        function doScroll () {
+            vm.currentPage += 1;
+            getItems();
+        }
+
+        function getItems () {
+            if (vm.fetching) {
+                return;
+            }
+            vm.fetching = true;
+            movieDataService.getPage(vm.order, vm.filter, vm.currentPage)
+                .then(function (res) {
+                    vm.items = vm.items.concat(res.data.results);
+                    vm.totalItems = res.data.count;
+                    vm.fetching = false;
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    vm.fetching = false;
+                });
+        }
+
+        function onDeleteClick (movie) {
+            vm.currentItem = movie;
+            modalInstance = $modal({
+                scope: vm,
+                template: 'app/tmplVerify.html',
+                show: true,
+                title: 'Delete Movie?',
+                content: 'You are about to delete movie <em>' + movie.etitle + '</em>'
+            });
+        }
+    }
+}());
