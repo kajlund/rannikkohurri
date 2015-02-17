@@ -1,5 +1,13 @@
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
+a.navbar-brand > img {
+    margin-top: -8px;
+}
+
+a.navbar-brand > p.navbar-text {
+    margin-top: -1px;
+}
+
 body {
     padding-top: 60px;
 }
@@ -12,10 +20,6 @@ h1, h2, h3, h4 {
 button.navbar-btn {
     margin-left: 4px;
     margin-right: 8px;
-}
-
-.navbar {
-    background: #3c3c3c url('../img/linen.png') repeat;
 }
 
 footer {
