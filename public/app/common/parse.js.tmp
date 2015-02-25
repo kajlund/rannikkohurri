@@ -1,0 +1,29 @@
+(function () {
+    'use strict';
+
+    angular
+        .module('parse', [])
+        .provider('parseClass', parseClass);
+
+    function parseClass () {
+        var Parse,
+            provider = {
+                init: init,
+                $get: get
+            };
+
+        function init(Parseobj, applicationKey, javascriptKey, userId) {
+            Parse = Parseobj;
+            Parse.initialize(applicationKey, javascriptKey);
+            if(userId) {
+                Parse.User.become(userSession);
+            }
+        }
+
+        function get($q) {
+
+        }
+
+    }
+
+}());

@@ -1,6 +1,6 @@
 <div class="container">
     <div class="page-header">
-        <a ng-href="#/cheats/edit/_new" class="btn btn-default pull-right" ng-class="{hidden: !vm.session.loggedOn}">
+        <a ng-href="#/cheats/edit/_new" class="btn btn-default pull-right" ng-class="{hidden: !vm.session.user.loggedOn}">
             <i class="fa fa-plus"></i> Add Cache
         </a>
         <h1>
@@ -8,14 +8,14 @@
         </h1>
     </div>
 
-    <div data-ng-if="!vm.session.loggedOn">
+    <div data-ng-if="!vm.session.user.loggedOn">
         <div class="jumbotron">
             <h1>Sorry <small>:-(</small></h1>
             <p>This page is private to the site owner.</p>
         </div>
     </div>
 
-    <div data-ng-if="vm.session.loggedOn">
+    <div data-ng-if="vm.session.user.loggedOn">
         <div class="list-group">
             <a class="list-group-item" href="#/cheats/view/{{i.objectId}}" data-ng-repeat="i in vm.items">
                 <i class="pull-right fa  fa-2x fa-chevron-right"></i>

@@ -8,8 +8,8 @@
         'infinite-scroll',
         'ngGrid',
         'angular-loading-bar',
-        'LocalStorageModule',
-        'ui.bootstrap'
+        'ui.bootstrap',
+        'common'
     ]);
 
     angular.module('app').config(configApp);
@@ -27,8 +27,6 @@
 
         //$locationProvider.html5Mode(true);
 
-        localStorageServiceProvider.setPrefix('Rannikk');
-
         // Configure Toastr
         toastr.options.timeOut = 4000;
         toastr.options.positionClass = 'toast-bottom-right';
@@ -42,6 +40,10 @@
         $routeProvider.when('/', {
             templateUrl: 'app/home.html',
             controller: 'HomeController',
+            controllerAs: 'vm'
+        }).when('/logon', {
+            templateUrl: 'app/common/tmplLogon.html',
+            controller: 'LogonController',
             controllerAs: 'vm'
         }).when('/books', {
             templateUrl: 'app/books/list.html',

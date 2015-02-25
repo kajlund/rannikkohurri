@@ -1,6 +1,6 @@
 {
   "name": "rannikk",
-  "version": "0.0.1-13",
+  "version": "0.0.1-14",
   "description": "lukaz",
   "main": "web.js",
   "scripts": {
@@ -34,6 +34,7 @@
   "dependencies": {
     "express": "~3.5.0",
     "logfmt": "~0.21.0",
+    "morgan": "^1.5.1",
     "request": "~2.34.0"
   },
   "engines": {
@@ -69,7 +70,6 @@
       "./public/vendor/angular-route/angular-route.min.js",
       "./public/vendor/angular-animate/angular-animate.min.js",
       "./public/vendor/angular-loading-bar/build/loading-bar.min.js",
-      "./public/vendor/angular-local-storage/dist/angular-local-storage.min.js",
       "./public/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js",
       "./public/vendor/ng-grid/build/ng-grid.min.js",
       "./public/vendor/angular-bootstrap/ui-bootstrap-tpls.min.js",

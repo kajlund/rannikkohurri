@@ -3,14 +3,14 @@
         <h1><i class="fa fa-flag"></i> Edit Event <small>{{ vm.event.starts }}</small></h1>
     </div>
 
-    <div data-ng-if="!vm.session.loggedOn">
+    <div data-ng-if="!vm.session.user.loggedOn">
         <div class="jumbotron">
             <h1>Sorry <small>:-(</small></h1>
             <p>You need to be logged on to edit events.</p>
         </div>
     </div>
 
-    <div data-ng-if="vm.session.loggedOn()">
+    <div data-ng-if="vm.session.user.loggedOn()">
         <form name="frm" role="form" ng-submit="vm.save()">
             <div class="form-group">
                 <label class="control-label">When</label>

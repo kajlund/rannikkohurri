@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <div class="row commands" ng-class="{hidden: !vm.session.loggedOn}">
+    <div class="row commands" ng-class="{hidden: !vm.session.user.loggedOn}">
         <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-3 col-lg-offset-1">
             <a href="" class="btn btn-link pull-right" ng-click="vm.doDelete()">Delete</a>
             <a href="#/cheats/edit/{{vm.cache.objectId}}" class="btn btn-default pull-right">

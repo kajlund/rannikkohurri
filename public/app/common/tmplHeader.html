@@ -39,22 +39,22 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                <li data-ng-class="{hidden: vm.session.loggedOn}">
-                    <a href="" ng-click="vm.onSignonClick()" a-disabled="vm.session.loggedOn">
+                <li data-ng-class="{hidden: vm.session.user.loggedOn}">
+                    <a href="#/logon" a-disabled="vm.session.user.loggedOn">
                         <i class="fa fa-sign-in"></i> Sign in
                     </a>
                 </li>
-                <li data-ng-class="{hidden: !vm.session.loggedOn}">
-                    <a href="" ng-click="vm.onSignoffClick()" a-disabled="!vm.session.loggedOn">
+                <li data-ng-class="{hidden: !vm.session.user.loggedOn}">
+                    <a href="" ng-click="vm.onLogOffClick()" a-disabled="!vm.session.user.loggedOn">
                         <i class="fa fa-sign-out"></i> Sign out
                     </a>
                 </li>
                 <li class="divider"></li>
-                <li class="navbar-text" data-ng-class="{hidden: vm.session.loggedOn}">
+                <li class="navbar-text" data-ng-class="{hidden: vm.session.user.loggedOn}">
                     <i class="fa fa-user"></i> anonymous&nbsp;
                 </li>
-                <li class="navbar-text" data-ng-class="{hidden: !vm.session.loggedOn}">
-                    <i class="fa fa-user"></i> {{vm.session.userObj.username}}&nbsp;
+                <li class="navbar-text" data-ng-class="{hidden: !vm.session.user.loggedOn}">
+                    <i class="fa fa-user"></i> {{vm.session.user.username}}&nbsp;
                 </li>
             </ul>
         </div> <!-- /.navbar-collapse -->

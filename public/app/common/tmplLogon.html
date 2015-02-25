@@ -1,0 +1,21 @@
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fa fa-sign-in"></i> Logon <small>&raquo;for access</small></h1>
+    </div>
+
+    <form name="frm" class="form-horizontal" role="form" ng-submit="vm.logon(frm)">
+        <div class="form-group">
+            <label for="username" class="col-md-3 control-label">User name</label>
+            <div class="col-md-8">
+                <input id="username" type="text" class="form-control" autofocus data-ng-model="vm.username">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="pwd" class="col-md-3 control-label">Password</label>
+            <div class="col-md-8">
+                <input id="pwd" type="password" class="form-control" data-ng-model="vm.password">
+            </div>
+        </div>
+        <input class="btn btn-success pull-right" type="submit" ng-disabled="frm.$invalid" value="Logon">
+    </form>
+</div>

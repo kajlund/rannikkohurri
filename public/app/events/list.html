@@ -2,7 +2,7 @@
     <div class="page-header">
         <button type="button" class="btn btn-primary pull-right"
                 data-ng-click="vm.onAddClick()"
-                data-ng-class="{hidden: !vm.session.loggedOn}">
+                data-ng-class="{hidden: !vm.session.user.loggedOn}">
             Add Event
         </button>
         <h1><i class="fa fa-flag"></i> EVENTS <small>&raquo;orienteering events</small></h1>
@@ -11,7 +11,7 @@
     <table class="table table-striped table-hover">
         <tr>
             <th>Time</th><th>Place</th><th>Name</th><th>Organizer</th><th>Smartum</th>
-            <th data-ng-class="{hidden: !vm.session.loggedOn}">
+            <th data-ng-class="{hidden: !vm.session.user.loggedOn}">
                 Commands
             </th>
         </tr>
@@ -21,7 +21,7 @@
             <td>{{ e.eventName }}</td>
             <td><a href="{{ e.organizerUrl }}" target="_blank">{{ e.organizer }}</a></td>
             <td>{{ e.smartum }}</td>
-            <td data-ng-class="{hidden: !vm.session.loggedOn}">
+            <td data-ng-class="{hidden: !vm.session.user.loggedOn}">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary"
                             data-ng-click="vm.onEditClick(e)">

@@ -6,30 +6,22 @@
         .controller('HeaderController', HeaderController);
 
     /* @ngInject */
-    HeaderController.$inject = ['$log', '$location', '$modal', 'sessionService'];
+    HeaderController.$inject = ['$log', '$location', 'sessionService', 'logonService'];
 
-    function HeaderController($log, $location, $modal, sessionService) {
+    function HeaderController($log, $location, sessionService, logonService) {
         var vm = this;
 
         vm.getClass = getClass;
-        vm.onSignoffClick = onSignoffClick;
-        vm.onSignonClick = onSignonClick;
+        vm.onLogOffClick = onLogOffClick;
         vm.session = sessionService;
-        vm.user = {name: '', pwd: ''};
 
         activate();
 
         /////////////////////////////////////////////////////////////////////////////
 
         function activate () {
-            if (!sessionService.loggedOn) {
+            if (!sessionService.user.loggedOn) {
                 $log.info('not logged on');
-                sessionService.autoSignon()
-                    .then(function (data) {
-                        $log.info(vm.session);
-                    }, function (err) {
-                        $log.error(err);
-                    });
             }
         }
 
@@ -41,32 +33,12 @@
             return className;
         }
 
-        function onSignoffClick() {
-            $log.info('Signing off');
-            sessionService.signoff();
-            toastr.info('User signed off');
-        }
-
-        function onSignonClick() {
-            var modalInstance = $modal.open({
-                controller: 'SignonController',
-                controllerAs: 'vm',
-                templateUrl: 'app/tmplSignon.html',
-                size: 'lg',
-                resolve: {
-                    user: function () {
-                        return vm.user;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (response) {
-                if (response === 'ok') {
-                    toastr.info(sessionService.userObj.username + ' signed on');
-                }
-            }, function () {
-                toastr.info('Signon cancelled by user');
-            });
+        function onLogOffClick() {
+            var username = sessionService.user.username;
+            $log.info('Signing off %s', username);
+            logonService.logOff();
+            toastr.info('User ' + username + ' signed off');
+            $location.url('/');
         }
     }
 })();

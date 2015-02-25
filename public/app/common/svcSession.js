@@ -2,101 +2,67 @@
     'use strict';
 
     angular
-        .module('app')
+        .module('common')
         .factory('sessionService', sessionService);
 
     /* @ngInject */
-    sessionService.$inject = ['$http', '$log', '$q', 'Parse', 'localStorageService'];
+    sessionService.$inject = [ '$log', 'Parse', 'localStorageService' ];
 
-    function sessionService ($http, $log, $q, Parse, localStorageService) {
-        var service = {
-            autoSignon: autoSignon,
-            loggedOn: false,
-            sessionToken: '',
-            signoff: signoff,
-            signon: signon,
-            userObj: null
-        };
+    function sessionService ($log, Parse, localStorageService) {
+        var USERKEY = 'ParseUser',
+            initialUser = initialize(),
+            service = {
+                setSession: setSession,
+                clearSession: clearSession,
+                user: initialUser
+            };
 
         return service;
 
         ////////////////////////////////////////////////////////////////////
 
-        function setSession(data) {
-            service.userObj = data;
-            service.loggedOn = true;
-            service.sessionToken = data.sessionToken;
-            localStorageService.set('ParseUser', data);
-            Parse.User.become(data.sessionToken).then(function (user) {
+        function initialize () {
+            var localUser,
+                user = {
+                    objectId: '',
+                    email: '',
+                    token: '',
+                    username: '',
+                    get loggedOn() {
+                        return this.token;
+                    }
+                };
+            localUser = localStorageService.get(USERKEY);
+            if (localUser) {
+                user.objectId = localUser.objectId;
+                user.email = localUser.email;
+                user.token = localUser.token;
+                user.username = localUser.username;
+            }
+            return user;
+        }
+
+        function setSession (userObj) {
+            service.user.objectId = userObj.objectId;
+            service.user.email = userObj.email;
+            service.user.token = userObj.sessionToken;
+            service.user.username = userObj.username;
+            localStorageService.set(USERKEY, service.user);
+            Parse.User.become(service.user.token).then(function (user) {
                 // The current user is now set to user.
                 $log.info('*** Parse user set to %o', user);
             }, function (error) {
-                $log.error('The Parse user could not be set');
+                $log.error('The Parse user could not be set %o', error);
             });
         }
 
-        function clearSession() {
-            service.loggedOn = false;
-            service.userObj = null;
-            service.sessionToken = '';
-            localStorageService.remove('ParseUser');
+        function clearSession () {
+            localStorageService.remove(USERKEY);
+            service.user.objectId = '';
+            service.user.email = '';
+            service.user.token = '';
+            service.user.username = '';
             Parse.User.logOut();
-        }
-
-        function autoSignon() {
-            var user = localStorageService.get('ParseUser'),
-                config = {
-                    headers: {
-                        'X-Parse-Application-Id': 'HZAMesseJ6CDe1K5dFLfxbGbMYD6aV3lBaEp3Ib1',
-                        'X-Parse-REST-API-Key': 'LZqwu8VIutbaphzVoPW7yf4RxkKQAMbAapwubT5L',
-                        'X-Parse-Session-Token': user ? user.sessionToken : ''
-                    },
-                    method: 'GET',
-                    url: 'https://api.parse.com/1/users/me'
-                },
-                d = $q.defer();
-
-            if (user && user.sessionToken.length > 10) {
-                $http(config)
-                    .success(function (data, status, headers, config) {
-                        $log.info('autoSignon success, data = %o', data);
-                        setSession(data);
-                        d.resolve(data);
-                    })
-                    .error(function (data, status, headers, config) {
-                        d.reject(data.error);
-                    });
-            } else {
-                d.reject('Invalid Cookie');
-            }
-            return d.promise;
-        }
-
-        function signoff() {
-            clearSession();
-        }
-
-        function signon(aUsr, aPwd) {
-            var params = '?username=' + aUsr + '&password=' + aPwd,
-                config = {
-                    method: 'GET',
-                    url: ' https://api.parse.com/1/login' + params
-                };
-
-            return $http(config)
-                .then(function (response) {
-                    if (typeof response.data === 'object') {
-                        setSession(response.data);
-                        return response.data;
-                    } else {
-                        clearSession();
-                        return $q.reject(response.data);
-                    }
-                }, function (response) {
-                    // something went wrong
-                    clearSession();
-                    return $q.reject(response.data);
-                });
         }
     }
 }());

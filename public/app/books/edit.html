@@ -3,14 +3,14 @@
         <h1><i class="fa fa-book"></i> Edit Book <small>{{ vm.book.title }}</small></h1>
     </div>
 
-    <div data-ng-if="!vm.session.loggedOn">
+    <div data-ng-if="!vm.session.user.loggedOn">
         <div class="jumbotron">
             <h1>Sorry <small>:-(</small></h1>
             <p>You need to be logged on to edit books.</p>
         </div>
     </div>
 
-    <div data-ng-if="vm.session.loggedOn">
+    <div data-ng-if="vm.session.user.loggedOn">
         <form name="frm" role="form" ng-submit="vm.doSave()">
             <div class="form-group">
                 <label class="control-label">Title</label>
