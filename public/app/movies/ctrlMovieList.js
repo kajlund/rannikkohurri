@@ -6,27 +6,23 @@
         .controller('MovieListController', MovieListController);
 
     /* @ngInject */
-    MovieListController.$inject = ['$location', '$modal', '$log',
-        'sessionService', 'movieDataService', 'toastr', '_'];
+    MovieListController.$inject = ['$log', 'sessionService', 'movieDataService', 'toastr' ];
 
-    function MovieListController ($location, $modal, $log,
-                                  sessionService, movieDataService, toastr, _) {
-        var vm = this,
-            modalInstance = null;
+    function MovieListController ($log, sessionService, movieDataService, toastr) {
+        var vm = this;
 
+        vm.data = movieDataService;
         vm.session = sessionService;
+        vm.fetching = false;
         vm.filter = '';
         vm.currentPage = 1;
-        vm.dlgVerifyCancel = dlgVerifyCancel;
-        vm.dlgVerifyOK = dlgVerifyOK;
+        vm.items = [];
         vm.maxSize = 10;
-        vm.onDeleteClick = onDeleteClick;
         vm.order = '-seenAt';
         vm.scroll = doScroll;
+        vm.setFilterField = setFilterField;
+        vm.setFilterValue = setFilterValue;
         vm.totalItems = 0;
-        vm.currentItem = null;
-        vm.items = [];
-        vm.fetching = false;
 
         activate();
 
@@ -34,26 +30,6 @@
 
         function activate () {
             getItems();
-        }
-
-        function dlgVerifyCancel () {
-            modalInstance.hide();
-            toastr.warning('Delete cancelled');
-        }
-
-        function dlgVerifyOK () {
-            modalInstance.hide();
-            movieDataService.deleteItem(vm.currentItem)
-                .then(function (data) {
-                    $log.info('Deleted Movie');
-                    toastr.success('Movie deleted');
-                    vm.items = _.filter(vm.items, function (movie) {
-                        return movie.objectId !== vm.currentItem.objectId;
-                    });
-                }, function (err) {
-                    $log.error(err);
-                    toastr.error(err.error.code + ' ' + err.error.error);
-                });
         }
 
         function doScroll () {
@@ -78,15 +54,12 @@
                 });
         }
 
-        function onDeleteClick (movie) {
-            vm.currentItem = movie;
-            modalInstance = $modal({
-                scope: vm,
-                template: 'app/tmplVerify.html',
-                show: true,
-                title: 'Delete Movie?',
-                content: 'You are about to delete movie <em>' + movie.etitle + '</em>'
-            });
+        function setFilterField (aFilterField) {
+            movieDataService.setFilterField(aFilterField);
+        }
+
+        function setFilterValue () {
+            movieDataService.setFilterValue(vm.filter);
         }
     }
 }());

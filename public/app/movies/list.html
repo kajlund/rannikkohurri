@@ -5,11 +5,34 @@
            ng-class="{hidden: !vm.session.user.loggedOn}">
             <i class="fa fa-plus"></i> Add Movie
         </a>
-        <h1><i class="fa fa-film"></i> MOVIES <small>&raquo; movies I've seen</small></h1>
+        <h1><i class="fa fa-film"></i> MOVIES <small>&raquo; movies by {{vm.data.currentFilterField}}</small></h1>
     </div>
 
     <div class="row">
-        <div class="col-xs-12" infinite-scroll="vm.scroll()" infinite-scroll-distance="1" infinite-scroll-disabled="fetching">
+        <div class="col-xs-8 col-xs-offset-2 search">
+            <div class="input-group">
+                <div class="input-group-btn search-panel">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span id="search_concept">Filter by</span> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-repeat="o in vm.data.filterOptions">
+                            <a href="" ng-click="vm.setFilterField(o)">{{o}}</a>
+                        </li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control" name="txtSearch" placeholder="Search for..." ng-model="vm.filter">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click="vm.setFilterValue()">
+                        <span class="fa fa-search"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12" infinite-scroll="vm.scroll()" infinite-scroll-distance="1" infinite-scroll-disabled="vm.fetching">
             <div class="list-group">
                 <a class="list-group-item" href="#/movies/view/{{i.objectId}}" data-ng-repeat="i in vm.items">
                     <i class="pull-right fa  fa-2x fa-chevron-right"></i>

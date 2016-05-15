@@ -84,7 +84,7 @@ gulp.task('js', ['analyze', 'templatecache'], function () {
         .src(source)
         // .pipe(plug.sourcemaps.init()) // get screwed up in the file rev process
         .pipe(concat('app.min.js'))
-        .pipe(ngAnnotate({add: true, single_quotes: true}))
+        //.pipe(ngAnnotate({add: true, single_quotes: true}))
         //.pipe(plug.bytediff.start())
         .pipe(uglify({mangle: true}))
         //.pipe(plug.bytediff.stop(common.bytediffFormatter))

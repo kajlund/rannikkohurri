@@ -11,8 +11,12 @@
     function BookListController ($log, sessionService, bookDataService, cfpLoadingBar) {
         var vm = this;
 
-        vm.currentItem = null;
+        vm.currentPage = 1;
+        vm.fetching = false;
+        vm.filter = '';
         vm.items = [];
+        vm.maxSize = 10;
+        vm.order = '-createdAt';
         vm.session = sessionService;
         vm.searchKey = '';
         vm.search = search;
@@ -21,7 +25,9 @@
             { name: 'subtitle', description: 'By Subtitle' },
             { name: 'authors', description: 'By Authors' }
         ];
+        vm.scroll = doScroll;
         vm.currentSearchField = vm.searchFields[0];
+        vm.totalItems = 0;
 
         activate();
 
@@ -34,9 +40,27 @@
             getItems('title', '');
         }
 
-        function getItems(aField, aVal) {
+        function doScroll () {
+            if (vm.fetching) {
+                return;
+            }
+            vm.currentPage += 1;
+            vm.fetching = true;
+            bookDataService.getPage(vm.currentPage)
+                .then(function (data) {
+                    vm.items = vm.items.concat(data);
+                    vm.fetching = false;
+                }, function (err) {
+                    $log.error(err);
+                    toastr.error(err.error.code + ' ' + err.error.error);
+                    vm.fetching = false;
+                });
+        }
+
+        function getItems () {
             cfpLoadingBar.start();
-            bookDataService.queryData(aField, aVal).then(function (data) {
+            bookDataService.queryData(vm.currentSearchField.name, vm.searchKey).then(function (data) {
+                vm.currentPage = 1;
                 vm.items = data;
             }, function (error) {
                 $log.error('Error fetching Book data %o', error);
@@ -47,7 +71,7 @@
         }
 
         function search () {
-            getItems(vm.currentSearchField.name, vm.searchKey);
+            getItems();
         }
 
     }

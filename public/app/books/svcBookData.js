@@ -38,26 +38,12 @@
             return $http(config);
         };
 
-        bookDataservice.getPage = function (aOrder, aFilter, aPageNum) {
-            var where = aFilter === '' ? '' : '&where={"' + aOrder + '":{"$gte":"' + aFilter + '"}}',
-                skip = (aPageNum - 1) * pageSize,
-                params = '?count=1&limit=' + pageSize + '&skip=' + skip + '&order=' + aOrder + where,
-                config = {
-                    headers: {
-                        'X-Parse-Session-Token': sessionService.sessionToken
-                    },
-                    isArray: false,
-                    method: 'GET',
-                    url: baseUrl + params
-                };
-            return $http(config);
-        };
-
-        bookDataservice.queryData = function (aQueryField, aQueryValue) {
+        bookDataservice.getPage = function (aPageNum) {
             var query = new Parse.Query(BookObject),
                 defer = $q.defer();
+            query.descending('createdAt');
+            query.skip((aPageNum - 1) * pageSize);
 
-            query.startsWith(aQueryField, aQueryValue);
             query.find({
                 success: function (results) {
                     defer.resolve(results);
@@ -67,6 +53,24 @@
                 }
             });
 
+            return defer.promise;
+        };
+
+        bookDataservice.queryData = function (aQueryField, aQueryValue) {
+            var query = new Parse.Query(BookObject),
+                defer = $q.defer();
+
+            query.startsWith(aQueryField, aQueryValue);
+            query.descending('createdAt');
+
+            query.find({
+                success: function (results) {
+                    defer.resolve(results);
+                },
+                error: function (error) {
+                    defer.reject(error);
+                }
+            });
             return defer.promise;
         };
 
